@@ -20,7 +20,9 @@
   },
   "dependencies": {
     "@onsvisual/svelte-maps": "^1.0.26",
+    "leaflet": "^1.9.3",
     "maplibre-gl": "^2.1.9",
+    "nipplejs": "^0.10.1",
     "sirv-cli": "^2.0.0"
   }
 }

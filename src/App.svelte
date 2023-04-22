@@ -3,15 +3,47 @@
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
 	import Button from "./components/Button.svelte";
+	import nipplejs from "nipplejs";
+
+	function getRandomInt(min, max) {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min) + min); //max e | min i
+	}
 
 	let map;
 	let zoom = 0;
 	let center = {};
 	let lng = 16.62662018;
 	let lat = 49.2125578;
+	var marker;
+
+	var trainStationIcon = document.createElement("img");
+	trainStationIcon.style.width = "7vh";
+	trainStationIcon.style.height = "8vh";
+	trainStationIcon.style.backgroundSize = "contain";
+	trainStationIcon.src = "./visual_assets/player.svg";
+	trainStationIcon.style.cursor = "pointer";
 
 	onMount(() => {
-		map.addMarker;
+		marker = new maplibre.Marker(trainStationIcon)
+			.setLngLat([lng, lat])
+			.addTo(map);
+		var joy = nipplejs.create({
+			zone: document.getElementById("joy"),
+			color: "#5c41ff30",
+			mode: "static",
+			position: { left: "50%", top: "50%" },
+		});
+		joy.on("move", (evt, data) => {
+			marker.remove();
+			marker = new maplibre.Marker(trainStationIcon, {
+				rotation: (data.angle.degree - 90) * -1,
+			})
+				.setLngLat([lng, lat])
+				.addTo(map);
+		});
+		joy.add();
 	});
 
 	function pans() {
@@ -27,6 +59,7 @@
 		setInterval(() => {
 			lng += 0.000005;
 			lat += 0.000005;
+			marker.setLngLat([lng, lat]);
 			map.panTo([lng, lat]);
 		}, 50);
 	}
@@ -43,6 +76,7 @@
 		bind:center
 	/>
 	<div on:click={pans} id="fullScreenButton">Go Full Screen</div>
+	<div class="joy" id="joy" />
 </main>
 <Button
 	top="50%"
@@ -74,7 +108,15 @@
 		background-color: #000;
 		font-family: "Electrolize", sans-serif;
 	}
-
+	.joy {
+		position: absolute;
+		top: 32.777777778%;
+		left: 0%;
+		width: 50vh;
+		height: 50vh;
+		z-index: 15000;
+		background-color: #5c41ff00;
+	}
 	main {
 		width: 100%;
 		height: 150vh;
