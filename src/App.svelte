@@ -3,6 +3,7 @@
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
 	import Button from "./components/Button.svelte";
+	import FireControlDashboard from "./components/FireControlDashboard.svelte";
 	import nipplejs from "nipplejs";
 
 	function getRandomInt(min, max) {
@@ -17,25 +18,61 @@
 		);
 	}
 
+	function markerMaker(width, height, src) {
+		var marker = document.createElement("img");
+		marker.style.width = width;
+		marker.style.height = height;
+		marker.style.backgroundSize = "contain";
+		marker.src = src;
+		marker.style.cursor = "pointer";
+		return marker;
+	}
+
 	let map;
 	let zoom = 0;
 	let center = {};
-	let lng = 16.62662018;
-	let lat = 49.2125578;
-	var marker;
+	let lng = 25.609;
+	let lat = 45.653;
 	let ang = 0;
 
-	var trainStationIcon = document.createElement("img");
-	trainStationIcon.style.width = "7vh";
-	trainStationIcon.style.height = "8vh";
-	trainStationIcon.style.backgroundSize = "contain";
-	trainStationIcon.src = "./visual_assets/player.svg";
-	trainStationIcon.style.cursor = "pointer";
-
 	onMount(() => {
-		marker = new maplibre.Marker(trainStationIcon)
+		var playerMarkerElement = markerMaker(
+			"7vh",
+			"8vh",
+			"./visual_assets/player.svg"
+		);
+		var bluelineMarkerElement = markerMaker(
+			"60vh",
+			"60vh",
+			"./visual_assets/player_blueline.svg"
+		);
+		var rangeMarkerElement = markerMaker(
+			"120vh",
+			"120vh",
+			"./visual_assets/player_range.svg"
+		);
+		var redlineMarkerElement = markerMaker(
+			"20vh",
+			"20vh",
+			"./visual_assets/player_redline.svg"
+		);
+
+		var playerMarker = new maplibre.Marker(playerMarkerElement)
 			.setLngLat([lng, lat])
 			.addTo(map);
+
+		var playerRedlineMarker = new maplibre.Marker(redlineMarkerElement)
+			.setLngLat([lng, lat])
+			.addTo(map);
+
+		var playerBluelineMarker = new maplibre.Marker(bluelineMarkerElement)
+			.setLngLat([lng, lat])
+			.addTo(map);
+
+		var playerRangeMarker = new maplibre.Marker(rangeMarkerElement)
+			.setLngLat([lng, lat])
+			.addTo(map);
+
 		var joy = nipplejs.create({
 			zone: document.getElementById("joy"),
 			color: "#5c41ff30",
@@ -47,15 +84,31 @@
 		});
 		joy.on("move", (evt, data) => {
 			ang = data.angle.degree;
-			marker.remove();
-			marker = new maplibre.Marker(trainStationIcon, {
+			playerMarker.remove();
+			playerMarker = new maplibre.Marker(playerMarkerElement, {
 				rotation: (data.angle.degree - 90) * -1,
 			})
 				.setLngLat([lng, lat])
 				.addTo(map);
 		});
+		setInterval(() => {
+			if (ang <= 180 && ang > 0 && ang != -1) {
+				lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
+				lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
+			}
+			if (ang > 180 && ang < 360 && ang != -1) {
+				lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
+				lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
+			}
+			playerMarker.setLngLat([lng, lat]);
+			playerRedlineMarker.setLngLat([lng, lat]);
+			playerBluelineMarker.setLngLat([lng, lat]);
+			playerRangeMarker.setLngLat([lng, lat]);
+			map.panTo([lng + 0.0, lat - 0.003], { duration: 0 });
+		}, 50);
 	});
-	const mvs = 0.0002;
+	const mvs = 0.0005;
+	let fullScreenBtnDisplay = "flex";
 	function pans() {
 		window.screen.orientation
 			.lock("landscape")
@@ -66,18 +119,7 @@
 				console.log("not yeeey");
 			});
 		document.documentElement.requestFullscreen();
-		setInterval(() => {
-			if (ang <= 180 && ang > 0 && ang != -1) {
-				lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
-				lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
-			}
-			if (ang > 180 && ang < 360 && ang != -1) {
-				lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
-				lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
-			}
-			marker.setLngLat([lng, lat]);
-			map.panTo([lng, lat], { duration: 200 });
-		}, 50);
+		fullScreenBtnDisplay = "none";
 	}
 </script>
 
@@ -86,14 +128,23 @@
 		on:click={pans}
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
-		location={{ lng: 16.62662018, lat: 49.2125578, zoom: 35 }}
+		location={{ lng: lng, lat: lat, zoom: 35 }}
 		bind:map
 		bind:zoom
 		bind:center
 	/>
-	<div on:click={pans} id="fullScreenButton">Go Full Screen</div>
+	<div
+		on:click={pans}
+		style="display: {fullScreenBtnDisplay}"
+		id="fullScreenButton"
+	>
+		Go Full Screen
+	</div>
 	<div class="joy" id="joy" />
 </main>
+<div id="dashboard">
+	<FireControlDashboard />
+</div>
 <Button
 	top="50%"
 	color="#2400ff"
