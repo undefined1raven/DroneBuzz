@@ -11,12 +11,19 @@
 		return Math.floor(Math.random() * (max - min) + min); //max e | min i
 	}
 
+	function RangeScaler(num, in_min, in_max, out_min, out_max) {
+		return (
+			((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
+		);
+	}
+
 	let map;
 	let zoom = 0;
 	let center = {};
 	let lng = 16.62662018;
 	let lat = 49.2125578;
 	var marker;
+	let ang = 0;
 
 	var trainStationIcon = document.createElement("img");
 	trainStationIcon.style.width = "7vh";
@@ -35,7 +42,11 @@
 			mode: "static",
 			position: { left: "50%", top: "50%" },
 		});
+		joy.on("end", () => {
+			ang = -1;
+		});
 		joy.on("move", (evt, data) => {
+			ang = data.angle.degree;
 			marker.remove();
 			marker = new maplibre.Marker(trainStationIcon, {
 				rotation: (data.angle.degree - 90) * -1,
@@ -43,9 +54,8 @@
 				.setLngLat([lng, lat])
 				.addTo(map);
 		});
-		joy.add();
 	});
-
+	const mvs = 0.0002;
 	function pans() {
 		window.screen.orientation
 			.lock("landscape")
@@ -57,10 +67,16 @@
 			});
 		document.documentElement.requestFullscreen();
 		setInterval(() => {
-			lng += 0.000005;
-			lat += 0.000005;
+			if (ang <= 180 && ang > 0 && ang != -1) {
+				lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
+				lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
+			}
+			if (ang > 180 && ang < 360 && ang != -1) {
+				lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
+				lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
+			}
 			marker.setLngLat([lng, lat]);
-			map.panTo([lng, lat]);
+			map.panTo([lng, lat], { duration: 200 });
 		}, 50);
 	}
 </script>
