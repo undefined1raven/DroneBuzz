@@ -4,6 +4,8 @@
 	import maplibre from "maplibre-gl";
 	import Button from "./components/Button.svelte";
 	import FireControlDashboard from "./components/FireControlDashboard.svelte";
+	import NavDashboard from "./components/NavDashboard.svelte";
+	import OpsDashboard from "./components/OpsDashboard.svelte";
 	import nipplejs from "nipplejs";
 
 	function getRandomInt(min, max) {
@@ -76,7 +78,7 @@
 		var joy = nipplejs.create({
 			zone: document.getElementById("joy"),
 			color: "#5c41ff30",
-			mode: "static",
+			mode: "dynamic",
 			position: { left: "50%", top: "50%" },
 		});
 		joy.on("end", () => {
@@ -104,10 +106,10 @@
 			playerRedlineMarker.setLngLat([lng, lat]);
 			playerBluelineMarker.setLngLat([lng, lat]);
 			playerRangeMarker.setLngLat([lng, lat]);
-			map.panTo([lng + 0.0, lat - 0.003], { duration: 0 });
+			map.panTo([lng + 0.0, lat - 0.004], { duration: 0 });
 		}, 50);
 	});
-	const mvs = 0.0005;
+	const mvs = 0.0002;
 	let fullScreenBtnDisplay = "flex";
 	function pans() {
 		window.screen.orientation
@@ -144,6 +146,8 @@
 </main>
 <div id="dashboard">
 	<FireControlDashboard />
+	<NavDashboard />
+	<OpsDashboard />
 </div>
 <Button
 	top="50%"
@@ -177,11 +181,10 @@
 	}
 	.joy {
 		position: absolute;
-		top: 32.777777778%;
+		top: 0%;/*32.777777778*/
 		left: 0%;
-		width: 50vh;
-		height: 50vh;
-		z-index: 15000;
+		width: 50%;
+		height: 100%;
 		background-color: #5c41ff00;
 	}
 	main {

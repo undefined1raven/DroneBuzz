@@ -96,10 +96,10 @@
 <style>
     .fireControlDashboard {
         position: absolute;
-        top: 82.777777778%;
+        top: 76%;/*82.777777778*/
         left: 0%;
         width: 37.8125%;
-        height: 17.222222222%;
+        height: 24%;/*17.222222222*/
         background-color: #0c001caa;
         backdrop-filter: blur(5px);
         border-radius: 0 5px 0 0;
