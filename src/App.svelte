@@ -4,7 +4,6 @@
 	import maplibre from "maplibre-gl";
 
 	let map;
-	// State
 	let zoom = 0;
 	let center = {};
 	let lng = 16.62662018;
