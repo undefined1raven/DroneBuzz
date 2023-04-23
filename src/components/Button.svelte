@@ -10,6 +10,18 @@
     let top;
     let left;
     let fontSize;
+    let touchStartUnix = 0;
+
+    const updateTouchUnix = (tx) => {
+        touchStartUnix = tx;
+    };
+
+    const checkClick = () => {
+        if (Date.now() - touchStartUnix < 300) {
+            onClick();
+        }
+    };
+
     export {
         onClick,
         label,
@@ -26,13 +38,15 @@
 </script>
 
 <div
-    on:click={() => {
+    on:touchstart={() => updateTouchUnix(Date.now())}
+    on:touchend={checkClick}
+    <!-- on:click={() => {
         let pcolor = color;
-        color = '#FFF'
+        color = "#FFF";
         setTimeout(() => {
             color = pcolor;
         }, 1000);
-    }}
+    }} -->
     class={`button ${className}`}
     style="border-radius: 3px; font-size: {fontSize}; left: {left}; top: {top}; width: {width}; height: {height}; color: {color}; border: solid 1px {borderColor}; background-color: {backgroundColor}"
 >

@@ -16,7 +16,6 @@
 		RangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
-	import { element } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
