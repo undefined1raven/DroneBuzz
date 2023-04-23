@@ -41,12 +41,7 @@ class Enemy {
     followStep(bearing) {
         this.bearing = bearing;
         if (this.visible) {
-            this.playerMarker.remove();
-            this.playerMarker = new maplibre.Marker(this.enemyElement, {
-                rotation: (bearing - 90) * -1,
-            })
-                .setLngLat([this.coords.lng, this.coords.lat])
-                .addTo(this.map);
+            this.playerMarker._rotation = (bearing - 90) * -1;
         }
         const mvs = 0.00013;
         if (bearing <= 180 && bearing > 0 && bearing != -1) {
@@ -109,7 +104,7 @@ class Enemy {
         } else {
             this.hideEnemy();
         }
-        if(distance > 5){
+        if (distance > 5) {
             this.destroy(this.enemiesArr);
         }
     }

@@ -64,12 +64,7 @@
 		});
 		joy.on("move", (evt, data) => {
 			ang = data.angle.degree;
-			playerMarker.remove();
-			playerMarker = new maplibre.Marker(playerElement, {
-				rotation: (data.angle.degree - 90) * -1,
-			})
-				.setLngLat([lng, lat])
-				.addTo(map);
+			playerMarker._rotation = (data.angle.degree - 90) * -1;
 		});
 
 		for (let ix = 0; ix <= 20; ix++) {
@@ -109,14 +104,13 @@
 			playerRangeMarker.setLngLat([lng, lat]);
 			enemies.forEach((enemy) => {
 				enemy.draw({ lng: lng, lat: lat });
-				console.log(
-					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
-				);
+				// console.log(
+				// 	getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
+				// );
 				enemy.followStep(
 					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
 				);
 			});
-			console.log(enemies.length)
 			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
 		}, 50);
 		setTimeout(() => {
