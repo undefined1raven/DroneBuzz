@@ -8,7 +8,7 @@
 	import OpsDashboard from "./components/OpsDashboard.svelte";
 	import { getBearing } from "./fn/getBearing.js";
 	import { RangeScaler } from "./fn/RangeScaler.js";
-	import { Enemy } from "./components/BasicEnemy.js";
+	import { Enemy } from "./components/Enemy.js";
 	import {
 		BluelineElement,
 		DefenceLineElement,
@@ -77,11 +77,11 @@
 				"",
 				"",
 				(enemiesArr) => {
-					for (let cix = 0; cix < enemiesArr.length; cix++) {
-						if (enemiesArr[cix].id == id) {
-							enemiesArr.splice(cix - 1, 1);
-						}
-					}
+					// for (let cix = 0; cix < enemiesArr.length; cix++) {
+					// 	if (enemiesArr[cix].id == id) {
+					// 		enemiesArr.splice(cix - 1, 1);
+					// 	}
+					// }
 				},
 				id,
 				enemies

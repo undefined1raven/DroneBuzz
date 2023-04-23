@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@onsvisual/svelte-maps": "^1.0.26",
+    "@turf/bearing": "^6.5.0",
+    "@turf/turf": "^6.5.0",
     "leaflet": "^1.9.3",
     "maplibre-gl": "^2.1.9",
     "nipplejs": "^0.10.1",
