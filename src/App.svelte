@@ -6,7 +6,15 @@
 	import FireControlDashboard from "./components/FireControlDashboard.svelte";
 	import NavDashboard from "./components/NavDashboard.svelte";
 	import OpsDashboard from "./components/OpsDashboard.svelte";
+	import { Enemy } from "./components/BasicEnemy.js";
+	import {
+		BluelineElement,
+		DefenceLineElement,
+		PlayerElement,
+		RangeElement,
+	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
+	import { element } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -20,58 +28,32 @@
 		);
 	}
 
-	function markerMaker(width, height, src) {
-		var marker = document.createElement("img");
-		marker.style.width = width;
-		marker.style.height = height;
-		marker.style.backgroundSize = "contain";
-		marker.src = src;
-		marker.style.cursor = "pointer";
-		return marker;
-	}
-
 	let map;
 	let zoom = 0;
 	let center = {};
 	let lng = 25.609;
 	let lat = 45.653;
 	let ang = 0;
+	let enemies = [];
 
 	onMount(() => {
-		var playerMarkerElement = markerMaker(
-			"7vh",
-			"8vh",
-			"./visual_assets/player.svg"
-		);
-		var bluelineMarkerElement = markerMaker(
-			"60vh",
-			"60vh",
-			"./visual_assets/player_blueline.svg"
-		);
-		var rangeMarkerElement = markerMaker(
-			"120vh",
-			"120vh",
-			"./visual_assets/player_range.svg"
-		);
-		var redlineMarkerElement = markerMaker(
-			"20vh",
-			"20vh",
-			"./visual_assets/player_redline.svg"
-		);
-
-		var playerMarker = new maplibre.Marker(playerMarkerElement)
+		let defenceline = new DefenceLineElement().getElement();
+		let blueline = new BluelineElement().getElement();
+		let playerElement = new PlayerElement().getElement();
+		let rangeline = new RangeElement().getElement();
+		var playerMarker = new maplibre.Marker(playerElement)
 			.setLngLat([lng, lat])
 			.addTo(map);
 
-		var playerRedlineMarker = new maplibre.Marker(redlineMarkerElement)
+		var playerDefenceLineMarker = new maplibre.Marker(defenceline)
 			.setLngLat([lng, lat])
 			.addTo(map);
 
-		var playerBluelineMarker = new maplibre.Marker(bluelineMarkerElement)
+		var playerBluelineMarker = new maplibre.Marker(blueline)
 			.setLngLat([lng, lat])
 			.addTo(map);
 
-		var playerRangeMarker = new maplibre.Marker(rangeMarkerElement)
+		var playerRangeMarker = new maplibre.Marker(rangeline)
 			.setLngLat([lng, lat])
 			.addTo(map);
 
@@ -87,12 +69,25 @@
 		joy.on("move", (evt, data) => {
 			ang = data.angle.degree;
 			playerMarker.remove();
-			playerMarker = new maplibre.Marker(playerMarkerElement, {
+			playerMarker = new maplibre.Marker(playerElement, {
 				rotation: (data.angle.degree - 90) * -1,
 			})
 				.setLngLat([lng, lat])
 				.addTo(map);
 		});
+
+		for (let ix = 0; ix <= 15; ix++) {
+			let ran = Math.random().toString();
+			let off = parseFloat(`0.00${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+			let eni = new Enemy(
+				map,
+				{ lng: lng + off, lat: lat + off },
+				"",
+				""
+			);
+			enemies.push(eni);
+		}
+
 		setInterval(() => {
 			if (ang <= 180 && ang > 0 && ang != -1) {
 				lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
@@ -103,11 +98,21 @@
 				lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
 			}
 			playerMarker.setLngLat([lng, lat]);
-			playerRedlineMarker.setLngLat([lng, lat]);
+			playerDefenceLineMarker.setLngLat([lng, lat]);
 			playerBluelineMarker.setLngLat([lng, lat]);
 			playerRangeMarker.setLngLat([lng, lat]);
+			enemies.forEach((enemy) => {
+				enemy.draw({ lng: lng, lat: lat });
+			});
 			map.panTo([lng + 0.0, lat - 0.004], { duration: 0 });
 		}, 50);
+		setTimeout(() => {
+			// let enemy1 = new Enemy(map, { lng: lng, lat: lat }, "", "");
+			// enemies.push(enemy1);
+			// setInterval(() => {
+			// 	// enemy1.updateEnemy({ lng: lng, lat: lat });
+			// }, 10000);
+		}, 5000);
 	});
 	const mvs = 0.0002;
 	let fullScreenBtnDisplay = "flex";
@@ -181,7 +186,7 @@
 	}
 	.joy {
 		position: absolute;
-		top: 0%;/*32.777777778*/
+		top: 0%; /*32.777777778*/
 		left: 0%;
 		width: 50%;
 		height: 100%;
