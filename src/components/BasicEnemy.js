@@ -22,22 +22,27 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180)
 }//thx stackoverflow
 
+
+
 class Enemy {
-    constructor(map, coords, difficulty, type) {
+    constructor(map, coords, difficulty, type, destrory, id, enemiesArr) {
+        this.id = id;
         this.map = map;
         this.coords = coords;
         this.difficulty = difficulty;
+        this.enemyElement = new EnemyElement().getElement();
         this.type = type;
         this.visible = false;
         this.bearing = 0;
+        this.destroy = destrory;
+        this.enemiesArr = enemiesArr;
     }
 
     followStep(bearing) {
         this.bearing = bearing;
         if (this.visible) {
             this.playerMarker.remove();
-            let enemyElement = new EnemyElement().getElement();
-            this.playerMarker = new maplibre.Marker(enemyElement, {
+            this.playerMarker = new maplibre.Marker(this.enemyElement, {
                 rotation: (bearing - 90) * -1,
             })
                 .setLngLat([this.coords.lng, this.coords.lat])
@@ -57,9 +62,8 @@ class Enemy {
 
     addEnemy() {
         let redline = new RedlineElement().getElement();
-        let enemyElement = new EnemyElement().getElement();
         let rangeline = new RangeElement().getElement();
-        var playerMarker = new maplibre.Marker(enemyElement, {})
+        var playerMarker = new maplibre.Marker(this.enemyElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);
 
@@ -104,7 +108,9 @@ class Enemy {
             }
         } else {
             this.hideEnemy();
-            console.log('OUT OF RANGE')
+        }
+        if(distance > 5){
+            this.destroy(this.enemiesArr);
         }
     }
 }

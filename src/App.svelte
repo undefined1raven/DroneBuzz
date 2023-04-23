@@ -72,14 +72,24 @@
 				.addTo(map);
 		});
 
-		for (let ix = 0; ix <= 5; ix++) {
+		for (let ix = 0; ix <= 20; ix++) {
 			let ran = Math.random().toString();
 			let off = parseFloat(`0.00${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+			let id = `${Math.random().toFixed(4) + Date.now()}`;
 			let eni = new Enemy(
 				map,
 				{ lng: lng + off, lat: lat + off },
 				"",
-				""
+				"",
+				(enemiesArr) => {
+					for (let cix = 0; cix < enemiesArr.length; cix++) {
+						if (enemiesArr[cix].id == id) {
+							enemiesArr.splice(cix - 1, 1);
+						}
+					}
+				},
+				id,
+				enemies
 			);
 			enemies.push(eni);
 		}
@@ -102,9 +112,12 @@
 				console.log(
 					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
 				);
-				enemy.followStep(getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng))
+				enemy.followStep(
+					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
+				);
 			});
-			map.panTo([lng + 0.0, lat - 0.004], { duration: 0 });
+			console.log(enemies.length)
+			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
 		}, 50);
 		setTimeout(() => {
 			// let enemy1 = new Enemy(map, { lng: lng, lat: lat }, "", "");
@@ -132,6 +145,7 @@
 
 <main>
 	<Map
+		attribution={false}
 		on:click={pans}
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
@@ -193,9 +207,11 @@
 		background-color: #5c41ff00;
 	}
 	main {
+		top: 0%;
+		left: 0%;
 		width: 100%;
-		height: 150vh;
-		position: relative;
+		height: 100%;
+		position: absolute;
 	}
 	#fullScreenButton {
 		position: absolute;
