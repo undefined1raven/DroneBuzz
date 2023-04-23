@@ -1,5 +1,6 @@
 import { RedlineElement, BluelineElement, RangeElement, EnemyElement, EnemyDefenceLine } from "./Markers.js";
 import maplibre from "maplibre-gl";
+import { RangeScaler } from "../fn/RangeScaler.js";
 
 
 
@@ -28,13 +29,37 @@ class Enemy {
         this.difficulty = difficulty;
         this.type = type;
         this.visible = false;
+        this.bearing = 0;
+    }
+
+    followStep(bearing) {
+        this.bearing = bearing;
+        if (this.visible) {
+            this.playerMarker.remove();
+            let enemyElement = new EnemyElement().getElement();
+            this.playerMarker = new maplibre.Marker(enemyElement, {
+                rotation: (bearing - 90) * -1,
+            })
+                .setLngLat([this.coords.lng, this.coords.lat])
+                .addTo(this.map);
+        }
+        const mvs = 0.00013;
+        if (bearing <= 180 && bearing > 0 && bearing != -1) {
+            this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
+            this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 90), 0, 90, mvs, 0) }
+        }
+        if (bearing > 180 && bearing < 360 && bearing != -1) {
+            this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing - 270, -90, 90, mvs * -1, mvs) }
+            this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 270), 90, 0, 0, mvs * -1) }
+        }
+        this.updateEnemy(this.coords);
     }
 
     addEnemy() {
         let redline = new RedlineElement().getElement();
         let enemyElement = new EnemyElement().getElement();
         let rangeline = new RangeElement().getElement();
-        var playerMarker = new maplibre.Marker(enemyElement)
+        var playerMarker = new maplibre.Marker(enemyElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);
 

@@ -6,6 +6,8 @@
 	import FireControlDashboard from "./components/FireControlDashboard.svelte";
 	import NavDashboard from "./components/NavDashboard.svelte";
 	import OpsDashboard from "./components/OpsDashboard.svelte";
+	import { getBearing } from "./fn/getBearing.js";
+	import { RangeScaler } from "./fn/RangeScaler.js";
 	import { Enemy } from "./components/BasicEnemy.js";
 	import {
 		BluelineElement,
@@ -20,12 +22,6 @@
 		min = Math.ceil(min);
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min) + min); //max e | min i
-	}
-
-	function RangeScaler(num, in_min, in_max, out_min, out_max) {
-		return (
-			((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
-		);
 	}
 
 	let map;
@@ -76,7 +72,7 @@
 				.addTo(map);
 		});
 
-		for (let ix = 0; ix <= 15; ix++) {
+		for (let ix = 0; ix <= 5; ix++) {
 			let ran = Math.random().toString();
 			let off = parseFloat(`0.00${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
 			let eni = new Enemy(
@@ -103,6 +99,10 @@
 			playerRangeMarker.setLngLat([lng, lat]);
 			enemies.forEach((enemy) => {
 				enemy.draw({ lng: lng, lat: lat });
+				console.log(
+					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
+				);
+				enemy.followStep(getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng))
 			});
 			map.panTo([lng + 0.0, lat - 0.004], { duration: 0 });
 		}, 50);
