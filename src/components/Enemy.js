@@ -44,7 +44,7 @@ class Enemy {
             this.playerMarker._rotation = (bearing - 90) * -1;
         }
         const mvs = 0.00013;
-        if (bearing <= 180 && bearing > 0 && bearing != -1) {
+        if (bearing <= 180 && bearing >= 0 && bearing != -1) {
             this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
             this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 90), 0, 90, mvs, 0) }
         }

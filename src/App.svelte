@@ -30,6 +30,29 @@
 	let lat = 45.653;
 	let ang = 0;
 	let enemies = [];
+	let lastEnemyHeadingUpdate = 0;
+
+	function updateEnemyHeadings(enemy) {
+		lastEnemyHeadingUpdate = Date.now();
+		let B = lng - enemy.coords.lng;
+		var a = lng - enemy.coords.lng;
+		var b = lat - enemy.coords.lat;
+
+		var c = Math.sqrt(a * a + b * b);
+
+		if (lat >= enemy.coords.lat) {
+			enemy.followStep(Math.acos((B / c).toFixed(15)) * 57.29578);
+		} else {
+			let actualBearing = RangeScaler(
+				Math.abs(Math.acos((B / c).toFixed(15)) * 57.29578 + 180),
+				180,
+				360,
+				360,
+				180
+			);
+			enemy.followStep(actualBearing);
+		}
+	}
 
 	onMount(() => {
 		let defenceline = new DefenceLineElement().getElement();
@@ -66,13 +89,23 @@
 			playerMarker._rotation = (data.angle.degree - 90) * -1;
 		});
 
-		for (let ix = 0; ix <= 20; ix++) {
+		for (let ix = 0; ix <= 50; ix++) {
 			let ran = Math.random().toString();
-			let off = parseFloat(`0.00${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+			let off = parseFloat(`0.0${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+			let ncoords = { lng: 0, lat: 0 };
+			if (parseFloat(ran) < 0.5) {
+				ncoords = { lng: lng + off, lat: lat - off };
+			} else {
+				if (parseFloat(ran) > 0.8) {
+					ncoords = { lng: lng - off, lat: lat + off };
+				} else {
+					ncoords = { lng: lng - off, lat: lat - off };
+				}
+			}
 			let id = `${Math.random().toFixed(4) + Date.now()}`;
 			let eni = new Enemy(
 				map,
-				{ lng: lng + off, lat: lat + off },
+				{ lng: ncoords.lng, lat: ncoords.lat },
 				"",
 				"",
 				(enemiesArr) => {
@@ -103,22 +136,10 @@
 			playerRangeMarker.setLngLat([lng, lat]);
 			enemies.forEach((enemy) => {
 				enemy.draw({ lng: lng, lat: lat });
-				// console.log(
-				// 	getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
-				// );
-				enemy.followStep(
-					getBearing(enemy.coords.lat, enemy.coords.lng, lat, lng)
-				);
+				updateEnemyHeadings(enemy);
 			});
 			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
 		}, 50);
-		setTimeout(() => {
-			// let enemy1 = new Enemy(map, { lng: lng, lat: lat }, "", "");
-			// enemies.push(enemy1);
-			// setInterval(() => {
-			// 	// enemy1.updateEnemy({ lng: lng, lat: lat });
-			// }, 10000);
-		}, 5000);
 	});
 	const mvs = 0.0002;
 	let fullScreenBtnDisplay = "flex";
