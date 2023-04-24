@@ -1,4 +1,5 @@
 <script>
+    let id;
     let label;
     let className;
     let color;
@@ -10,6 +11,7 @@
     let top;
     let left;
     let fontSize;
+    let opacity;
     let touchStartUnix = 0;
 
     const updateTouchUnix = (tx) => {
@@ -23,6 +25,7 @@
     };
 
     export {
+        id,
         onClick,
         label,
         className,
@@ -34,14 +37,16 @@
         top,
         left,
         fontSize,
+        opacity,
     };
 </script>
 
 <div
+    {id}
     on:touchstart={() => updateTouchUnix(Date.now())}
     on:touchend={checkClick}
     class={`button ${className}`}
-    style="border-radius: 3px; font-size: {fontSize}; left: {left}; top: {top}; width: {width}; height: {height}; color: {color}; border: solid 1px {borderColor}; background-color: {backgroundColor}"
+    style="opacity: {opacity}; border-radius: 3px; font-size: {fontSize}; left: {left}; top: {top}; width: {width}; height: {height}; color: {color}; border: solid 1px {borderColor}; background-color: {backgroundColor}"
 >
     {label}
 </div>
@@ -53,5 +58,6 @@
         align-items: center;
         justify-content: center;
         top: 0%;
+        backdrop-filter: blur(5px);
     }
 </style>

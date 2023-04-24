@@ -25,7 +25,7 @@ function deg2rad(deg) {
 
 
 class Missle {
-    constructor(map, coords, killRadius, type, destrory, id) {
+    constructor(map, coords, killRadius, type, destrory, id, distance) {
         this.id = id;
         this.map = map;
         this.coords = coords;
@@ -35,6 +35,8 @@ class Missle {
         this.bearing = 0;
         this.destroy = destrory;
         this.killRadius = killRadius;
+        this.distance = distance;
+        this.invisble = false;
     }
 
     followStep(bearing) {
@@ -77,7 +79,7 @@ class Missle {
         }
     }
 
-    hideEnemy() {
+    hideMissle() {
         if (this.visible) {
             this.missleMarker.remove();
             this.missleRedline.remove();
@@ -88,12 +90,15 @@ class Missle {
     draw(coords) {
         let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
         if (distance < 0.808) {
-            if (!this.visible) {
+            if (!this.visible && !this.invisble) {
                 this.addEnemy();
                 this.visible = true;
             }
+            if (this.invisble) {
+                this.hideMissle();
+            }
         } else {
-            this.hideEnemy();
+            this.hideMissle();
         }
         if (distance > 5) {
             // this.destroy(this.enemiesArr);

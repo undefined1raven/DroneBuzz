@@ -8,6 +8,7 @@
 	import OpsDashboard from "./components/OpsDashboard.svelte";
 	import { getBearing } from "./fn/getBearing.js";
 	import { RangeScaler } from "./fn/RangeScaler.js";
+	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
 	import {
@@ -26,6 +27,12 @@
 	}
 
 	let map;
+	let startTime = 0;
+	let bestTime = "--";
+	let timeString = "--";
+	let deadTime = 0;
+	let deadcount = 0;
+	let started = false;
 	let zoom = 0;
 	let center = {};
 	let lng = 25.609;
@@ -41,6 +48,16 @@
 
 		var c = Math.sqrt(a * a + b * b);
 
+		enemy.distance = c;
+		if (enemy.killRadius != undefined) {
+		}
+
+		if (enemy.missleArr != undefined) {
+			if (c < 0.015) {
+				enemy.fireMissle();
+			}
+		}
+
 		if (lat >= enemy.coords.lat) {
 			enemy.followStep(Math.acos((B / c).toFixed(15)) * 57.29578);
 		} else {
@@ -55,7 +72,9 @@
 		}
 	}
 
-	onMount(() => {
+	function start() {
+		started = true;
+		startTime = Date.now();
 		let defenceline = new DefenceLineElement("20vh").getElement();
 		let blueline = new BluelineElement("60vh").getElement();
 		let playerElement = new PlayerElement().getElement();
@@ -90,65 +109,20 @@
 			playerMarker._rotation = (data.angle.degree - 90) * -1;
 		});
 
-		let ran = Math.random().toString();
-		let off = parseFloat(`0.004${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
-
-		for (let ix = 0; ix <= 150; ix++) {
-			let ncoords = {
-				lng: (
-					getRandomInt(
-						lng * 100000000 - 15000000,
-						lng * 100000000 + 15000000
-					) / 100000000
-				).toFixed(13),
-				lat: (
-					getRandomInt(
-						lat * 100000000 - 15000000,
-						lat * 100000000 + 15000000
-					) / 100000000
-				).toFixed(13),
-			};
-			let missle = new Missle(
-				map,
-				{
-					lng: parseFloat(ncoords.lng),
-					lat: parseFloat(ncoords.lat),
-				},
-				0.8,
-				"",
-				"",
-				"AIM9X-Sidewinder"
-			);
-			missles.push(missle);
-		}
-
-		for (let ix = 0; ix <= 0; ix++) {
-			let ncoords = { lng: 0, lat: 0 };
-			// if (parseFloat(ran) < 0.5) {
-			// 	ncoords = { lng: lng + off, lat: lat - off };
-			// } else {
-			// 	if (parseFloat(ran) > 0.8) {
-			// 		ncoords = { lng: lng - off, lat: lat + off };
-			// 	} else {
-			// 		ncoords = { lng: lng - off, lat: lat - off };
-			// 	}
-			// }
-			ncoords = { lng: lng, lat: lat };
+		for (let ix = 0; ix <= 20; ix++) {
+			let ncoords = new getRandomCoords(lng, lat, 15).get();
 			let id = `${Math.random().toFixed(4) + Date.now()}`;
 			let eni = new Enemy(
 				map,
-				{ lng: ncoords.lng + 0.004, lat: ncoords.lat },
+				{ lng: ncoords.lng, lat: ncoords.lat },
 				"",
 				"",
-				(enemiesArr) => {
-					// for (let cix = 0; cix < enemiesArr.length; cix++) {
-					// 	if (enemiesArr[cix].id == id) {
-					// 		enemiesArr.splice(cix - 1, 1);
-					// 	}
-					// }
-				},
+				(enemiesArr) => {},
 				id,
-				enemies
+				enemies,
+				missles,
+				20,
+				1000
 			);
 			enemies.push(eni);
 		}
@@ -170,13 +144,60 @@
 				enemy.draw({ lng: lng, lat: lat });
 				updateEnemyHeadings(enemy);
 			});
-			missles.forEach((missle) => {
+			missles.forEach((missle, ix) => {
 				missle.draw({ lng: lng, lat: lat });
 				updateEnemyHeadings(missle);
+				if (missle.distance < 0.00008 && missle.distance > 0) {
+					console.log("kill");
+					deadcount++;
+					if (deadcount == 1) {
+						deadTime = Date.now();
+						localStorage.setItem("best", deadTime - startTime);
+					}
+					missle.invisble = true;
+					missle.draw({ lng: lng, lat: lat });
+					missles.splice(ix, 1);
+				}
 			});
 			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
+			let d = new Date(startTime);
+			let dt = new Date(deadTime);
+
+			if (deadTime == 0) {
+				let ms = Date.now() - startTime;
+				timeString = `${(ms / 1000 / 60)
+					.toFixed(0)
+					.toString()
+					.padStart(2, "0")}:${(ms / 1000)
+					.toFixed(0)
+					.toString()
+					.padStart(2, "0")}`;
+			} else {
+				let ms = deadTime - startTime;
+				timeString = `${(ms / 1000 / 60)
+					.toFixed(0)
+					.toString()
+					.padStart(2, "0")}:${(ms / 1000)
+					.toFixed(0)
+					.toString()
+					.padStart(2, "0")}`;
+			}
 		}, 50);
+	}
+
+	onMount(() => {
+		let bestTimeUnix = localStorage.getItem("best");
+		if (bestTimeUnix != null && bestTimeUnix != undefined) {
+			bestTime = `${(bestTimeUnix / 1000 / 60)
+				.toFixed(0)
+				.toString()
+				.padStart(2, "0")}:${(bestTimeUnix / 1000)
+				.toFixed(0)
+				.toString()
+				.padStart(2, "0")}`;
+		}
 	});
+
 	const mvs = 0.0002;
 	let fullScreenBtnDisplay = "flex";
 	function pans() {
@@ -210,31 +231,37 @@
 	<div class="joy" id="joy" />
 </main>
 <div id="dashboard">
-	<FireControlDashboard />
+	<FireControlDashboard {deadcount} {timeString} {bestTime} />
 	<NavDashboard />
 	<OpsDashboard />
 </div>
 <Button
-	top="50%"
-	color="#2400ff"
-	borderColor="#2400ff"
-	label={lat.toFixed(5)}
-	width="20%"
-	height="5%"
+	id="start"
+	top="30%"
+	left="30%"
+	color="#5c41ff"
+	borderColor="#5c41ff"
+	label="Start Survival Run"
+	width="50%"
+	opacity={started ? 0 : 1}
+	height="7%"
 	onClick={() => {
-		console.log("weee");
+		start();
 	}}
 	backgroundColor="#2400ff20"
 />
 <Button
-	top="55%"
-	color="#2400ff"
-	borderColor="#2400ff"
-	label={lng.toFixed(5)}
+	id="start"
+	top="0%"
+	left="0%"
+	color="#5c41ff"
+	borderColor="#5c41ff"
+	label="Retry"
 	width="20%"
-	height="5%"
+	opacity={deadcount > 0 ? 1 : 0}
+	height="7%"
 	onClick={() => {
-		console.log("weee");
+		window.location.reload();
 	}}
 	backgroundColor="#2400ff20"
 />
@@ -243,6 +270,18 @@
 	:global(body) {
 		background-color: #000;
 		font-family: "Electrolize", sans-serif;
+	}
+
+	@media (orientation: landscape) {
+		#start {
+			display: flex;
+		}
+	}
+
+	@media (orientation: portrait) {
+		#start {
+			display: none !important;
+		}
 	}
 	.joy {
 		position: absolute;
@@ -272,7 +311,7 @@
 		width: 50%;
 		backdrop-filter: blur(5px);
 		background-color: #2400ff20;
-		height: 4%;
+		height: 7%;
 		border-radius: 3px;
 		border: solid 1px #2400ff;
 	}

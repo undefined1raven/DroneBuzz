@@ -1,6 +1,7 @@
 import { RedlineElement, BluelineElement, RangeElement, EnemyElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
+import { Missle } from "./Missle.js";
 
 
 
@@ -25,7 +26,7 @@ function deg2rad(deg) {
 
 
 class Enemy {
-    constructor(map, coords, difficulty, type, destrory, id, enemiesArr) {
+    constructor(map, coords, difficulty, type, destrory, id, enemiesArr, missleArr, missleCount, missleCooldown, distance) {
         this.id = id;
         this.map = map;
         this.coords = coords;
@@ -36,6 +37,11 @@ class Enemy {
         this.bearing = 0;
         this.destroy = destrory;
         this.enemiesArr = enemiesArr;
+        this.missleArr = missleArr;
+        this.missleCount = missleCount;
+        this.missleCooldown = missleCooldown;
+        this.lastMissle = 0;
+        this.distance = distance;
     }
 
     followStep(bearing) {
@@ -49,6 +55,9 @@ class Enemy {
             mvs = parseFloat(`0.0001${ran[3]}${ran[4]}`);
         } else {
             mvs = parseFloat(`0.0002${ran[3]}${ran[4]}`);
+        }
+        if (mvs >= 0.0002) {
+            mvs = 0.00018;
         }
         if (bearing <= 180 && bearing >= 0 && bearing != -1) {
             this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
@@ -97,6 +106,15 @@ class Enemy {
             this.playerRedlineMarker.remove();
             this.playerRangeMarker.remove();
             this.visible = false;
+        }
+    }
+
+    fireMissle() {
+        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < 0.00336666667) {
+            this.lastMissle = Date.now();
+            let missle = new Missle(this.map, this.coords, 10, '', '', `${Math.random()}-${Date.now()}`, 0);
+            this.missleArr.push(missle);
+            this.missleCount--;
         }
     }
 
