@@ -20,6 +20,7 @@
 		PlayerRangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
+	import { compute_slots } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -42,11 +43,12 @@
 	let ang = 0;
 	let enemies = [];
 	let missles = [];
+	let friendlyMissles = [];
 
-	function updateEnemyHeadings(enemy) {
-		let B = lng - enemy.coords.lng;
-		var a = lng - enemy.coords.lng;
-		var b = lat - enemy.coords.lat;
+	function updateEnemyHeadings(enemy, targetLng, targetLat) {
+		let B = targetLng - enemy.coords.lng;
+		var a = targetLng - enemy.coords.lng;
+		var b = targetLat - enemy.coords.lat;
 
 		var c = Math.sqrt(a * a + b * b);
 
@@ -60,7 +62,7 @@
 			}
 		}
 
-		if (lat >= enemy.coords.lat) {
+		if (targetLat >= enemy.coords.lat) {
 			enemy.followStep(Math.acos((B / c).toFixed(15)) * 57.29578);
 		} else {
 			let actualBearing = RangeScaler(
@@ -161,11 +163,11 @@
 				playerRangeMarker.setLngLat([lng, lat]);
 				enemies.forEach((enemy) => {
 					enemy.draw({ lng: lng, lat: lat });
-					updateEnemyHeadings(enemy);
+					updateEnemyHeadings(enemy, lng, lat);
 				});
 				missles.forEach((missle, ix) => {
 					missle.draw({ lng: lng, lat: lat });
-					updateEnemyHeadings(missle);
+					updateEnemyHeadings(missle, lng, lat);
 					if (missle.distance < 0.00008 && missle.distance > 0) {
 						console.log("kill");
 						deadcount++;
@@ -176,6 +178,49 @@
 						missle.invisble = true;
 						missle.draw({ lng: lng, lat: lat });
 						missles.splice(ix, 1);
+					}
+				});
+				friendlyMissles.forEach((friendlyMissle, ix) => {
+					friendlyMissle.draw({ lng: lng, lat: lat });
+					let enemyTargetLng = 0;
+					let enemyTargetLat = 0;
+
+					let low = 100000;
+					let enemyID = "";
+					enemies.forEach((enemy) => {
+						if (enemy.distance < low) {
+							low = enemy.distance;
+							enemyID = enemy.id;
+						}
+					});
+
+					let targetEnemy = enemies.filter(
+						(enemy) => enemy.id == enemyID
+					)[0];
+
+					if (targetEnemy != undefined) {
+						enemyTargetLng = targetEnemy.coords.lng;
+						enemyTargetLat = targetEnemy.coords.lat;
+						updateEnemyHeadings(
+							friendlyMissle,
+							enemyTargetLng,
+							enemyTargetLat
+						);
+						if (
+							friendlyMissle.distance < 0.00008 &&
+							friendlyMissle.distance > 0
+						) {
+							friendlyMissle.invisble = true;
+							friendlyMissle.draw({ lng: lng, lat: lat });
+							friendlyMissles.splice(ix, 1);
+							enemies.forEach((enemy, ix) => {
+								if (enemy.id == enemyID) {
+									enemies.splice(ix, 1);
+									enemy.invisble = true;
+									enemy.draw();
+								}
+							});
+						}
 					}
 				});
 				map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
@@ -226,6 +271,11 @@
 	}
 
 	onMount(() => {
+		window.addEventListener("keyup", (e) => {
+			if (e.key == " " && started) {
+				fire();
+			}
+		});
 		let bestTimeUnix = localStorage.getItem("best");
 		if (bestTimeUnix != null && bestTimeUnix != undefined) {
 			bestTime = `${(bestTimeUnix / 1000 / 60)
@@ -237,6 +287,32 @@
 				.padStart(2, "0")}`;
 		}
 	});
+
+	function fire() {
+		let low = 100000;
+		let enemyID = "";
+		enemies.forEach((enemy) => {
+			if (enemy.distance < low) {
+				low = enemy.distance;
+				enemyID = enemy.id;
+			}
+		});
+
+		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
+		if (targetEnemy.distance < 0.00725082508 && friendlyMissles.length < 5) {
+			let friendlyMissle = new Missle(
+				map,
+				{ lng: lng, lat: lat },
+				20,
+				"",
+				"",
+				`${Math.random()}-${Date.now()}`,
+				0,
+				true
+			);
+			friendlyMissles.push(friendlyMissle);
+		}
+	}
 
 	const mvs = 0.0002;
 	let fullScreenBtnDisplay = "flex";
@@ -275,6 +351,7 @@
 		{deadcount}
 		{timeString}
 		{bestTime}
+		{fire}
 		opacity={started ? 1 : 0}
 	/>
 	<NavDashboard opacity={started ? 1 : 0} />

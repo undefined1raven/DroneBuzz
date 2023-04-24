@@ -42,6 +42,7 @@ class Enemy {
         this.missleCooldown = missleCooldown;
         this.lastMissle = 0;
         this.distance = distance;
+        this.invisble = false;
     }
 
     followStep(bearing) {
@@ -110,26 +111,32 @@ class Enemy {
     }
 
     fireMissle() {
-        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < 0.00336666667) {
+        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < 0.00336666667 && !this.invisble) {
             this.lastMissle = Date.now();
-            let missle = new Missle(this.map, this.coords, 10, '', '', `${Math.random()}-${Date.now()}`, 0);
+            let missle = new Missle(this.map, this.coords, 10, '', '', `${Math.random()}-${Date.now()}`, 0, false);
             this.missleArr.push(missle);
             this.missleCount--;
         }
     }
 
     draw(coords) {
-        let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
-        if (distance < 0.808) {
-            if (!this.visible) {
-                this.addEnemy();
-                this.visible = true;
+        if (coords != undefined) {
+            let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
+            if (distance < 0.808) {
+                if (!this.visible && !this.invisble) {
+                    this.addEnemy();
+                    this.visible = true;
+                } else if (this.invisble) {
+                    this.hideEnemy();
+                }
+            } else {
+                this.hideEnemy();
+            }
+            if (distance > 5) {
+                this.destroy(this.enemiesArr);
             }
         } else {
             this.hideEnemy();
-        }
-        if (distance > 5) {
-            this.destroy(this.enemiesArr);
         }
     }
 }

@@ -5,8 +5,9 @@
     let timeString;
     let bestTime;
     let opacity;
+    let fire;
 
-    export { timeString, deadcount, bestTime, opacity };
+    export { timeString, deadcount, bestTime, opacity, fire };
 </script>
 
 <div class="fireControlDashboard" style="opacity: {opacity};">
@@ -21,7 +22,7 @@
             height="29.032258065%"
             fontSize="3.5vh"
             onClick={() => {
-                console.log("fireee");
+                fire();
             }}
             backgroundColor="#2400FF20"
         />

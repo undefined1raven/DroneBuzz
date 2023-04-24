@@ -103,5 +103,13 @@ class MissleElement {
     }
 }
 
+class FriendlyMissleElement {
+    getElement() {
+        return new MarkerElement("4vh",
+            "3vh",
+            "./visual_assets/missle_friendly.svg").getElement()
+    }
+}
 
-export { EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }
+
+export { FriendlyMissleElement, EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }

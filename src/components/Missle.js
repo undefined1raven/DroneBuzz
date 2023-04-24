@@ -1,4 +1,4 @@
-import { RedlineElement, BluelineElement, RangeElement, EnemyElement, MissleElement } from "./Markers.js";
+import { RedlineElement, BluelineElement, RangeElement, EnemyElement, MissleElement, FriendlyMissleElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
 
@@ -25,11 +25,16 @@ function deg2rad(deg) {
 
 
 class Missle {
-    constructor(map, coords, killRadius, type, destrory, id, distance) {
+    constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly) {
         this.id = id;
         this.map = map;
         this.coords = coords;
-        this.missleElement = new MissleElement().getElement();
+        this.isFriendly = isFriendly;
+        if(this.isFriendly){
+            this.missleElement = new FriendlyMissleElement().getElement();
+        }else{
+            this.missleElement = new MissleElement().getElement();
+        }
         this.type = type;
         this.visible = false;
         this.bearing = 0;
@@ -58,17 +63,31 @@ class Missle {
     }
 
     addEnemy() {
-        let redline = new RedlineElement('10vh').getElement();
-        var missleMarker = new maplibre.Marker(this.missleElement, {})
-            .setLngLat([this.coords.lng, this.coords.lat])
-            .addTo(this.map);
+        if (!this.isFriendly) {
+            let redline = new RedlineElement('10vh').getElement();
+            var missleMarker = new maplibre.Marker(this.missleElement, {})
+                .setLngLat([this.coords.lng, this.coords.lat])
+                .addTo(this.map);
 
-        var missleRedline = new maplibre.Marker(redline)
-            .setLngLat([this.coords.lng, this.coords.lat])
-            .addTo(this.map);
+            var missleRedline = new maplibre.Marker(redline)
+                .setLngLat([this.coords.lng, this.coords.lat])
+                .addTo(this.map);
 
-        this.missleMarker = missleMarker;
-        this.missleRedline = missleRedline;
+            this.missleMarker = missleMarker;
+            this.missleRedline = missleRedline;
+        } else {
+            let blueline = new BluelineElement('10vh').getElement();
+            var missleMarker = new maplibre.Marker(this.missleElement, {})
+                .setLngLat([this.coords.lng, this.coords.lat])
+                .addTo(this.map);
+
+            var missleRedline = new maplibre.Marker(blueline)
+                .setLngLat([this.coords.lng, this.coords.lat])
+                .addTo(this.map);
+
+            this.missleMarker = missleMarker;
+            this.missleRedline = missleRedline;
+        }
     }
 
     updateEnemy(coords) {
