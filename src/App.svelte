@@ -17,6 +17,7 @@
 		PlayerElement,
 		RangeElement,
 		MissleElement,
+		PlayerRangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
 
@@ -25,7 +26,7 @@
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min) + min); //max e | min i
 	}
-
+	44.35381465897361, 26.02985041110172;
 	let map;
 	let startTime = 0;
 	let bestTime = "--";
@@ -35,8 +36,8 @@
 	let started = false;
 	let zoom = 0;
 	let center = {};
-	let lng = 25.609;
-	let lat = 45.653;
+	let lng = 26.02985041110172; /*25.609*/
+	let lat = 44.35381465897361; /*45.653*/
 	let ang = 0;
 	let enemies = [];
 	let missles = [];
@@ -113,7 +114,7 @@
 			let defenceline = new DefenceLineElement("20vh").getElement();
 			let blueline = new BluelineElement("60vh").getElement();
 			let playerElement = new PlayerElement().getElement();
-			let rangeline = new RangeElement("120vh").getElement();
+			let rangeline = new PlayerRangeElement("120vh").getElement();
 			var playerMarker = new maplibre.Marker(playerElement)
 				.setLngLat([lng, lat])
 				.addTo(map);

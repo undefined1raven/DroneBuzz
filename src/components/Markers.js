@@ -63,6 +63,17 @@ class RangeElement {
     getElement() {
         return new MarkerElement(this.radius,
             this.radius,
+            "./visual_assets/enemy_range.svg").getElement()
+    }
+}
+
+class PlayerRangeElement {
+    constructor(radius) {
+        this.radius = radius;
+    }
+    getElement() {
+        return new MarkerElement(this.radius,
+            this.radius,
             "./visual_assets/player_range.svg").getElement()
     }
 }
@@ -93,4 +104,4 @@ class MissleElement {
 }
 
 
-export { EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement }
+export { EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }

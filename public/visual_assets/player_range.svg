@@ -1,3 +1,3 @@
 <svg width="400" height="360" viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="200" cy="178" r="199.5" stroke="#515151" stroke-dasharray="10 10"/>
+<circle style="transition: all linear 0.1s" cx="200" cy="178" r="199.5" stroke="#AAA" stroke-dasharray="10 10"/>
 </svg>
