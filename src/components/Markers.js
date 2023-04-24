@@ -111,5 +111,21 @@ class FriendlyMissleElement {
     }
 }
 
+class DefensiveFriendlyMissleElement {
+    getElement() {
+        return new MarkerElement("4vh",
+            "3vh",
+            "./visual_assets/defensive_missle_friendly.svg").getElement()
+    }
+}
 
-export { FriendlyMissleElement, EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }
+class DefensiveEnemyMissleElement {
+    getElement() {
+        return new MarkerElement("4vh",
+            "3vh",
+            "./visual_assets/defensive_missle_enemy.svg").getElement()
+    }
+}
+
+
+export { DefensiveEnemyMissleElement, DefensiveFriendlyMissleElement, FriendlyMissleElement, EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }

@@ -26,7 +26,7 @@ function deg2rad(deg) {
 
 
 class Enemy {
-    constructor(map, coords, difficulty, type, destrory, id, enemiesArr, missleArr, missleCount, missleCooldown, distance) {
+    constructor(map, coords, difficulty, type, destrory, id, enemiesArr, missleArr, missleCount, missleCooldown, distance, countermeasuresCount, countermeasuresCooldown, enemyDefensiveMissles) {
         this.id = id;
         this.map = map;
         this.coords = coords;
@@ -41,8 +41,12 @@ class Enemy {
         this.missleCount = missleCount;
         this.missleCooldown = missleCooldown;
         this.lastMissle = 0;
+        this.lastDefensiveMissle = Date.now();
         this.distance = distance;
         this.invisble = false;
+        this.countermeasuresCount = countermeasuresCount;
+        this.countermeasuresCooldown = countermeasuresCooldown;
+        this.enemyDefensiveMissles = enemyDefensiveMissles;
     }
 
     followStep(bearing) {
@@ -110,10 +114,20 @@ class Enemy {
         }
     }
 
+    defensiveFire() {
+        if (this.countermeasuresCount > 0 && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && !this.invisble) {
+            console.log('enemy defensive')
+            this.lastDefensiveMissle = Date.now();
+            let defensiveMissle = new Missle(this.map, this.coords, 0.00008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+            this.enemyDefensiveMissles.push(defensiveMissle);
+            this.countermeasuresCount--;
+        }
+    }
+
     fireMissle() {
         if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < 0.00336666667 && !this.invisble) {
             this.lastMissle = Date.now();
-            let missle = new Missle(this.map, this.coords, 10, '', '', `${Math.random()}-${Date.now()}`, 0, false);
+            let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false);
             this.missleArr.push(missle);
             this.missleCount--;
         }

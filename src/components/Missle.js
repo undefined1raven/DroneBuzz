@@ -1,4 +1,4 @@
-import { RedlineElement, BluelineElement, RangeElement, EnemyElement, MissleElement, FriendlyMissleElement } from "./Markers.js";
+import { DefensiveFriendlyMissleElement, RedlineElement, BluelineElement, MissleElement, FriendlyMissleElement, DefensiveEnemyMissleElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
 
@@ -23,25 +23,36 @@ function deg2rad(deg) {
 }//thx stackoverflow
 
 
-
 class Missle {
     constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly) {
         this.id = id;
         this.map = map;
         this.coords = coords;
         this.isFriendly = isFriendly;
-        if(this.isFriendly){
-            this.missleElement = new FriendlyMissleElement().getElement();
-        }else{
-            this.missleElement = new MissleElement().getElement();
-        }
         this.type = type;
+        if (this.isFriendly) {
+            if (this.type == 'offensive') {
+                this.missleElement = new FriendlyMissleElement().getElement();
+            }
+            if (this.type == 'defensive') {
+                this.missleElement = new DefensiveFriendlyMissleElement().getElement();
+            }
+        } else {
+            if (this.type == 'offensive') {
+                this.missleElement = new MissleElement().getElement();
+            }
+            if (this.type == 'defensive') {
+                this.missleElement = new DefensiveEnemyMissleElement().getElement();
+            }
+        }
         this.visible = false;
         this.bearing = 0;
         this.destroy = destrory;
         this.killRadius = killRadius;
         this.distance = distance;
         this.invisble = false;
+        this.colorlineRadiusHash = { 'offensive': '10vh', 'defensive': '5vh' };
+        this.targetID = 0;
     }
 
     followStep(bearing) {
@@ -64,7 +75,7 @@ class Missle {
 
     addEnemy() {
         if (!this.isFriendly) {
-            let redline = new RedlineElement('10vh').getElement();
+            let redline = new RedlineElement(this.colorlineRadiusHash[this.type]).getElement();
             var missleMarker = new maplibre.Marker(this.missleElement, {})
                 .setLngLat([this.coords.lng, this.coords.lat])
                 .addTo(this.map);
@@ -76,7 +87,7 @@ class Missle {
             this.missleMarker = missleMarker;
             this.missleRedline = missleRedline;
         } else {
-            let blueline = new BluelineElement('10vh').getElement();
+            let blueline = new BluelineElement(this.colorlineRadiusHash[this.type]).getElement();
             var missleMarker = new maplibre.Marker(this.missleElement, {})
                 .setLngLat([this.coords.lng, this.coords.lat])
                 .addTo(this.map);
@@ -107,20 +118,24 @@ class Missle {
     }
 
     draw(coords) {
-        let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
-        if (distance < 0.808) {
-            if (!this.visible && !this.invisble) {
-                this.addEnemy();
-                this.visible = true;
-            }
-            if (this.invisble) {
+        if(coords != undefined){
+            let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
+            if (distance < 0.808) {
+                if (!this.visible && !this.invisble) {
+                    this.addEnemy();
+                    this.visible = true;
+                }
+                if (this.invisble) {
+                    this.hideMissle();
+                }
+            } else {
                 this.hideMissle();
             }
-        } else {
+            if (distance > 5) {
+                // this.destroy(this.enemiesArr);
+            }
+        }else{
             this.hideMissle();
-        }
-        if (distance > 5) {
-            // this.destroy(this.enemiesArr);
         }
     }
 }

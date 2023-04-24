@@ -2,8 +2,10 @@
     import Button from "./Button.svelte";
     let opacity;
     let fire;
+    let defensiveFire;
+    let counterButtonOpacity;
 
-    export { opacity, fire };
+    export { opacity, fire, defensiveFire, counterButtonOpacity };
 </script>
 
 <div class="opsDashboard" style="opacity: {opacity};">
@@ -13,6 +15,7 @@
         color="#5C41FF"
         borderColor="#2400FF"
         label="Fire"
+        lightColor="#7963FF"
         width="60.0331%"
         height="55.032258065%"
         fontSize="4.2vh"
@@ -20,6 +23,22 @@
             fire();
         }}
         backgroundColor="#2400FF20"
+    />
+    <Button
+        top="-45.290322581%"
+        left="20.438016529%"
+        color="#FF0010"
+        borderColor="#FF0010"
+        lightColor="#FF00AA"
+        label="Deploy Countermeasures"
+        width="60.0331%"
+        height="55.032258065%"
+        fontSize="4.2vh"
+        opacity="{counterButtonOpacity}"
+        onClick={(e) => {
+            defensiveFire();
+        }}
+        backgroundColor="#FF001020"
     />
 </div>
 

@@ -41,9 +41,17 @@
 	let lng = 26.02985041110172; /*25.609*/
 	let lat = 44.35381465897361; /*45.653*/
 	let ang = 0;
+	let misslecooldown = 500;
+	let lastMissleFire = Date.now();
+	let defensiveMissleCooldown = 800;
+	let lastDefensiveMissleFire = Date.now();
+	let isHunted = false;
+
 	let enemies = [];
 	let missles = [];
 	let friendlyMissles = [];
+	let friendlyDefensiveMissles = [];
+	let enemyDefensiveMissles = [];
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -57,6 +65,14 @@
 		}
 
 		if (enemy.missleArr != undefined) {
+			friendlyMissles.forEach((missle) => {
+				if (
+					missle.distance < 0.00425082508 &&
+					missle.targetID == enemy.id
+				) {
+					enemy.defensiveFire();
+				}
+			});
 			if (c < 0.015) {
 				enemy.fireMissle();
 			}
@@ -110,7 +126,11 @@
 				enemies,
 				missles,
 				20,
-				1000
+				1000,
+				0,
+				1,
+				500,
+				enemyDefensiveMissles
 			);
 			enemies.push(eni);
 		}
@@ -169,8 +189,10 @@
 				missles.forEach((missle, ix) => {
 					missle.draw({ lng: lng, lat: lat });
 					updateEnemyHeadings(missle, lng, lat);
-					if (missle.distance < 0.00008 && missle.distance > 0) {
-						console.log("kill");
+					if (
+						missle.distance < missle.killRadius &&
+						missle.distance > 0
+					) {
 						deadcount++;
 						if (deadcount == 1) {
 							deadTime = Date.now();
@@ -181,6 +203,62 @@
 						missles.splice(ix, 1);
 					}
 				});
+				isHunted = missles.length != 0;
+				friendlyDefensiveMissles.forEach(
+					(friendlyDefensiveMissle, ix) => {
+						friendlyDefensiveMissle.draw({ lng: lng, lat: lat });
+						let enemyTargetLng = 0;
+						let enemyTargetLat = 0;
+
+						let low = 100000;
+						let enemyMissleID = "";
+						missles.forEach((missle) => {
+							if (missle.distance < low) {
+								low = missle.distance;
+								enemyMissleID = missle.id;
+							}
+						});
+
+						let targetEnemy = missles.filter(
+							(missle) => missle.id == enemyMissleID
+						)[0];
+
+						if (targetEnemy != undefined) {
+							friendlyDefensiveMissle.targetID = enemyMissleID;
+							enemyTargetLng = targetEnemy.coords.lng;
+							enemyTargetLat = targetEnemy.coords.lat;
+							updateEnemyHeadings(
+								friendlyDefensiveMissle,
+								enemyTargetLng,
+								enemyTargetLat
+							);
+							if (
+								friendlyDefensiveMissle.distance <
+									friendlyDefensiveMissle.killRadius &&
+								friendlyDefensiveMissle.distance > 0
+							) {
+								friendlyDefensiveMissle.invisble = true;
+								friendlyDefensiveMissle.draw({
+									lng: lng,
+									lat: lat,
+								});
+								friendlyDefensiveMissles.splice(ix, 1);
+								if (Math.random() < 0.8) {
+									console.log("defensive kill");
+									missles.forEach((missle, ix) => {
+										if (missle.id == enemyMissleID) {
+											missle.invisble = true;
+											missle.draw();
+											missles.splice(ix, 1);
+										}
+									});
+								} else {
+									console.log("defensive dud");
+								}
+							}
+						}
+					}
+				);
 				friendlyMissles.forEach((friendlyMissle, ix) => {
 					friendlyMissle.draw({ lng: lng, lat: lat });
 					let enemyTargetLng = 0;
@@ -200,6 +278,7 @@
 					)[0];
 
 					if (targetEnemy != undefined) {
+						friendlyMissle.targetID = enemyID;
 						enemyTargetLng = targetEnemy.coords.lng;
 						enemyTargetLat = targetEnemy.coords.lat;
 						updateEnemyHeadings(
@@ -208,7 +287,8 @@
 							enemyTargetLat
 						);
 						if (
-							friendlyMissle.distance < 0.00008 &&
+							friendlyMissle.distance <
+								friendlyMissle.killRadius &&
 							friendlyMissle.distance > 0
 						) {
 							friendlyMissle.invisble = true;
@@ -249,7 +329,7 @@
 					lastEnemyRefresh == 0
 				) {
 					lastEnemyRefresh = Date.now();
-					for (let ix = 0; ix <= 9; ix++) {
+					for (let ix = 0; ix <= 12; ix++) {
 						let ncoords = new getRandomCoords(lng, lat, 8).get();
 						let id = `${Math.random().toFixed(4) + Date.now()}`;
 						let eni = new Enemy(
@@ -289,9 +369,47 @@
 			if (e.key == " " && started) {
 				fire();
 			}
+			if (e.key == "d" || e.key == "D") {
+				defensiveFire();
+			}
 		});
 		updateBest();
 	});
+
+	function defensiveFire() {
+		let low = 100000;
+		let enemyMissleID = "";
+		missles.forEach((missle) => {
+			if (missle.distance < low) {
+				low = missle.distance;
+				enemyMissleID = missle.id;
+			}
+		});
+
+		let targetMissle = missles.filter(
+			(missle) => missle.id == enemyMissleID
+		)[0];
+		if (targetMissle != undefined) {
+			if (
+				targetMissle.distance < 0.00425082508 &&
+				friendlyDefensiveMissles.length <= 5 &&
+				Date.now() - lastDefensiveMissleFire > defensiveMissleCooldown
+			) {
+				lastDefensiveMissleFire = Date.now();
+				let friendlyDefenisveMissle = new Missle(
+					map,
+					{ lng: lng, lat: lat },
+					0.00048,
+					"defensive",
+					"",
+					`${Math.random()}-${Date.now()}`,
+					0,
+					true
+				);
+				friendlyDefensiveMissles.push(friendlyDefenisveMissle);
+			}
+		}
+	}
 
 	function fire() {
 		let low = 100000;
@@ -306,13 +424,15 @@
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
 		if (
 			targetEnemy.distance < 0.00725082508 &&
-			friendlyMissles.length < 5
+			friendlyMissles.length < 3 &&
+			Date.now() - lastMissleFire > misslecooldown
 		) {
+			lastMissleFire = Date.now();
 			let friendlyMissle = new Missle(
 				map,
 				{ lng: lng, lat: lat },
-				20,
-				"",
+				0.00008,
+				"offensive",
 				"",
 				`${Math.random()}-${Date.now()}`,
 				0,
@@ -363,7 +483,12 @@
 		opacity={started ? 1 : 0}
 	/>
 	<NavDashboard opacity={started ? 1 : 0} />
-	<OpsDashboard {fire} opacity={started ? 1 : 0} />
+	<OpsDashboard
+		{fire}
+		{defensiveFire}
+		counterButtonOpacity={isHunted ? 1 : 0}
+		opacity={started ? 1 : 0}
+	/>
 </div>
 <Button
 	id="start"
