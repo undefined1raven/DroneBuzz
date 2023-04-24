@@ -30,8 +30,8 @@
         left: 62.1875%;
         width: 37.8125%;
         height: 24%; /*17.222222222*/
-        background-color: #0c001caa;
-        backdrop-filter: blur(5px);
+        background-color: #0c001c00;
+        backdrop-filter: blur(0px);
         border-radius: 5px 0px 0px 0px;
     }
 </style>

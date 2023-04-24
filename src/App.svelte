@@ -91,6 +91,7 @@
 		started = true;
 		lastEnemyRefresh = 0;
 		start(true);
+		updateBest();
 	}
 
 	function start(isRestart) {
@@ -270,12 +271,7 @@
 		}
 	}
 
-	onMount(() => {
-		window.addEventListener("keyup", (e) => {
-			if (e.key == " " && started) {
-				fire();
-			}
-		});
+	function updateBest() {
 		let bestTimeUnix = localStorage.getItem("best");
 		if (bestTimeUnix != null && bestTimeUnix != undefined) {
 			bestTime = `${(bestTimeUnix / 1000 / 60)
@@ -286,6 +282,15 @@
 				.toString()
 				.padStart(2, "0")}`;
 		}
+	}
+
+	onMount(() => {
+		window.addEventListener("keyup", (e) => {
+			if (e.key == " " && started) {
+				fire();
+			}
+		});
+		updateBest();
 	});
 
 	function fire() {
