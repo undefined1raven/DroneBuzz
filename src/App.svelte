@@ -246,9 +246,14 @@
 	<div class="joy" id="joy" />
 </main>
 <div id="dashboard">
-	<FireControlDashboard {deadcount} {timeString} {bestTime} />
-	<NavDashboard />
-	<OpsDashboard />
+	<FireControlDashboard
+		{deadcount}
+		{timeString}
+		{bestTime}
+		opacity={started ? 1 : 0}
+	/>
+	<NavDashboard opacity={started ? 1 : 0} />
+	<OpsDashboard opacity={started ? 1 : 0} />
 </div>
 <Button
 	id="start"

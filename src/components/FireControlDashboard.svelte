@@ -4,11 +4,12 @@
     let deadcount;
     let timeString;
     let bestTime;
+    let opacity;
 
-    export { timeString, deadcount, bestTime };
+    export { timeString, deadcount, bestTime, opacity };
 </script>
 
-<div class="fireControlDashboard">
+<div class="fireControlDashboard" style="opacity: {opacity};">
     <div id="fireControl">
         <Button
             top="61.290322581%"
