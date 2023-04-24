@@ -13,20 +13,6 @@
 <div class="fireControlDashboard" style="opacity: {opacity};">
     <div id="fireControl">
         <Button
-            top="61.290322581%"
-            left="57.438016529%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="Fire"
-            width="26.033057851%"
-            height="29.032258065%"
-            fontSize="3.5vh"
-            onClick={() => {
-                fire();
-            }}
-            backgroundColor="#2400FF20"
-        />
-        <Button
             top="27.419354839%"
             left="57.438016529%"
             color="#5C41FF"

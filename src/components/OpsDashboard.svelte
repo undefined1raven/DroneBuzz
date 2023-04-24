@@ -1,11 +1,27 @@
 <script>
     import Button from "./Button.svelte";
     let opacity;
+    let fire;
 
-    export { opacity };
+    export { opacity, fire };
 </script>
 
-<div class="opsDashboard" style="opacity: {opacity};" />
+<div class="opsDashboard" style="opacity: {opacity};">
+    <Button
+        top="20.290322581%"
+        left="20.438016529%"
+        color="#5C41FF"
+        borderColor="#2400FF"
+        label="Fire"
+        width="60.0331%"
+        height="55.032258065%"
+        fontSize="4.2vh"
+        onClick={() => {
+            fire();
+        }}
+        backgroundColor="#2400FF20"
+    />
+</div>
 
 <style>
     .opsDashboard {

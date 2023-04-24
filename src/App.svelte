@@ -299,7 +299,10 @@
 		});
 
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
-		if (targetEnemy.distance < 0.00725082508 && friendlyMissles.length < 5) {
+		if (
+			targetEnemy.distance < 0.00725082508 &&
+			friendlyMissles.length < 5
+		) {
 			let friendlyMissle = new Missle(
 				map,
 				{ lng: lng, lat: lat },
@@ -355,7 +358,7 @@
 		opacity={started ? 1 : 0}
 	/>
 	<NavDashboard opacity={started ? 1 : 0} />
-	<OpsDashboard opacity={started ? 1 : 0} />
+	<OpsDashboard {fire} opacity={started ? 1 : 0} />
 </div>
 <Button
 	id="start"
