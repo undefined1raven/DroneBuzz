@@ -142,7 +142,7 @@
 				position: { left: "50%", top: "50%" },
 			});
 			joy.on("end", () => {
-				ang = -1;
+				// ang = -1;
 			});
 			joy.on("move", (evt, data) => {
 				ang = data.angle.degree;
