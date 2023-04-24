@@ -114,7 +114,7 @@
 
 		if (!isRestart) {
 			let defenceline = new DefenceLineElement("20vh").getElement();
-			let blueline = new BluelineElement("60vh").getElement();
+			let blueline = new BluelineElement("80vh").getElement();
 			let playerElement = new PlayerElement().getElement();
 			let rangeline = new PlayerRangeElement("120vh").getElement();
 			var playerMarker = new maplibre.Marker(playerElement)
@@ -282,14 +282,15 @@
 </div>
 <Button
 	id="start"
-	top="30%"
+	top="40%"
 	left="30%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
 	label="Start Survival Run"
 	width="50%"
+	fontSize="2.4vh"
 	opacity={started ? 0 : 1}
-	height="7%"
+	height="10%"
 	onClick={() => {
 		start();
 	}}
@@ -302,6 +303,7 @@
 	color="#5c41ff"
 	borderColor="#5c41ff"
 	label="Retry"
+	fontSize="3vh"
 	width="20%"
 	opacity={deadcount > 0 ? 1 : 0}
 	height="7%"
@@ -351,12 +353,12 @@
 		left: 30%;
 		display: flex;
 		color: #5c41ff;
-		font-size: 2vh;
+		font-size: 2.8vh;
 		z-index: 150000;
 		width: 50%;
 		backdrop-filter: blur(5px);
 		background-color: #2400ff20;
-		height: 7%;
+		height: 10%;
 		border-radius: 3px;
 		border: solid 1px #2400ff;
 	}
