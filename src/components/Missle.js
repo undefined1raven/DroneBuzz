@@ -1,4 +1,4 @@
-import { RedlineElement, BluelineElement, RangeElement, EnemyElement } from "./Markers.js";
+import { RedlineElement, BluelineElement, RangeElement, EnemyElement, MissleElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
 
@@ -24,32 +24,26 @@ function deg2rad(deg) {
 
 
 
-class Enemy {
-    constructor(map, coords, difficulty, type, destrory, id, enemiesArr) {
+class Missle {
+    constructor(map, coords, killRadius, type, destrory, id) {
         this.id = id;
         this.map = map;
         this.coords = coords;
-        this.difficulty = difficulty;
-        this.enemyElement = new EnemyElement().getElement();
+        this.missleElement = new MissleElement().getElement();
         this.type = type;
         this.visible = false;
         this.bearing = 0;
         this.destroy = destrory;
-        this.enemiesArr = enemiesArr;
+        this.killRadius = killRadius;
     }
 
     followStep(bearing) {
         const ran = Math.random().toString();
         this.bearing = bearing;
         if (this.visible) {
-            this.playerMarker._rotation = (bearing - 90) * -1;
+            this.missleMarker._rotation = (bearing - 90) * -1;
         }
-        var mvs = 0;
-        if (Math.random() > .2) {
-            mvs = parseFloat(`0.0001${ran[3]}${ran[4]}`);
-        } else {
-            mvs = parseFloat(`0.0002${ran[3]}${ran[4]}`);
-        }
+        var mvs = 0.0003;
         if (bearing <= 180 && bearing >= 0 && bearing != -1) {
             this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
             this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 90), 0, 90, mvs, 0) }
@@ -62,40 +56,31 @@ class Enemy {
     }
 
     addEnemy() {
-        let redline = new RedlineElement('50vh').getElement();
-        let rangeline = new RangeElement('120vh').getElement();
-        var playerMarker = new maplibre.Marker(this.enemyElement, {})
+        let redline = new RedlineElement('10vh').getElement();
+        var missleMarker = new maplibre.Marker(this.missleElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);
 
-        var playerRedlineMarker = new maplibre.Marker(redline)
+        var missleRedline = new maplibre.Marker(redline)
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);
 
-
-        var playerRangeMarker = new maplibre.Marker(rangeline)
-            .setLngLat([this.coords.lng, this.coords.lat])
-            .addTo(this.map);
-
-        this.playerMarker = playerMarker;
-        this.playerRedlineMarker = playerRedlineMarker;
-        this.playerRangeMarker = playerRangeMarker;
+        this.missleMarker = missleMarker;
+        this.missleRedline = missleRedline;
     }
 
     updateEnemy(coords) {
         this.coords = coords;
         if (this.visible) {
-            this.playerRangeMarker.setLngLat([coords.lng, coords.lat]);
-            this.playerRedlineMarker.setLngLat([coords.lng, coords.lat]);
-            this.playerMarker.setLngLat([coords.lng, coords.lat]);
+            this.missleRedline.setLngLat([coords.lng, coords.lat]);
+            this.missleMarker.setLngLat([coords.lng, coords.lat]);
         }
     }
 
     hideEnemy() {
         if (this.visible) {
-            this.playerMarker.remove();
-            this.playerRedlineMarker.remove();
-            this.playerRangeMarker.remove();
+            this.missleMarker.remove();
+            this.missleRedline.remove();
             this.visible = false;
         }
     }
@@ -111,9 +96,9 @@ class Enemy {
             this.hideEnemy();
         }
         if (distance > 5) {
-            this.destroy(this.enemiesArr);
+            // this.destroy(this.enemiesArr);
         }
     }
 }
 
-export { Enemy };
+export { Missle };

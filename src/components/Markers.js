@@ -19,35 +19,50 @@ class MarkerElement {
 }
 
 class RedlineElement {
+    constructor(radius) {
+        this.radius = radius;
+    }
     getElement() {
-        return new MarkerElement("50vh", "50vh", "./visual_assets/enemy_redline.svg").getElement()
+        return new MarkerElement(this.radius, this.radius, "./visual_assets/enemy_redline.svg").getElement()
     }
 }
 
 class EnemyDefenceLine {
+    constructor(radius) {
+        this.radius = radius;
+    }
     getElement() {
-        return new MarkerElement("20vh", "20vh", "./visual_assets/enemy_defenceline.svg").getElement()
+        return new MarkerElement(this.radius, this.radius, "./visual_assets/enemy_defenceline.svg").getElement()
     }
 }
 
 class DefenceLineElement {
+    constructor(radius) {
+        this.radius = radius;
+    }
     getElement() {
-        return new MarkerElement("20vh", "20vh", "./visual_assets/player_defenceline.svg").getElement()
+        return new MarkerElement(this.radius, this.radius, "./visual_assets/player_defenceline.svg").getElement()
     }
 }
 
 class BluelineElement {
+    constructor(radius) {
+        this.radius = radius;
+    }
     getElement() {
-        return new MarkerElement("60vh",
-            "60vh",
+        return new MarkerElement(this.radius,
+            this.radius,
             "./visual_assets/player_blueline.svg").getElement()
     }
 }
 
 class RangeElement {
+    constructor(radius) {
+        this.radius = radius;
+    }
     getElement() {
-        return new MarkerElement("120vh",
-            "120vh",
+        return new MarkerElement(this.radius,
+            this.radius,
             "./visual_assets/player_range.svg").getElement()
     }
 }
@@ -69,4 +84,13 @@ class EnemyElement {
 }
 
 
-export { EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine }
+class MissleElement {
+    getElement() {
+        return new MarkerElement("4vh",
+            "3vh",
+            "./visual_assets/missle.svg").getElement()
+    }
+}
+
+
+export { EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement }

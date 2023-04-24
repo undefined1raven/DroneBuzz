@@ -9,11 +9,13 @@
 	import { getBearing } from "./fn/getBearing.js";
 	import { RangeScaler } from "./fn/RangeScaler.js";
 	import { Enemy } from "./components/Enemy.js";
+	import { Missle } from "./components/Missle.js";
 	import {
 		BluelineElement,
 		DefenceLineElement,
 		PlayerElement,
 		RangeElement,
+		MissleElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
 
@@ -30,10 +32,9 @@
 	let lat = 45.653;
 	let ang = 0;
 	let enemies = [];
-	let lastEnemyHeadingUpdate = 0;
+	let missles = [];
 
 	function updateEnemyHeadings(enemy) {
-		lastEnemyHeadingUpdate = Date.now();
 		let B = lng - enemy.coords.lng;
 		var a = lng - enemy.coords.lng;
 		var b = lat - enemy.coords.lat;
@@ -55,10 +56,10 @@
 	}
 
 	onMount(() => {
-		let defenceline = new DefenceLineElement().getElement();
-		let blueline = new BluelineElement().getElement();
+		let defenceline = new DefenceLineElement("20vh").getElement();
+		let blueline = new BluelineElement("60vh").getElement();
 		let playerElement = new PlayerElement().getElement();
-		let rangeline = new RangeElement().getElement();
+		let rangeline = new RangeElement("120vh").getElement();
 		var playerMarker = new maplibre.Marker(playerElement)
 			.setLngLat([lng, lat])
 			.addTo(map);
@@ -89,23 +90,54 @@
 			playerMarker._rotation = (data.angle.degree - 90) * -1;
 		});
 
-		for (let ix = 0; ix <= 50; ix++) {
-			let ran = Math.random().toString();
-			let off = parseFloat(`0.0${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+		let ran = Math.random().toString();
+		let off = parseFloat(`0.004${ran[2]}${ran[3]}${ran[4]}${ran[5]}`);
+
+		for (let ix = 0; ix <= 150; ix++) {
+			let ncoords = {
+				lng: (
+					getRandomInt(
+						lng * 100000000 - 15000000,
+						lng * 100000000 + 15000000
+					) / 100000000
+				).toFixed(13),
+				lat: (
+					getRandomInt(
+						lat * 100000000 - 15000000,
+						lat * 100000000 + 15000000
+					) / 100000000
+				).toFixed(13),
+			};
+			let missle = new Missle(
+				map,
+				{
+					lng: parseFloat(ncoords.lng),
+					lat: parseFloat(ncoords.lat),
+				},
+				0.8,
+				"",
+				"",
+				"AIM9X-Sidewinder"
+			);
+			missles.push(missle);
+		}
+
+		for (let ix = 0; ix <= 0; ix++) {
 			let ncoords = { lng: 0, lat: 0 };
-			if (parseFloat(ran) < 0.5) {
-				ncoords = { lng: lng + off, lat: lat - off };
-			} else {
-				if (parseFloat(ran) > 0.8) {
-					ncoords = { lng: lng - off, lat: lat + off };
-				} else {
-					ncoords = { lng: lng - off, lat: lat - off };
-				}
-			}
+			// if (parseFloat(ran) < 0.5) {
+			// 	ncoords = { lng: lng + off, lat: lat - off };
+			// } else {
+			// 	if (parseFloat(ran) > 0.8) {
+			// 		ncoords = { lng: lng - off, lat: lat + off };
+			// 	} else {
+			// 		ncoords = { lng: lng - off, lat: lat - off };
+			// 	}
+			// }
+			ncoords = { lng: lng, lat: lat };
 			let id = `${Math.random().toFixed(4) + Date.now()}`;
 			let eni = new Enemy(
 				map,
-				{ lng: ncoords.lng, lat: ncoords.lat },
+				{ lng: ncoords.lng + 0.004, lat: ncoords.lat },
 				"",
 				"",
 				(enemiesArr) => {
@@ -138,6 +170,10 @@
 				enemy.draw({ lng: lng, lat: lat });
 				updateEnemyHeadings(enemy);
 			});
+			missles.forEach((missle) => {
+				missle.draw({ lng: lng, lat: lat });
+				updateEnemyHeadings(missle);
+			});
 			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
 		}, 50);
 	});
@@ -146,12 +182,8 @@
 	function pans() {
 		window.screen.orientation
 			.lock("landscape")
-			.then((res) => {
-				console.log("yeey");
-			})
-			.catch((e) => {
-				console.log("not yeeey");
-			});
+			.then((res) => {})
+			.catch((e) => {});
 		document.documentElement.requestFullscreen();
 		fullScreenBtnDisplay = "none";
 	}
