@@ -72,43 +72,25 @@
 		}
 	}
 
-	function start() {
+	function restart() {
+		missles.forEach((missle) => {
+			missle.invisble = true;
+			missle.draw({ lng: lng, lat: lat });
+		});
+		enemies.forEach((enemy) => {
+			enemy.hideEnemy();
+		});
+		missles = [];
+		enemies = [];
+		deadTime = 0;
+		deadcount = 0;
+		started = true;
+		start(true);
+	}
+
+	function start(isRestart) {
 		started = true;
 		startTime = Date.now();
-		let defenceline = new DefenceLineElement("20vh").getElement();
-		let blueline = new BluelineElement("60vh").getElement();
-		let playerElement = new PlayerElement().getElement();
-		let rangeline = new RangeElement("120vh").getElement();
-		var playerMarker = new maplibre.Marker(playerElement)
-			.setLngLat([lng, lat])
-			.addTo(map);
-
-		var playerDefenceLineMarker = new maplibre.Marker(defenceline)
-			.setLngLat([lng, lat])
-			.addTo(map);
-
-		var playerBluelineMarker = new maplibre.Marker(blueline)
-			.setLngLat([lng, lat])
-			.addTo(map);
-
-		var playerRangeMarker = new maplibre.Marker(rangeline)
-			.setLngLat([lng, lat])
-			.addTo(map);
-
-		var joy = nipplejs.create({
-			zone: document.getElementById("joy"),
-			color: "#5c41ff30",
-			mode: "dynamic",
-			position: { left: "50%", top: "50%" },
-		});
-		joy.on("end", () => {
-			ang = -1;
-		});
-		joy.on("move", (evt, data) => {
-			ang = data.angle.degree;
-			playerMarker._rotation = (data.angle.degree - 90) * -1;
-		});
-
 		for (let ix = 0; ix <= 20; ix++) {
 			let ncoords = new getRandomCoords(lng, lat, 15).get();
 			let id = `${Math.random().toFixed(4) + Date.now()}`;
@@ -127,62 +109,94 @@
 			enemies.push(eni);
 		}
 
-		setInterval(() => {
-			if (ang <= 180 && ang > 0 && ang != -1) {
-				lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
-				lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
-			}
-			if (ang > 180 && ang < 360 && ang != -1) {
-				lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
-				lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
-			}
-			playerMarker.setLngLat([lng, lat]);
-			playerDefenceLineMarker.setLngLat([lng, lat]);
-			playerBluelineMarker.setLngLat([lng, lat]);
-			playerRangeMarker.setLngLat([lng, lat]);
-			enemies.forEach((enemy) => {
-				enemy.draw({ lng: lng, lat: lat });
-				updateEnemyHeadings(enemy);
-			});
-			missles.forEach((missle, ix) => {
-				missle.draw({ lng: lng, lat: lat });
-				updateEnemyHeadings(missle);
-				if (missle.distance < 0.00008 && missle.distance > 0) {
-					console.log("kill");
-					deadcount++;
-					if (deadcount == 1) {
-						deadTime = Date.now();
-						localStorage.setItem("best", deadTime - startTime);
-					}
-					missle.invisble = true;
-					missle.draw({ lng: lng, lat: lat });
-					missles.splice(ix, 1);
-				}
-			});
-			map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
-			let d = new Date(startTime);
-			let dt = new Date(deadTime);
+		if (!isRestart) {
+			let defenceline = new DefenceLineElement("20vh").getElement();
+			let blueline = new BluelineElement("60vh").getElement();
+			let playerElement = new PlayerElement().getElement();
+			let rangeline = new RangeElement("120vh").getElement();
+			var playerMarker = new maplibre.Marker(playerElement)
+				.setLngLat([lng, lat])
+				.addTo(map);
 
-			if (deadTime == 0) {
-				let ms = Date.now() - startTime;
-				timeString = `${(ms / 1000 / 60)
-					.toFixed(0)
-					.toString()
-					.padStart(2, "0")}:${(ms / 1000)
-					.toFixed(0)
-					.toString()
-					.padStart(2, "0")}`;
-			} else {
-				let ms = deadTime - startTime;
-				timeString = `${(ms / 1000 / 60)
-					.toFixed(0)
-					.toString()
-					.padStart(2, "0")}:${(ms / 1000)
-					.toFixed(0)
-					.toString()
-					.padStart(2, "0")}`;
-			}
-		}, 50);
+			var playerDefenceLineMarker = new maplibre.Marker(defenceline)
+				.setLngLat([lng, lat])
+				.addTo(map);
+
+			var playerBluelineMarker = new maplibre.Marker(blueline)
+				.setLngLat([lng, lat])
+				.addTo(map);
+
+			var playerRangeMarker = new maplibre.Marker(rangeline)
+				.setLngLat([lng, lat])
+				.addTo(map);
+
+			var joy = nipplejs.create({
+				zone: document.getElementById("joy"),
+				color: "#5c41ff30",
+				mode: "dynamic",
+				position: { left: "50%", top: "50%" },
+			});
+			joy.on("end", () => {
+				ang = -1;
+			});
+			joy.on("move", (evt, data) => {
+				ang = data.angle.degree;
+				playerMarker._rotation = (data.angle.degree - 90) * -1;
+			});
+			setInterval(() => {
+				if (ang <= 180 && ang > 0 && ang != -1) {
+					lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
+					lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
+				}
+				if (ang > 180 && ang < 360 && ang != -1) {
+					lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
+					lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
+				}
+				playerMarker.setLngLat([lng, lat]);
+				playerDefenceLineMarker.setLngLat([lng, lat]);
+				playerBluelineMarker.setLngLat([lng, lat]);
+				playerRangeMarker.setLngLat([lng, lat]);
+				enemies.forEach((enemy) => {
+					enemy.draw({ lng: lng, lat: lat });
+					updateEnemyHeadings(enemy);
+				});
+				missles.forEach((missle, ix) => {
+					missle.draw({ lng: lng, lat: lat });
+					updateEnemyHeadings(missle);
+					if (missle.distance < 0.00008 && missle.distance > 0) {
+						console.log("kill");
+						deadcount++;
+						if (deadcount == 1) {
+							deadTime = Date.now();
+							localStorage.setItem("best", deadTime - startTime);
+						}
+						missle.invisble = true;
+						missle.draw({ lng: lng, lat: lat });
+						missles.splice(ix, 1);
+					}
+				});
+				map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
+				if (deadTime == 0) {
+					let ms = Date.now() - startTime;
+					timeString = `${(ms / 1000 / 60)
+						.toFixed(0)
+						.toString()
+						.padStart(2, "0")}:${(ms / 1000)
+						.toFixed(0)
+						.toString()
+						.padStart(2, "0")}`;
+				} else {
+					let ms = deadTime - startTime;
+					timeString = `${(ms / 1000 / 60)
+						.toFixed(0)
+						.toString()
+						.padStart(2, "0")}:${(ms / 1000)
+						.toFixed(0)
+						.toString()
+						.padStart(2, "0")}`;
+				}
+			}, 50);
+		}
 	}
 
 	onMount(() => {
@@ -252,8 +266,8 @@
 />
 <Button
 	id="start"
-	top="0%"
-	left="0%"
+	top="60%"
+	left="40%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
 	label="Retry"
@@ -261,7 +275,7 @@
 	opacity={deadcount > 0 ? 1 : 0}
 	height="7%"
 	onClick={() => {
-		window.location.reload();
+		restart();
 	}}
 	backgroundColor="#2400ff20"
 />
