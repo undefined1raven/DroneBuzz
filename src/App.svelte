@@ -28,6 +28,7 @@
 	}
 	44.35381465897361, 26.02985041110172;
 	let map;
+	let lastEnemyRefresh = 0;
 	let startTime = 0;
 	let bestTime = "--";
 	let timeString = "--";
@@ -86,6 +87,7 @@
 		deadTime = 0;
 		deadcount = 0;
 		started = true;
+		lastEnemyRefresh = 0;
 		start(true);
 	}
 
@@ -195,6 +197,29 @@
 						.toFixed(0)
 						.toString()
 						.padStart(2, "0")}`;
+				}
+				if (
+					Date.now() - lastEnemyRefresh > 30000 ||
+					lastEnemyRefresh == 0
+				) {
+					lastEnemyRefresh = Date.now();
+					for (let ix = 0; ix <= 9; ix++) {
+						let ncoords = new getRandomCoords(lng, lat, 8).get();
+						let id = `${Math.random().toFixed(4) + Date.now()}`;
+						let eni = new Enemy(
+							map,
+							{ lng: ncoords.lng, lat: ncoords.lat },
+							"",
+							"",
+							(enemiesArr) => {},
+							id,
+							enemies,
+							missles,
+							20,
+							1000
+						);
+						enemies.push(eni);
+					}
 				}
 			}, 50);
 		}
