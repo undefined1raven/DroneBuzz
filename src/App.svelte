@@ -71,6 +71,7 @@
 	let defensiveMissleCooldown = 800;
 	let lastDefensiveMissleFire = Date.now();
 	let isHunted = false;
+	const mvs = 0.0002;
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -267,7 +268,7 @@
 						missle.distance > 0
 					) {
 						deadcount++;
-						console.log(deadcount)
+						console.log(deadcount);
 						if (deadcount == 1) {
 							deadTime = Date.now();
 							localStorage.setItem("best", deadTime - startTime);
@@ -464,7 +465,7 @@
 
 	onMount(() => {
 		updateBest();
-		
+
 		map.on("load", () => {
 			map.addSource("source", {
 				type: "geojson",
@@ -572,15 +573,15 @@
 		}
 	}
 
-	const mvs = 0.0002;
-	let fullScreenBtnDisplay = "flex";
 	function pans() {
-		window.screen.orientation
-			.lock("landscape")
-			.then((res) => {})
-			.catch((e) => {});
-		document.documentElement.requestFullscreen();
-		fullScreenBtnDisplay = "none";
+		if (document.documentElement.requestFullscreen) {
+			document.documentElement.requestFullscreen();
+			console.log("fc");
+		}
+		if (document.documentElement.webkitRequestFullscreen) {
+			document.documentElement.webkitRequestFullscreen();
+			console.log("fs");
+		}
 	}
 </script>
 
@@ -588,7 +589,6 @@
 <main>
 	<Map
 		attribution={false}
-		on:click={pans}
 		minzoom="14"
 		maxzoom="14"
 		id="map"
@@ -610,7 +610,7 @@
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
 <Button
-	on:click={pans}
+	onClick={pans}
 	id="fullscreen"
 	top="20%"
 	left="30%"
@@ -622,9 +622,6 @@
 	verticalFont="2.2vh"
 	opacity={started ? 0 : 1}
 	height="10%"
-	onClick={() => {
-		start();
-	}}
 	backgroundColor="#2400ff20"
 />
 <Button
