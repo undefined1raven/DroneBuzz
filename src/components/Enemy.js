@@ -42,7 +42,7 @@ class Enemy {
         this.missleCooldown = missleCooldown;
         this.lastMissle = 0;
         this.lastDefensiveMissle = Date.now();
-        this.distance = distance;
+        this.distance = 1000000;
         this.invisble = false;
         this.countermeasuresCount = countermeasuresCount;
         this.countermeasuresCooldown = countermeasuresCooldown;
@@ -115,10 +115,10 @@ class Enemy {
     }
 
     defensiveFire() {
-        if (this.countermeasuresCount > 0 && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && !this.invisble) {
+        if (this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown) {
             console.log('enemy defensive')
             this.lastDefensiveMissle = Date.now();
-            let defensiveMissle = new Missle(this.map, this.coords, 0.00008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+            let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
             this.enemyDefensiveMissles.push(defensiveMissle);
             this.countermeasuresCount--;
         }

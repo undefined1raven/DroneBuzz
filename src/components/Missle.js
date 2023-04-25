@@ -49,7 +49,7 @@ class Missle {
         this.bearing = 0;
         this.destroy = destrory;
         this.killRadius = killRadius;
-        this.distance = distance;
+        this.distance = 1000000;
         this.invisble = false;
         this.colorlineRadiusHash = { 'offensive': '10vh', 'defensive': '5vh' };
         this.targetID = 0;
