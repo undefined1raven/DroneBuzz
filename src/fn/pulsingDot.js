@@ -1,4 +1,4 @@
-function pulsingDot(size, map) {
+function pulsingDot(size, map, alpha) {
     return {
         width: size,
         height: size,
@@ -32,7 +32,7 @@ function pulsingDot(size, map) {
                 0,
                 Math.PI * 2
             );
-            context.fillStyle = `rgba(255, 0, 100, ${0.4 - t})`;
+            context.fillStyle = `rgba(255, 0, 100, ${alpha + 0.2 - t})`;
             context.fill();
 
             // Draw the inner circle.
@@ -44,7 +44,7 @@ function pulsingDot(size, map) {
                 0,
                 Math.PI * 2
             );
-            context.fillStyle = "rgba(255, 0, 0, 0.2)";
+            context.fillStyle = `rgba(255, 0, 0, ${alpha})`;
             context.strokeColor = "rgba(255, 0, 0, 1)";
             context.lineWidth = 2 + 4 * (1 - t);
             context.fill();

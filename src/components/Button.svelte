@@ -1,4 +1,6 @@
 <script>
+    import { onMount } from "svelte";
+
     let id;
     let label;
     let className;
@@ -12,9 +14,19 @@
     let height;
     let top;
     let left;
-    let fontSize;
+    let horizontalFont;
+    let verticalFont;
     let opacity;
     let touchStartUnix = 0;
+
+    const root = document.documentElement;
+    let fontSize = "2.4vh";
+    let clientWidth = root.clientWidth;
+    let clientHeight = root.clientHeight;
+
+    onMount(() => {
+        fontController();
+    });
 
     const updateTouchUnix = (tx) => {
         touchStartUnix = tx;
@@ -32,6 +44,30 @@
         }
     };
 
+    function onResize(e) {
+        clientHeight = root.clientHeight;
+        clientWidth = root.clientWidth;
+        console.log(clientWidth);
+        fontController();
+    }
+
+    function fontController() {
+        let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
+        if (orientation == "portrait") {
+            if (verticalFont != undefined) {
+                fontSize = verticalFont;
+            } else {
+                fontSize = "1.4vh";
+            }
+        } else {
+            if (horizontalFont != undefined) {
+                fontSize = horizontalFont;
+            } else {
+                fontSize = "2.8vh";
+            }
+        }
+    }
+
     export {
         lightColor,
         id,
@@ -45,12 +81,14 @@
         height,
         top,
         left,
-        fontSize,
+        horizontalFont,
+        verticalFont,
         opacity,
-        style
+        style,
     };
 </script>
 
+<svelte:window on:resize={onResize} />
 <div
     {id}
     on:touchstart={() => updateTouchUnix(Date.now())}

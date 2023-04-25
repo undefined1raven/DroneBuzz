@@ -1,6 +1,7 @@
 import { DefensiveFriendlyMissleElement, RedlineElement, BluelineElement, MissleElement, FriendlyMissleElement, DefensiveEnemyMissleElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
+import radiusFromPercentage from "../fn/radiusFromPercentage.js";
 
 
 
@@ -51,7 +52,7 @@ class Missle {
         this.killRadius = killRadius;
         this.distance = 1000000;
         this.invisble = false;
-        this.colorlineRadiusHash = { 'offensive': '10vh', 'defensive': '5vh' };
+        this.colorlineRadiusHash = { 'offensive': radiusFromPercentage(4.620853081) + 'px', 'defensive': radiusFromPercentage(2.31042654) + 'px' };
         this.targetID = 0;
     }
 
@@ -118,7 +119,7 @@ class Missle {
     }
 
     draw(coords) {
-        if(coords != undefined){
+        if (coords != undefined) {
             let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
             if (distance < 0.808) {
                 if (!this.visible && !this.invisble) {
@@ -134,7 +135,7 @@ class Missle {
             if (distance > 5) {
                 // this.destroy(this.enemiesArr);
             }
-        }else{
+        } else {
             this.hideMissle();
         }
     }

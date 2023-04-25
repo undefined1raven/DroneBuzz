@@ -1,11 +1,13 @@
 <script>
     import Button from "./Button.svelte";
 
-    let opacity;
-    export { opacity };
+    let started;
+    export { started };
 </script>
 
-<div class="navDashboard" style="opacity: {opacity};" />
+{#if started}
+    <div class="navDashboard" />
+{/if}
 
 <style>
     .navDashboard {

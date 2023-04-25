@@ -1,15 +1,17 @@
 <script>
     import Button from "./Button.svelte";
-    let opacity;
+    let started;
     let fire;
     let defensiveFire;
-    let counterButtonOpacity;
+    let isHunted;
 
-    export { opacity, fire, defensiveFire, counterButtonOpacity };
+    export { started, fire, defensiveFire, isHunted };
 </script>
 
-<div class="opsDashboard" style="opacity: {opacity};">
+{#if started}
+<div class="opsDashboard">
     <Button
+        id="fireButton"
         top="20.290322581%"
         left="20.438016529%"
         color="#5C41FF"
@@ -18,12 +20,14 @@
         lightColor="#7963FF"
         width="60.0331%"
         height="55.032258065%"
-        fontSize="4.2vh"
+        horizontalFont="4.2vh"
+        VerticalFont="2.5vw"
         onClick={() => {
             fire();
         }}
         backgroundColor="#2400FF20"
     />
+    {#if isHunted}
     <Button
         top="-45.290322581%"
         left="20.438016529%"
@@ -33,15 +37,16 @@
         label="Deploy Countermeasures"
         width="60.0331%"
         height="55.032258065%"
-        fontSize="4.2vh"
-        opacity="{counterButtonOpacity}"
+        horizontalFont="4.2vh"
+        VerticalFont="2.5vw"
         onClick={(e) => {
             defensiveFire();
         }}
         backgroundColor="#FF001020"
     />
+    {/if}
 </div>
-
+{/if}
 <style>
     .opsDashboard {
         position: absolute;

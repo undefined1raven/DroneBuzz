@@ -11,6 +11,7 @@
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
 	import { pulsingDot } from "./fn/pulsingDot.js";
+	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
 	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
 	import {
 		BluelineElement,
@@ -173,10 +174,16 @@
 		}
 
 		if (!isRestart) {
-			let defenceline = new DefenceLineElement("20vh").getElement();
-			let blueline = new BluelineElement("80vh").getElement();
+			let bluelinePercentage = 36.966824645;
+			let rangePercentage = 55.450236967;
+			let defenceline = new DefenceLineElement("20%").getElement();
+			let blueline = new BluelineElement(
+				`${radiusFromPercentage(bluelinePercentage)}px`
+			).getElement();
 			let playerElement = new PlayerElement().getElement();
-			let rangeline = new PlayerRangeElement("120vh").getElement();
+			let rangeline = new PlayerRangeElement(
+				`${radiusFromPercentage(rangePercentage)}px`
+			).getElement();
 			var playerMarker = new maplibre.Marker(playerElement)
 				.setLngLat([lng, lat])
 				.addTo(map);
@@ -260,6 +267,7 @@
 						missle.distance > 0
 					) {
 						deadcount++;
+						console.log(deadcount)
 						if (deadcount == 1) {
 							deadTime = Date.now();
 							localStorage.setItem("best", deadTime - startTime);
@@ -445,17 +453,18 @@
 		}
 	}
 
+	function onKeyDown(e) {
+		if (e.key == " " && started) {
+			fire();
+		}
+		if (e.key == "d" || e.key == "D") {
+			defensiveFire();
+		}
+	}
+
 	onMount(() => {
-		window.addEventListener("keyup", (e) => {
-			if (e.key == " " && started) {
-				fire();
-			}
-			if (e.key == "d" || e.key == "D") {
-				defensiveFire();
-			}
-		});
 		updateBest();
-		console.log(map);
+		
 		map.on("load", () => {
 			map.addSource("source", {
 				type: "geojson",
@@ -468,10 +477,12 @@
 					},
 				},
 			});
-			const pulsingDotx = pulsingDot(200, map);
+			const pulsingDotx = pulsingDot(200, map, 0.2);
+			const pulsingDotxx = pulsingDot(200, map, 0.8);
 
 			// Add the image to the map style.
 			map.addImage("pulsing-dot", pulsingDotx, { pixelRatio: 2 });
+			map.addImage("pulsing-dotx", pulsingDotxx, { pixelRatio: 2 });
 
 			// Create a new layer and style it using `fill-pattern`.
 			map.addLayer({
@@ -481,6 +492,15 @@
 				paint: {
 					"fill-pattern": "pulsing-dot",
 					"fill-outline-color": "red",
+				},
+			});
+			map.addLayer({
+				id: "patternx-layer",
+				type: "line",
+				source: "source",
+				paint: {
+					"line-pattern": "pulsing-dotx",
+					"line-width": 5,
 				},
 			});
 		});
@@ -564,24 +584,18 @@
 	}
 </script>
 
+<svelte:window on:keydown={onKeyDown} />
 <main>
 	<Map
 		attribution={false}
 		on:click={pans}
+		minzoom="14"
+		maxzoom="14"
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
 		location={{ lng: lng, lat: lat, zoom: 35 }}
 		bind:map
-		bind:zoom
-		bind:center
 	/>
-	<div
-		on:click={pans}
-		style="display: {fullScreenBtnDisplay}"
-		id="fullScreenButton"
-	>
-		Go Full Screen
-	</div>
 	<div class="joy" id="joy" />
 </main>
 <div id="dashboard">
@@ -590,25 +604,22 @@
 		{timeString}
 		{bestTime}
 		{fire}
-		opacity={started ? 1 : 0}
+		{started}
 	/>
-	<NavDashboard opacity={started ? 1 : 0} />
-	<OpsDashboard
-		{fire}
-		{defensiveFire}
-		counterButtonOpacity={isHunted ? 1 : 0}
-		opacity={started ? 1 : 0}
-	/>
+	<NavDashboard {started} />
+	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
 <Button
-	id="start"
-	top="40%"
+	on:click={pans}
+	id="fullscreen"
+	top="20%"
 	left="30%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
-	label="Start Survival Run"
+	label="Go Fullscreen"
 	width="50%"
-	fontSize="2.4vh"
+	horizontalFont="2.4vh"
+	verticalFont="2.2vh"
 	opacity={started ? 0 : 1}
 	height="10%"
 	onClick={() => {
@@ -618,12 +629,30 @@
 />
 <Button
 	id="start"
+	top="40%"
+	left="30%"
+	color="#5c41ff"
+	borderColor="#5c41ff"
+	label="Start Survival Run"
+	width="50%"
+	horizontalFont="2.4vh"
+	verticalFont="2.2vh"
+	opacity={started ? 0 : 1}
+	height="10%"
+	onClick={() => {
+		start();
+	}}
+	backgroundColor="#2400ff20"
+/>
+<Button
+	id="retry"
 	top="60%"
 	left="40%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
 	label="Retry"
-	fontSize="3vh"
+	horizontalFont="2.7vh"
+	verticalFont="2.2vh"
 	width="20%"
 	opacity={deadcount > 0 ? 1 : 0}
 	height="7%"

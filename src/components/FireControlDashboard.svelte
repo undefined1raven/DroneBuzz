@@ -4,117 +4,51 @@
     let deadcount;
     let timeString;
     let bestTime;
-    let opacity;
+    let started;
     let fire;
 
-    export { timeString, deadcount, bestTime, opacity, fire };
+    export { timeString, deadcount, bestTime, started, fire };
 </script>
 
-<div class="fireControlDashboard" style="opacity: {opacity};">
-    <div id="fireControl">
-        <Button
-            top="27.419354839%"
-            left="57.438016529%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="LOS"
-            width="11.983471074%"
-            height="29.032258065%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF20"
-        />
-        <Button
-            top="27.419354839%"
-            left="71.487603306%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="Auto"
-            width="11.983471074%"
-            height="29.032258065%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF20"
-        />
-        <Button
-            top="27.419354839%"
-            left="0%"
-            color="#FF0010"
-            borderColor="#2400FF00"
-            label={`Drone Dead Count: ${deadcount}`}
-            width="55.983471074%"
-            height="29.032258065%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF00"
-        />
-        <Button
-                id="time"
-                top="60.419354839%"
+{#if started}
+    <div class="fireControlDashboard">
+        <div id="fireControl">
+            <Button
+                top="27.419354839%"
                 left="0%"
-                color="#2400FF"
+                color="#FF0010"
                 borderColor="#2400FF00"
-                label={`Current<>Best | ${timeString}<>${bestTime == undefined ? 'N/A' : bestTime}`}
+                label={`Drone Dead Count: ${deadcount}`}
                 width="55.983471074%"
                 height="29.032258065%"
-                fontSize="2.8vh"
+                horizontalFont="3.5vh"
+                VerticalFont="1.5vh"
                 onClick={() => {
                     console.log("fireee");
                 }}
                 backgroundColor="#2400FF00"
             />
+            <Button
+                id="time"
+                top="60.419354839%"
+                left="0%"
+                color="#2400FF"
+                borderColor="#2400FF00"
+                label={`Current<>Best | ${timeString}<>${
+                    bestTime == undefined ? "N/A" : bestTime
+                }`}
+                width="55.983471074%"
+                height="29.032258065%"
+                horizontalFont="2.8vh"
+                VerticalFont="1.1vh"
+                onClick={() => {
+                    console.log("fireee");
+                }}
+                backgroundColor="#2400FF00"
+            />
+        </div>
     </div>
-    <div id="fireControlTargetSelection">
-        <Button
-            top="9.677419355%"
-            left="88.016528926%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="01"
-            width="9.917355372%"
-            height="22.580645161%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF20"
-        />
-        <Button
-            top="38.709677419%"
-            left="88.016528926%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="02"
-            width="9.917355372%"
-            height="22.580645161%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF20"
-        />
-        <Button
-            top="67.741935484%"
-            left="88.016528926%"
-            color="#5C41FF"
-            borderColor="#2400FF"
-            label="03"
-            width="9.917355372%"
-            height="22.580645161%"
-            fontSize="3.5vh"
-            onClick={() => {
-                console.log("fireee");
-            }}
-            backgroundColor="#2400FF20"
-        />
-    </div>
-</div>
+{/if}
 
 <style>
     .fireControlDashboard {

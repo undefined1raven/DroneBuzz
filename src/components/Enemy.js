@@ -2,6 +2,7 @@ import { RedlineElement, BluelineElement, RangeElement, EnemyElement } from "./M
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../fn/RangeScaler.js";
 import { Missle } from "./Missle.js";
+import radiusFromPercentage from "../fn/radiusFromPercentage.js";
 
 
 
@@ -76,8 +77,8 @@ class Enemy {
     }
 
     addEnemy() {
-        let redline = new RedlineElement('50vh').getElement();
-        let rangeline = new RangeElement('120vh').getElement();
+        let redline = new RedlineElement(`${radiusFromPercentage(23.104265403)}px`).getElement();
+        let rangeline = new RangeElement(`${radiusFromPercentage(55.450236967)}px`).getElement();
         var playerMarker = new maplibre.Marker(this.enemyElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);

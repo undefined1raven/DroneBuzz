@@ -1,4 +1,5 @@
 
+import radiusFromPercentage from "../fn/radiusFromPercentage.js";
 
 class MarkerElement {
     constructor(width, height, src) {
@@ -80,49 +81,52 @@ class PlayerRangeElement {
 
 class PlayerElement {
     getElement() {
-        return new MarkerElement("7vh",
-            "8vh",
+        return new MarkerElement("3.234597156%",
+            "8%",
             "./visual_assets/player.svg").getElement()
     }
 }
 
 class EnemyElement {
     getElement() {
-        return new MarkerElement("7vh",
-            "8vh",
+        return new MarkerElement("3.234597156%",
+            "8%",
             "./visual_assets/enemy.svg").getElement()
     }
 }
 
 
+let missleWidth = radiusFromPercentage(1.848341232) + 'px';
+let missleHeight = radiusFromPercentage(1.386255924) + 'px';
+
 class MissleElement {
     getElement() {
-        return new MarkerElement("4vh",
-            "3vh",
+        return new MarkerElement(missleWidth,
+            missleHeight,
             "./visual_assets/missle.svg").getElement()
     }
 }
 
 class FriendlyMissleElement {
     getElement() {
-        return new MarkerElement("4vh",
-            "3vh",
+        return new MarkerElement(missleWidth,
+            missleHeight,
             "./visual_assets/missle_friendly.svg").getElement()
     }
 }
 
 class DefensiveFriendlyMissleElement {
     getElement() {
-        return new MarkerElement("4vh",
-            "3vh",
+        return new MarkerElement(missleWidth,
+            missleHeight,
             "./visual_assets/defensive_missle_friendly.svg").getElement()
     }
 }
 
 class DefensiveEnemyMissleElement {
     getElement() {
-        return new MarkerElement("4vh",
-            "3vh",
+        return new MarkerElement(missleWidth,
+            missleHeight,
             "./visual_assets/defensive_missle_enemy.svg").getElement()
     }
 }
