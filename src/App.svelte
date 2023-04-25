@@ -10,7 +10,8 @@
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
-	
+	import { pulsingDot } from "./fn/pulsingDot.js";
+	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
 	import {
 		BluelineElement,
 		DefenceLineElement,
@@ -18,6 +19,7 @@
 		PlayerRangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
+	import { compute_slots } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -25,6 +27,20 @@
 		return Math.floor(Math.random() * (max - min) + min); //max e | min i
 	}
 	44.35381465897361, 26.02985041110172;
+
+	//---| Beta stuff
+	let missleBarrage = false;
+	const poly = [
+		[
+			[26.043736017648968, 44.358084898159746],
+			[26.030252535211645, 44.349560065388715],
+			[26.043381189163824, 44.3371511734548],
+			[26.065309589547212, 44.34192218298236],
+			[26.074818890582065, 44.34854514561738],
+			[26.055871049472785, 44.359632452118575],
+			[26.043736017648968, 44.358084898159746],
+		],
+	];
 
 	//---| Game State
 	let map;
@@ -106,6 +122,7 @@
 		enemies = [];
 		deadTime = 0;
 		deadcount = 0;
+		missleBarrage = false;
 		started = true;
 		lastEnemyRefresh = 0;
 		start(true);
@@ -202,6 +219,30 @@
 				playerDefenceLineMarker.setLngLat([lng, lat]);
 				playerBluelineMarker.setLngLat([lng, lat]);
 				playerRangeMarker.setLngLat([lng, lat]);
+
+				if (
+					booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
+					!missleBarrage
+				) {
+					// setTimeout(() => {
+						missleBarrage = true;
+						enemies = [];
+						for (let ix = 0; ix <= 150; ix++) {
+							let coords = new getRandomCoords(lng, lat, 5).get();
+							let missle = new Missle(
+								map,
+								coords,
+								0.00008,
+								"offensive",
+								"",
+								`${Math.random()}-${Date.now()}`,
+								0,
+								false
+							);
+							missles.push(missle);
+						}
+					// }, 300);
+				}
 
 				enemies.forEach((enemy) => {
 					enemy.draw({ lng: lng, lat: lat });
@@ -420,42 +461,24 @@
 					properties: {},
 					geometry: {
 						type: "Polygon",
-						coordinates: [
-							[
-								[26.043736017648968, 44.358084898159746],
-								[26.030252535211645, 44.349560065388715],
-								[26.043381189163824, 44.3371511734548],
-								[26.065309589547212, 44.34192218298236],
-								[26.074818890582065, 44.34854514561738],
-								[26.055871049472785, 44.359632452118575],
-								[26.043736017648968, 44.358084898159746],
-							],
-						],
+						coordinates: poly,
 					},
 				},
 			});
+			const pulsingDotx = pulsingDot(200, map);
 
-			// Load an image to use as the pattern from an external URL.
-			map.loadImage(
-				"../public/visual_assets/SAM_FieldDeco.svg",
-				(err, image) => {
-					// Throw an error if something goes wrong.
-					if (err) throw err;
+			// Add the image to the map style.
+			map.addImage("pulsing-dot", pulsingDotx, { pixelRatio: 2 });
 
-					// Add the image to the map style.
-					map.addImage("pattern", image);
-
-					// Create a new layer and style it using `fill-pattern`.
-					map.addLayer({
-						id: "pattern-layer",
-						type: "fill",
-						source: "source",
-						paint: {
-							"fill-pattern": "pattern",
-						},
-					});
-				}
-			);
+			// Create a new layer and style it using `fill-pattern`.
+			map.addLayer({
+				id: "pattern-layer",
+				type: "fill",
+				source: "source",
+				paint: {
+					"fill-pattern": "pulsing-dot",
+				},
+			});
 		});
 	});
 
