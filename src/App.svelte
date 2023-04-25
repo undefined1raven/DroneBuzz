@@ -225,22 +225,25 @@
 					!missleBarrage
 				) {
 					// setTimeout(() => {
-						missleBarrage = true;
-						enemies = [];
-						for (let ix = 0; ix <= 150; ix++) {
-							let coords = new getRandomCoords(lng, lat, 5).get();
-							let missle = new Missle(
-								map,
-								coords,
-								0.00008,
-								"offensive",
-								"",
-								`${Math.random()}-${Date.now()}`,
-								0,
-								false
-							);
-							missles.push(missle);
-						}
+					missleBarrage = true;
+					enemies.forEach((enemy, ix) => {
+						removeEntity(enemy, enemies, ix);
+					});
+					enemies = [];
+					for (let ix = 0; ix <= 60; ix++) {
+						let coords = new getRandomCoords(lng, lat, 5).get();
+						let missle = new Missle(
+							map,
+							coords,
+							0.00008,
+							"offensive",
+							"",
+							`${Math.random()}-${Date.now()}`,
+							0,
+							false
+						);
+						missles.push(missle);
+					}
 					// }, 300);
 				}
 
@@ -477,6 +480,7 @@
 				source: "source",
 				paint: {
 					"fill-pattern": "pulsing-dot",
+					"fill-outline-color": "red",
 				},
 			});
 		});
