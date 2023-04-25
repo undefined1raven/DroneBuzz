@@ -10,6 +10,7 @@
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
+	
 	import {
 		BluelineElement,
 		DefenceLineElement,
@@ -23,7 +24,6 @@
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min) + min); //max e | min i
 	}
-
 	44.35381465897361, 26.02985041110172;
 
 	//---| Game State
@@ -54,8 +54,6 @@
 	let defensiveMissleCooldown = 800;
 	let lastDefensiveMissleFire = Date.now();
 	let isHunted = false;
-
-
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -413,6 +411,52 @@
 			}
 		});
 		updateBest();
+		console.log(map);
+		map.on("load", () => {
+			map.addSource("source", {
+				type: "geojson",
+				data: {
+					type: "Feature",
+					properties: {},
+					geometry: {
+						type: "Polygon",
+						coordinates: [
+							[
+								[26.043736017648968, 44.358084898159746],
+								[26.030252535211645, 44.349560065388715],
+								[26.043381189163824, 44.3371511734548],
+								[26.065309589547212, 44.34192218298236],
+								[26.074818890582065, 44.34854514561738],
+								[26.055871049472785, 44.359632452118575],
+								[26.043736017648968, 44.358084898159746],
+							],
+						],
+					},
+				},
+			});
+
+			// Load an image to use as the pattern from an external URL.
+			map.loadImage(
+				"../public/visual_assets/SAM_FieldDeco.svg",
+				(err, image) => {
+					// Throw an error if something goes wrong.
+					if (err) throw err;
+
+					// Add the image to the map style.
+					map.addImage("pattern", image);
+
+					// Create a new layer and style it using `fill-pattern`.
+					map.addLayer({
+						id: "pattern-layer",
+						type: "fill",
+						source: "source",
+						paint: {
+							"fill-pattern": "pattern",
+						},
+					});
+				}
+			);
+		});
 	});
 
 	function defensiveFire() {
