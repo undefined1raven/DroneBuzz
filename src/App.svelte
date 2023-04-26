@@ -228,32 +228,32 @@
 				playerBluelineMarker.setLngLat([lng, lat]);
 				playerRangeMarker.setLngLat([lng, lat]);
 
-				if (
-					booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
-					!missleBarrage
-				) {
-					// setTimeout(() => {
-					missleBarrage = true;
-					enemies.forEach((enemy, ix) => {
-						removeEntity(enemy, enemies, ix);
-					});
-					enemies = [];
-					for (let ix = 0; ix <= 60; ix++) {
-						let coords = new getRandomCoords(lng, lat, 5).get();
-						let missle = new Missle(
-							map,
-							coords,
-							0.00008,
-							"offensive",
-							"",
-							`${Math.random()}-${Date.now()}`,
-							0,
-							false
-						);
-						missles.push(missle);
-					}
-					// }, 300);
-				}
+				// if (
+				// 	booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
+				// 	!missleBarrage
+				// ) {
+				// 	// setTimeout(() => {
+				// 	missleBarrage = true;
+				// 	enemies.forEach((enemy, ix) => {
+				// 		removeEntity(enemy, enemies, ix);
+				// 	});
+				// 	enemies = [];
+				// 	for (let ix = 0; ix <= 60; ix++) {
+				// 		let coords = new getRandomCoords(lng, lat, 5).get();
+				// 		let missle = new Missle(
+				// 			map,
+				// 			coords,
+				// 			0.00008,
+				// 			"offensive",
+				// 			"",
+				// 			`${Math.random()}-${Date.now()}`,
+				// 			0,
+				// 			false
+				// 		);
+				// 		missles.push(missle);
+				// 	}
+				// 	// }, 300);
+				// }
 
 				enemies.forEach((enemy) => {
 					enemy.draw({ lng: lng, lat: lat });
@@ -466,45 +466,45 @@
 	onMount(() => {
 		updateBest();
 
-		map.on("load", () => {
-			map.addSource("source", {
-				type: "geojson",
-				data: {
-					type: "Feature",
-					properties: {},
-					geometry: {
-						type: "Polygon",
-						coordinates: poly,
-					},
-				},
-			});
-			const pulsingDotx = pulsingDot(200, map, 0.2);
-			const pulsingDotxx = pulsingDot(200, map, 0.8);
+		// map.on("load", () => {
+		// 	map.addSource("source", {
+		// 		type: "geojson",
+		// 		data: {
+		// 			type: "Feature",
+		// 			properties: {},
+		// 			geometry: {
+		// 				type: "Polygon",
+		// 				coordinates: poly,
+		// 			},
+		// 		},
+		// 	});
+		// 	// const pulsingDotx = pulsingDot(200, map, 0.2);
+		// 	// const pulsingDotxx = pulsingDot(200, map, 0.8);
 
-			// Add the image to the map style.
-			map.addImage("pulsing-dot", pulsingDotx, { pixelRatio: 2 });
-			map.addImage("pulsing-dotx", pulsingDotxx, { pixelRatio: 2 });
+		// 	// // Add the image to the map style.
+		// 	// map.addImage("pulsing-dot", pulsingDotx, { pixelRatio: 2 });
+		// 	// map.addImage("pulsing-dotx", pulsingDotxx, { pixelRatio: 2 });
 
-			// Create a new layer and style it using `fill-pattern`.
-			map.addLayer({
-				id: "pattern-layer",
-				type: "fill",
-				source: "source",
-				paint: {
-					"fill-pattern": "pulsing-dot",
-					"fill-outline-color": "red",
-				},
-			});
-			map.addLayer({
-				id: "patternx-layer",
-				type: "line",
-				source: "source",
-				paint: {
-					"line-pattern": "pulsing-dotx",
-					"line-width": 5,
-				},
-			});
-		});
+		// 	// // Create a new layer and style it using `fill-pattern`.
+		// 	// map.addLayer({
+		// 	// 	id: "pattern-layer",
+		// 	// 	type: "fill",
+		// 	// 	source: "source",
+		// 	// 	paint: {
+		// 	// 		"fill-pattern": "pulsing-dot",
+		// 	// 		"fill-outline-color": "red",
+		// 	// 	},
+		// 	// });
+		// 	// map.addLayer({
+		// 	// 	id: "patternx-layer",
+		// 	// 	type: "line",
+		// 	// 	source: "source",
+		// 	// 	paint: {
+		// 	// 		"line-pattern": "pulsing-dotx",
+		// 	// 		"line-width": 5,
+		// 	// 	},
+		// 	// });
+		// });
 	});
 
 	function defensiveFire() {

@@ -101,6 +101,7 @@
 
 <style>
     .button {
+        user-select: none;
         position: absolute;
         display: flex;
         align-items: center;
