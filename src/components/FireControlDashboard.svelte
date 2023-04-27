@@ -1,5 +1,6 @@
 <script>
     import Button from "./Button.svelte";
+    import Label from "./Label.svelte";
 
     let deadcount;
     let timeString;
@@ -13,37 +14,31 @@
 {#if started}
     <div class="fireControlDashboard">
         <div id="fireControl">
-            <Button
+            <Label
                 top="27.419354839%"
                 left="0%"
                 color="#FF0010"
                 borderColor="#2400FF00"
-                label={`Drone Dead Count: ${deadcount}`}
+                text={`Drone Dead Count: ${deadcount}`}
                 width="55.983471074%"
                 height="29.032258065%"
                 horizontalFont="3.5vh"
                 VerticalFont="1.5vh"
-                onClick={() => {
-                    console.log("fireee");
-                }}
                 backgroundColor="#2400FF00"
             />
-            <Button
+            <Label
                 id="time"
                 top="60.419354839%"
                 left="0%"
                 color="#2400FF"
                 borderColor="#2400FF00"
-                label={`Current<>Best | ${timeString}<>${
+                text={`Current<>Best | ${timeString}<>${
                     bestTime == undefined ? "N/A" : bestTime
                 }`}
                 width="55.983471074%"
                 height="29.032258065%"
                 horizontalFont="2.8vh"
                 VerticalFont="1.1vh"
-                onClick={() => {
-                    console.log("fireee");
-                }}
                 backgroundColor="#2400FF00"
             />
         </div>

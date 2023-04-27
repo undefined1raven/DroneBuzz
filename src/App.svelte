@@ -29,6 +29,8 @@
 	}
 	44.35381465897361, 26.02985041110172;
 
+	const root = document.documentElement;
+
 	//---| Beta stuff
 	let missleBarrage = false;
 	const poly = [
@@ -53,6 +55,7 @@
 	let deadcount = 0;
 	let started = false;
 	let showCalibration = false;
+	let hasVerifiedCalibration = false;
 	//--| Entities
 	let enemies = [];
 	let missles = [];
@@ -464,14 +467,39 @@
 		}
 	}
 
+	function onWindowResize() {
+		setTimeout(() => {
+			if (!hasVerifiedCalibration) {
+				if (
+					root.clientHeight < root.clientWidth
+				) {
+					if (localStorage.getItem("calibration") == null) {
+						showCalibration = true;
+					} else {
+						let calibrationObj = JSON.parse(
+							localStorage.getItem("calibration")
+						);
+						if (
+							calibrationObj.screenWidth != root.clientWidth ||
+							calibrationObj.screenHeight != root.clientHeight
+						) {
+							showCalibration = true;
+						}
+					}
+					hasVerifiedCalibration = true;
+					console.log("landscape");
+				} else {
+					console.log("not landscape");
+				}
+			}
+		}, 150);
+	}
+
 	onMount(() => {
 		updateBest();
-
-		map.on("load", () => {
-			if (localStorage.getItem("calibration") == null) {
-				showCalibration = true;
-			}
-		});
+		map.on('load', () => {
+			onWindowResize();
+		})
 		// 	map.addSource("source", {
 		// 		type: "geojson",
 		// 		data: {
@@ -577,25 +605,32 @@
 		}
 	}
 
-	function onCalibrationFinish(args){
-		console.log(args.vertical)
-		console.log(args.horizontal)
+	function onCalibrationFinish(args) {
+		localStorage.setItem(
+			"calibration",
+			JSON.stringify({
+				vertical: args.vertical,
+				horizontal: args.horizontal,
+				screenHeight: root.clientHeight,
+				screenWidth: root.clientWidth,
+			})
+		);
 		showCalibration = false;
 	}
 
 	function pans() {
-		if (document.documentElement.requestFullscreen) {
-			document.documentElement.requestFullscreen();
+		if (root.requestFullscreen) {
+			root.requestFullscreen();
 			console.log("fc");
 		}
-		if (document.documentElement.webkitRequestFullscreen) {
-			document.documentElement.webkitRequestFullscreen();
+		if (root.webkitRequestFullscreen) {
+			root.webkitRequestFullscreen();
 			console.log("fs");
 		}
 	}
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window on:keydown={onKeyDown} on:resize={onWindowResize} />
 <main>
 	<Map
 		attribution={false}
