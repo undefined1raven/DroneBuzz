@@ -27,9 +27,24 @@ function deg2rad(deg) {
 
 
 class Enemy {
-    constructor(map, coords, difficulty, type, destrory, id, enemiesArr, missleArr, missleCount, missleCooldown, distance, countermeasuresCount, countermeasuresCooldown, enemyDefensiveMissles) {
+    constructor(map,
+        coords,
+        difficulty,
+        type, destrory,
+        id, enemiesArr,
+        missleArr, missleCount,
+        missleCooldown,
+        distance,
+        countermeasuresCount,
+        countermeasuresCooldown,
+        enemyDefensiveMissles,
+        rawDefensiveRadius,
+        screenDistanceObj,
+        rawOffensiveRadius) {
         this.id = id;
         this.map = map;
+        this.screenWidth = document.documentElement.clientWidth;
+        this.screenHeight = document.documentElement.clientHeight;
         this.coords = coords;
         this.difficulty = difficulty;
         this.enemyElement = new EnemyElement().getElement();
@@ -48,6 +63,9 @@ class Enemy {
         this.countermeasuresCount = countermeasuresCount;
         this.countermeasuresCooldown = countermeasuresCooldown;
         this.enemyDefensiveMissles = enemyDefensiveMissles;
+        this.offensiveRadius = ((rawOffensiveRadius * screenDistanceObj.horizontal) / 0.0360059738);
+        this.defensiveRadius = (rawDefensiveRadius * screenDistanceObj.horizontal) / 0.0361776352;
+        this.renderedOffensiveRadius = radiusFromPercentage((23.104265403 * this.offensiveRadius) / 0.0033626539605827906);
     }
 
     followStep(bearing) {
@@ -77,7 +95,7 @@ class Enemy {
     }
 
     addEnemy() {
-        let redline = new RedlineElement(`${radiusFromPercentage(23.104265403)}px`).getElement();
+        let redline = new RedlineElement(`${this.renderedOffensiveRadius}px`).getElement();
         let rangeline = new RangeElement(`${radiusFromPercentage(55.450236967)}px`).getElement();
         var playerMarker = new maplibre.Marker(this.enemyElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
@@ -115,23 +133,27 @@ class Enemy {
         }
     }
 
-    defensiveFire() {
-        if (this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown) {
-            console.log('enemy defensive')
-            this.lastDefensiveMissle = Date.now();
-            let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
-            this.enemyDefensiveMissles.push(defensiveMissle);
-            this.countermeasuresCount--;
+    onDistanceUpdate(enemyID) {
+        if (this.id == enemyID && this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && this.distance < this.defensiveRadius) {
+            this.defensiveFire();
+        }
+        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < this.offensiveRadius && !this.invisble) {
+            this.fireMissle();
         }
     }
 
+    defensiveFire() {
+        this.lastDefensiveMissle = Date.now();
+        let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+        this.enemyDefensiveMissles.push(defensiveMissle);
+        this.countermeasuresCount--;
+    }
+
     fireMissle() {
-        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < 0.00336666667 && !this.invisble) {
-            this.lastMissle = Date.now();
-            let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false);
-            this.missleArr.push(missle);
-            this.missleCount--;
-        }
+        this.lastMissle = Date.now();
+        let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+        this.missleArr.push(missle);
+        this.missleCount--;
     }
 
     draw(coords) {

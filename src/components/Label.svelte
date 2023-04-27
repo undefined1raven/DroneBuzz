@@ -42,21 +42,13 @@
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
         if (orientation == "portrait") {
             if (verticalFont != undefined) {
-                if(clientWidth < 1000){
-                    fontSize = verticalFont;
-                }else{
-                    fontSize = (parseFloat(horizontalFont.substring(0, horizontalFont.toString().length - 2)) - 0.4) + 'vh';
-                }
+                fontSize = ((parseFloat(verticalFont.substring(0, verticalFont.length - 2)) * clientWidth) / 640) + 'px'
             } else {
                 fontSize = "1.4vh";
             }
         } else {
             if (horizontalFont != undefined) {
-                if(clientWidth < 1000){
-                    fontSize = horizontalFont;
-                }else{
-                    fontSize = (parseFloat(horizontalFont.substring(0, horizontalFont.toString().length - 2)) - 1.2) + 'vh';
-                }
+                fontSize = ((parseFloat(horizontalFont.substring(0, horizontalFont.length - 2)) * clientWidth) / 640) + 'px'
             } else {
                 fontSize = "2.8vh";
             }

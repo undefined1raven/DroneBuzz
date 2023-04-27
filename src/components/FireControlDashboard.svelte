@@ -22,8 +22,8 @@
                 text={`Drone Dead Count: ${deadcount}`}
                 width="55.983471074%"
                 height="29.032258065%"
-                horizontalFont="3.5vh"
-                VerticalFont="1.5vh"
+                horizontalFont="10px"
+                VerticalFont="8px"
                 backgroundColor="#2400FF00"
             />
             <Label
@@ -37,8 +37,8 @@
                 }`}
                 width="55.983471074%"
                 height="29.032258065%"
-                horizontalFont="2.8vh"
-                VerticalFont="1.1vh"
+                horizontalFont="10px"
+                VerticalFont="8px"
                 backgroundColor="#2400FF00"
             />
         </div>

@@ -91,16 +91,16 @@
             top="23.404255319%"
             text="Tap on every side of the screen as close to the edge as possible"
             color="#2400FF"
-            horizontalFont="4.5vh"
-            verticalFont="1.4vh"
+            horizontalFont="15px"
+            verticalFont="12px"
         />
         <Label
             id="hi"
             top="5.404255319%"
             text="One-time calibration"
             color="#593EFF"
-            horizontalFont="3.3vh"
-            verticalFont="1.4vh"
+            horizontalFont="12px"
+            verticalFont="8px"
         />
         <CalibrationDeco {statusObj} />
     </div>

@@ -20,8 +20,8 @@
         lightColor="#7963FF"
         width="60.0331%"
         height="55.032258065%"
-        horizontalFont="4.2vh"
-        VerticalFont="2.5vw"
+        horizontalFont="18px"
+        VerticalFont="15px"
         onClick={() => {
             fire();
         }}
@@ -37,8 +37,8 @@
         label="Deploy Countermeasures"
         width="60.0331%"
         height="55.032258065%"
-        horizontalFont="4.2vh"
-        VerticalFont="2.5vw"
+        horizontalFont="12px"
+        VerticalFont="15px"
         onClick={(e) => {
             defensiveFire();
         }}

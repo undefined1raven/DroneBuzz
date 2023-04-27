@@ -13,6 +13,7 @@
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
 	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
+	import cartesianDistance from "./fn/cartesianDistance";
 	import {
 		BluelineElement,
 		DefenceLineElement,
@@ -56,6 +57,8 @@
 	let started = false;
 	let showCalibration = false;
 	let hasVerifiedCalibration = false;
+	let verticalScreenDistance = 0;
+	let horizontalScreenDistance = 0;
 	//--| Entities
 	let enemies = [];
 	let missles = [];
@@ -79,34 +82,27 @@
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
-		var a = targetLng - enemy.coords.lng;
-		var b = targetLat - enemy.coords.lat;
 
-		var c = Math.sqrt(a * a + b * b);
+		let distance = cartesianDistance(
+			{
+				lng: targetLng,
+				lat: targetLat,
+			},
+			{ lng: enemy.coords.lng, lat: enemy.coords.lat }
+		);
+		enemy.distance = distance;
 
-		enemy.distance = c;
-		if (enemy.killRadius != undefined) {
-		}
-
-		if (enemy.missleArr != undefined) {
-			friendlyMissles.forEach((missle) => {
-				if (
-					missle.distance < 0.00425082508 &&
-					missle.targetID == enemy.id
-				) {
-					enemy.defensiveFire();
-				}
-			});
-			if (c < 0.015) {
-				enemy.fireMissle();
-			}
+		if (enemy.onDistanceUpdate != undefined) {
+			enemy.onDistanceUpdate(enemy.id);
 		}
 
 		if (targetLat >= enemy.coords.lat) {
-			enemy.followStep(Math.acos((B / c).toFixed(15)) * 57.29578);
+			enemy.followStep(Math.acos((B / distance).toFixed(15)) * 57.29578);
 		} else {
 			let actualBearing = RangeScaler(
-				Math.abs(Math.acos((B / c).toFixed(15)) * 57.29578 + 180),
+				Math.abs(
+					Math.acos((B / distance).toFixed(15)) * 57.29578 + 180
+				),
 				180,
 				360,
 				360,
@@ -154,294 +150,344 @@
 	}
 
 	function start(isRestart) {
-		started = true;
-		startTime = Date.now();
-		for (let ix = 0; ix <= 20; ix++) {
-			let ncoords = new getRandomCoords(lng, lat, 15).get();
-			let id = `${Math.random().toFixed(4) + Date.now()}`;
-			let eni = new Enemy(
-				map,
-				{ lng: ncoords.lng, lat: ncoords.lat },
-				"",
-				"",
-				(enemiesArr) => {},
-				id,
-				enemies,
-				missles,
-				20,
-				1000,
-				0,
-				2,
-				500,
-				enemyDefensiveMissles
-			);
-			enemies.push(eni);
-		}
+		if (
+			verticalScreenDistance != 0 &&
+			horizontalScreenDistance != 0 &&
+			!showCalibration
+		) {
+			started = true;
+			startTime = Date.now();
+			for (let ix = 0; ix <= 21; ix++) {
+				let ncoords = new getRandomCoords(lng, lat, 15).get();
+				let id = `${Math.random().toFixed(4) + Date.now()}`;
+				let eni = new Enemy(
+					map,
+					{ lng: ncoords.lng, lat: ncoords.lat },
+					"",
+					"",
+					(enemiesArr) => {},
+					id,
+					enemies,
+					missles,
+					20,
+					1000,
+					0,
+					2,
+					500,
+					enemyDefensiveMissles,
+					0.00425082508,
+					{
+						vertical: verticalScreenDistance,
+						horizontal: horizontalScreenDistance,
+					},
+					0.00336666667
+				);
+				enemies.push(eni);
+			}
 
-		if (!isRestart) {
-			let bluelinePercentage = 36.966824645;
-			let rangePercentage = 55.450236967;
-			let defenceline = new DefenceLineElement("20%").getElement();
-			let blueline = new BluelineElement(
-				`${radiusFromPercentage(bluelinePercentage)}px`
-			).getElement();
-			let playerElement = new PlayerElement().getElement();
-			let rangeline = new PlayerRangeElement(
-				`${radiusFromPercentage(rangePercentage)}px`
-			).getElement();
-			var playerMarker = new maplibre.Marker(playerElement)
-				.setLngLat([lng, lat])
-				.addTo(map);
+			if (!isRestart) {
+				let bluelinePercentage = 36.966824645;
+				let rangePercentage = 55.450236967;
+				let defenceline = new DefenceLineElement("20%").getElement();
+				let blueline = new BluelineElement(
+					`${radiusFromPercentage(bluelinePercentage)}px`
+				).getElement();
+				let playerElement = new PlayerElement().getElement();
+				let rangeline = new PlayerRangeElement(
+					`${radiusFromPercentage(rangePercentage)}px`
+				).getElement();
+				var playerMarker = new maplibre.Marker(playerElement)
+					.setLngLat([lng, lat])
+					.addTo(map);
 
-			var playerDefenceLineMarker = new maplibre.Marker(defenceline)
-				.setLngLat([lng, lat])
-				.addTo(map);
+				var playerDefenceLineMarker = new maplibre.Marker(defenceline)
+					.setLngLat([lng, lat])
+					.addTo(map);
 
-			var playerBluelineMarker = new maplibre.Marker(blueline)
-				.setLngLat([lng, lat])
-				.addTo(map);
+				var playerBluelineMarker = new maplibre.Marker(blueline)
+					.setLngLat([lng, lat])
+					.addTo(map);
 
-			var playerRangeMarker = new maplibre.Marker(rangeline)
-				.setLngLat([lng, lat])
-				.addTo(map);
+				var playerRangeMarker = new maplibre.Marker(rangeline)
+					.setLngLat([lng, lat])
+					.addTo(map);
 
-			var joy = nipplejs.create({
-				zone: document.getElementById("joy"),
-				color: "#5c41ff30",
-				mode: "dynamic",
-				position: { left: "50%", top: "50%" },
-			});
-			joy.on("end", () => {
-				// ang = -1;
-			});
-			joy.on("move", (evt, data) => {
-				ang = data.angle.degree;
-				playerMarker._rotation = (data.angle.degree - 90) * -1;
-			});
-			setInterval(() => {
-				if (ang <= 180 && ang > 0 && ang != -1) {
-					lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
-					lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
-				}
-				if (ang > 180 && ang < 360 && ang != -1) {
-					lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
-					lat += RangeScaler(Math.abs(ang - 270), 90, 0, 0, mvs * -1);
-				}
-				playerMarker.setLngLat([lng, lat]);
-				playerDefenceLineMarker.setLngLat([lng, lat]);
-				playerBluelineMarker.setLngLat([lng, lat]);
-				playerRangeMarker.setLngLat([lng, lat]);
-
-				// if (
-				// 	booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
-				// 	!missleBarrage
-				// ) {
-				// 	// setTimeout(() => {
-				// 	missleBarrage = true;
-				// 	enemies.forEach((enemy, ix) => {
-				// 		removeEntity(enemy, enemies, ix);
-				// 	});
-				// 	enemies = [];
-				// 	for (let ix = 0; ix <= 60; ix++) {
-				// 		let coords = new getRandomCoords(lng, lat, 5).get();
-				// 		let missle = new Missle(
-				// 			map,
-				// 			coords,
-				// 			0.00008,
-				// 			"offensive",
-				// 			"",
-				// 			`${Math.random()}-${Date.now()}`,
-				// 			0,
-				// 			false
-				// 		);
-				// 		missles.push(missle);
-				// 	}
-				// 	// }, 300);
-				// }
-
-				enemies.forEach((enemy) => {
-					enemy.draw({ lng: lng, lat: lat });
-					updateEnemyHeadings(enemy, lng, lat);
+				var joy = nipplejs.create({
+					zone: document.getElementById("joy"),
+					color: "#5c41ff30",
+					mode: "dynamic",
+					position: { left: "50%", top: "50%" },
 				});
-
-				missles.forEach((missle, ix) => {
-					missle.draw({ lng: lng, lat: lat });
-					updateEnemyHeadings(missle, lng, lat);
-					if (
-						missle.distance < missle.killRadius &&
-						missle.distance > 0
-					) {
-						deadcount++;
-						console.log(deadcount);
-						if (deadcount == 1) {
-							deadTime = Date.now();
-							localStorage.setItem("best", deadTime - startTime);
-						}
-						removeEntity(missle, missles, ix);
+				joy.on("end", () => {
+					// ang = -1;
+				});
+				joy.on("move", (evt, data) => {
+					ang = data.angle.degree;
+					playerMarker._rotation = (data.angle.degree - 90) * -1;
+				});
+				setInterval(() => {
+					if (ang <= 180 && ang > 0 && ang != -1) {
+						lng += RangeScaler(ang, 0, 180, mvs, mvs * -1);
+						lat += RangeScaler(Math.abs(ang - 90), 0, 90, mvs, 0);
 					}
-				});
-				isHunted = missles.length != 0;
-				friendlyDefensiveMissles.forEach(
-					(friendlyDefensiveMissle, ix) => {
-						friendlyDefensiveMissle.draw({ lng: lng, lat: lat });
-						let targetEnemy = getNearestEnemy(missles);
+					if (ang > 180 && ang < 360 && ang != -1) {
+						lng += RangeScaler(ang - 270, -90, 90, mvs * -1, mvs);
+						lat += RangeScaler(
+							Math.abs(ang - 270),
+							90,
+							0,
+							0,
+							mvs * -1
+						);
+					}
+					playerMarker.setLngLat([lng, lat]);
+					playerDefenceLineMarker.setLngLat([lng, lat]);
+					playerBluelineMarker.setLngLat([lng, lat]);
+					playerRangeMarker.setLngLat([lng, lat]);
 
-						if (targetEnemy != undefined) {
-							const enemyMissleID = targetEnemy.id;
-							friendlyDefensiveMissle.targetID = enemyMissleID;
-							updateEnemyHeadings(
-								friendlyDefensiveMissle,
-								targetEnemy.coords.lng,
-								targetEnemy.coords.lat
-							);
-							if (
-								friendlyDefensiveMissle.distance <
-									friendlyDefensiveMissle.killRadius &&
-								friendlyDefensiveMissle.distance > 0
-							) {
+					// if (
+					// 	booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
+					// 	!missleBarrage
+					// ) {
+					// 	// setTimeout(() => {
+					// 	missleBarrage = true;
+					// 	enemies.forEach((enemy, ix) => {
+					// 		removeEntity(enemy, enemies, ix);
+					// 	});
+					// 	enemies = [];
+					// 	for (let ix = 0; ix <= 60; ix++) {
+					// 		let coords = new getRandomCoords(lng, lat, 5).get();
+					// 		let missle = new Missle(
+					// 			map,
+					// 			coords,
+					// 			0.00008,
+					// 			"offensive",
+					// 			"",
+					// 			`${Math.random()}-${Date.now()}`,
+					// 			0,
+					// 			false
+					// 		);
+					// 		missles.push(missle);
+					// 	}
+					// 	// }, 300);
+					// }
+
+					enemies.forEach((enemy) => {
+						enemy.draw({ lng: lng, lat: lat });
+						updateEnemyHeadings(enemy, lng, lat);
+					});
+
+					missles.forEach((missle, ix) => {
+						missle.draw({ lng: lng, lat: lat });
+						updateEnemyHeadings(missle, lng, lat);
+						if (
+							missle.distance < missle.killRadius &&
+							missle.distance > 0
+						) {
+							deadcount++;
+							if (deadcount == 1) {
+								deadTime = Date.now();
+								localStorage.setItem(
+									"best",
+									deadTime - startTime
+								);
+							}
+							removeEntity(missle, missles, ix);
+						}
+					});
+					isHunted = missles.length != 0;
+					friendlyDefensiveMissles.forEach(
+						(friendlyDefensiveMissle, ix) => {
+							friendlyDefensiveMissle.draw({
+								lng: lng,
+								lat: lat,
+							});
+							let targetEnemy = getNearestEnemy(missles);
+
+							if (targetEnemy != undefined) {
+								const enemyMissleID = targetEnemy.id;
+								friendlyDefensiveMissle.targetID =
+									enemyMissleID;
+								updateEnemyHeadings(
+									friendlyDefensiveMissle,
+									targetEnemy.coords.lng,
+									targetEnemy.coords.lat
+								);
+								if (
+									friendlyDefensiveMissle.distance <
+										friendlyDefensiveMissle.killRadius &&
+									friendlyDefensiveMissle.distance > 0
+								) {
+									removeEntity(
+										friendlyDefensiveMissle,
+										friendlyDefensiveMissles,
+										ix
+									);
+									if (Math.random() < 0.8) {
+										missles.forEach((missle, ix) => {
+											if (missle.id == enemyMissleID) {
+												removeEntity(
+													missle,
+													missles,
+													ix
+												);
+											}
+										});
+									}
+								}
+							} else {
 								removeEntity(
 									friendlyDefensiveMissle,
 									friendlyDefensiveMissles,
 									ix
 								);
-								if (Math.random() < 0.8) {
-									missles.forEach((missle, ix) => {
-										if (missle.id == enemyMissleID) {
-											removeEntity(missle, missles, ix);
-										}
-									});
-								}
 							}
-						} else {
-							removeEntity(
-								friendlyDefensiveMissle,
-								friendlyDefensiveMissles,
-								ix
-							);
 						}
-					}
-				);
+					);
 
-				enemyDefensiveMissles.forEach((enemyDefensiveMissle, ix) => {
-					enemyDefensiveMissle.draw({ lng: lng, lat: lat });
+					enemyDefensiveMissles.forEach(
+						(enemyDefensiveMissle, ix) => {
+							enemyDefensiveMissle.draw({ lng: lng, lat: lat });
 
-					const targetEnemy = getNearestEnemy(friendlyMissles);
+							const targetEnemy =
+								getNearestEnemy(friendlyMissles);
 
-					if (targetEnemy != undefined) {
-						const enemyMissleID = targetEnemy.id;
-						enemyDefensiveMissle.targetID = enemyMissleID;
-						updateEnemyHeadings(
-							enemyDefensiveMissle,
-							targetEnemy.coords.lng,
-							targetEnemy.coords.lat
-						);
-						if (
-							enemyDefensiveMissle.distance <=
-								enemyDefensiveMissle.killRadius &&
-							enemyDefensiveMissle.distance > 0
-						) {
-							removeEntity(
-								enemyDefensiveMissle,
-								enemyDefensiveMissles,
-								ix
-							);
+							if (targetEnemy != undefined) {
+								const enemyMissleID = targetEnemy.id;
+								enemyDefensiveMissle.targetID = enemyMissleID;
+								updateEnemyHeadings(
+									enemyDefensiveMissle,
+									targetEnemy.coords.lng,
+									targetEnemy.coords.lat
+								);
+								if (
+									enemyDefensiveMissle.distance <=
+										enemyDefensiveMissle.killRadius &&
+									enemyDefensiveMissle.distance > 0
+								) {
+									removeEntity(
+										enemyDefensiveMissle,
+										enemyDefensiveMissles,
+										ix
+									);
 
-							if (Math.random() < 0.4) {
-								friendlyMissles.forEach((missle, ix) => {
-									if (missle.id == enemyMissleID) {
-										removeEntity(
-											missle,
-											friendlyMissles,
-											ix
+									if (Math.random() < 0.4) {
+										friendlyMissles.forEach(
+											(missle, ix) => {
+												if (
+													missle.id == enemyMissleID
+												) {
+													removeEntity(
+														missle,
+														friendlyMissles,
+														ix
+													);
+												}
+											}
 										);
+									}
+								}
+							} else {
+								removeEntity(
+									enemyDefensiveMissle,
+									enemyDefensiveMissles,
+									ix
+								);
+							}
+						}
+					);
+
+					friendlyMissles.forEach((friendlyMissle, ix) => {
+						friendlyMissle.draw({ lng: lng, lat: lat });
+
+						let targetEnemy = getNearestEnemy(enemies);
+
+						if (targetEnemy != undefined) {
+							let enemyID = targetEnemy.id;
+							friendlyMissle.targetID = enemyID;
+							updateEnemyHeadings(
+								friendlyMissle,
+								targetEnemy.coords.lng,
+								targetEnemy.coords.lat
+							);
+							if (
+								friendlyMissle.distance <
+								friendlyMissle.killRadius
+							) {
+								removeEntity(
+									friendlyMissle,
+									friendlyMissles,
+									ix
+								);
+								enemies.forEach((enemy, ix) => {
+									if (enemy.id == enemyID) {
+										removeEntity(enemy, enemies, ix);
 									}
 								});
 							}
-						}
-					} else {
-						removeEntity(
-							enemyDefensiveMissle,
-							enemyDefensiveMissles,
-							ix
-						);
-					}
-				});
-
-				friendlyMissles.forEach((friendlyMissle, ix) => {
-					friendlyMissle.draw({ lng: lng, lat: lat });
-
-					let targetEnemy = getNearestEnemy(enemies);
-
-					if (targetEnemy != undefined) {
-						let enemyID = targetEnemy.id;
-						friendlyMissle.targetID = enemyID;
-						updateEnemyHeadings(
-							friendlyMissle,
-							targetEnemy.coords.lng,
-							targetEnemy.coords.lat
-						);
-						if (
-							friendlyMissle.distance < friendlyMissle.killRadius
-						) {
+						} else {
 							removeEntity(friendlyMissle, friendlyMissles, ix);
-							enemies.forEach((enemy, ix) => {
-								if (enemy.id == enemyID) {
-									removeEntity(enemy, enemies, ix);
-								}
-							});
 						}
+					});
+					map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
+					if (deadTime == 0) {
+						let ms = Date.now() - startTime;
+						timeString = `${(ms / 1000 / 60)
+							.toFixed(0)
+							.toString()
+							.padStart(2, "0")}:${(ms / 1000)
+							.toFixed(0)
+							.toString()
+							.padStart(2, "0")}`;
 					} else {
-						removeEntity(friendlyMissle, friendlyMissles, ix);
+						let ms = deadTime - startTime;
+						timeString = `${(ms / 1000 / 60)
+							.toFixed(0)
+							.toString()
+							.padStart(2, "0")}:${(ms / 1000)
+							.toFixed(0)
+							.toString()
+							.padStart(2, "0")}`;
 					}
-				});
-				map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
-				if (deadTime == 0) {
-					let ms = Date.now() - startTime;
-					timeString = `${(ms / 1000 / 60)
-						.toFixed(0)
-						.toString()
-						.padStart(2, "0")}:${(ms / 1000)
-						.toFixed(0)
-						.toString()
-						.padStart(2, "0")}`;
-				} else {
-					let ms = deadTime - startTime;
-					timeString = `${(ms / 1000 / 60)
-						.toFixed(0)
-						.toString()
-						.padStart(2, "0")}:${(ms / 1000)
-						.toFixed(0)
-						.toString()
-						.padStart(2, "0")}`;
-				}
-				if (
-					Date.now() - lastEnemyRefresh > 30000 ||
-					lastEnemyRefresh == 0
-				) {
-					lastEnemyRefresh = Date.now();
-					for (let ix = 0; ix <= 12; ix++) {
-						let ncoords = new getRandomCoords(lng, lat, 8).get();
-						let id = `${Math.random().toFixed(4) + Date.now()}`;
-						let eni = new Enemy(
-							map,
-							{ lng: ncoords.lng, lat: ncoords.lat },
-							"",
-							"",
-							(enemiesArr) => {},
-							id,
-							enemies,
-							missles,
-							20,
-							1000,
-							0,
-							2,
-							500,
-							enemyDefensiveMissles
-						);
-						enemies.push(eni);
+					if (
+						Date.now() - lastEnemyRefresh > 30000 ||
+						lastEnemyRefresh == 0
+					) {
+						lastEnemyRefresh = Date.now();
+						for (let ix = 0; ix <= 12; ix++) {
+							let ncoords = new getRandomCoords(
+								lng,
+								lat,
+								8
+							).get();
+							let id = `${Math.random().toFixed(4) + Date.now()}`;
+							let eni = new Enemy(
+								map,
+								{ lng: ncoords.lng, lat: ncoords.lat },
+								"",
+								"",
+								(enemiesArr) => {},
+								id,
+								enemies,
+								missles,
+								20,
+								1000,
+								0,
+								2,
+								500,
+								enemyDefensiveMissles,
+								0.00425082508,
+								{
+									vertical: verticalScreenDistance,
+									horizontal: horizontalScreenDistance,
+								},
+								0.00336666667
+							);
+							enemies.push(eni);
+						}
 					}
-				}
-			}, 50);
+				}, 50);
+			}
 		}
 	}
 
@@ -470,26 +516,32 @@
 	function onWindowResize() {
 		setTimeout(() => {
 			if (!hasVerifiedCalibration) {
-				if (
-					root.clientHeight < root.clientWidth
-				) {
-					if (localStorage.getItem("calibration") == null) {
+				if (root.clientHeight < root.clientWidth) {
+					let calibrationObj = JSON.parse(
+						localStorage.getItem("calibration")
+					);
+					if (calibrationObj == null) {
 						showCalibration = true;
 					} else {
-						let calibrationObj = JSON.parse(
-							localStorage.getItem("calibration")
-						);
+						//check if screen size matches the one when calibration took place
 						if (
-							calibrationObj.screenWidth != root.clientWidth ||
-							calibrationObj.screenHeight != root.clientHeight
+							Math.abs(
+								calibrationObj.screenWidth - root.clientWidth
+							) >
+								(5 / 100) * root.clientWidth ||
+							Math.abs(
+								calibrationObj.screenHeight - root.clientHeight
+							) >
+								(5 / 100) * root.clientHeight
 						) {
 							showCalibration = true;
+						} else {
+							verticalScreenDistance = calibrationObj.vertical;
+							horizontalScreenDistance =
+								calibrationObj.horizontal;
 						}
 					}
 					hasVerifiedCalibration = true;
-					console.log("landscape");
-				} else {
-					console.log("not landscape");
 				}
 			}
 		}, 150);
@@ -497,9 +549,9 @@
 
 	onMount(() => {
 		updateBest();
-		map.on('load', () => {
+		map.on("load", () => {
 			onWindowResize();
-		})
+		});
 		// 	map.addSource("source", {
 		// 		type: "geojson",
 		// 		data: {
@@ -615,17 +667,17 @@
 				screenWidth: root.clientWidth,
 			})
 		);
+		verticalScreenDistance = args.vertical;
+		horizontalScreenDistance = args.horizontal;
 		showCalibration = false;
 	}
 
 	function pans() {
 		if (root.requestFullscreen) {
 			root.requestFullscreen();
-			console.log("fc");
 		}
 		if (root.webkitRequestFullscreen) {
 			root.webkitRequestFullscreen();
-			console.log("fs");
 		}
 	}
 </script>
@@ -667,8 +719,8 @@
 	borderColor="#5c41ff"
 	label="Go Fullscreen"
 	width="50%"
-	horizontalFont="2.4vh"
-	verticalFont="2.2vh"
+	horizontalFont="16px"
+	verticalFont="16px"
 	opacity={started ? 0 : 1}
 	height="10%"
 	backgroundColor="#2400ff20"
@@ -682,8 +734,8 @@
 	borderColor="#5c41ff"
 	label="Start Survival Run"
 	width="50%"
-	horizontalFont="2.4vh"
-	verticalFont="2.2vh"
+	horizontalFont="16px"
+	verticalFont="15px"
 	opacity={started ? 0 : 1}
 	height="10%"
 	onClick={() => {
@@ -698,8 +750,8 @@
 	color="#5c41ff"
 	borderColor="#5c41ff"
 	label="Retry"
-	horizontalFont="2.7vh"
-	verticalFont="2.2vh"
+	horizontalFont="16px"
+	verticalFont="12px"
 	width="20%"
 	opacity={deadcount > 0 ? 1 : 0}
 	height="7%"

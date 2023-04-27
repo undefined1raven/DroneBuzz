@@ -59,13 +59,13 @@
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
         if (orientation == "portrait") {
             if (verticalFont != undefined) {
-                fontSize = verticalFont;
+                fontSize = ((parseFloat(verticalFont.substring(0, verticalFont.length - 2)) * clientWidth) / 640) + 'px'
             } else {
                 fontSize = "1.4vh";
             }
         } else {
             if (horizontalFont != undefined) {
-                fontSize = horizontalFont;
+                fontSize = ((parseFloat(horizontalFont.substring(0, horizontalFont.length - 2)) * clientWidth) / 640) + 'px'
             } else {
                 fontSize = "2.8vh";
             }
