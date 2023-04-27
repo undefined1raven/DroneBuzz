@@ -20,7 +20,7 @@
 		PlayerRangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
-	import { compute_slots } from "svelte/internal";
+	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -52,6 +52,7 @@
 	let deadTime = 0;
 	let deadcount = 0;
 	let started = false;
+	let showCalibration = false;
 	//--| Entities
 	let enemies = [];
 	let missles = [];
@@ -466,7 +467,11 @@
 	onMount(() => {
 		updateBest();
 
-		// map.on("load", () => {
+		map.on("load", () => {
+			if (localStorage.getItem("calibration") == null) {
+				showCalibration = true;
+			}
+		});
 		// 	map.addSource("source", {
 		// 		type: "geojson",
 		// 		data: {
@@ -504,7 +509,6 @@
 		// 	// 		"line-width": 5,
 		// 	// 	},
 		// 	// });
-		// });
 	});
 
 	function defensiveFire() {
@@ -573,6 +577,12 @@
 		}
 	}
 
+	function onCalibrationFinish(args){
+		console.log(args.vertical)
+		console.log(args.horizontal)
+		showCalibration = false;
+	}
+
 	function pans() {
 		if (document.documentElement.requestFullscreen) {
 			document.documentElement.requestFullscreen();
@@ -589,14 +599,18 @@
 <main>
 	<Map
 		attribution={false}
-		minzoom="14"
+		minzoom="0"
 		maxzoom="14"
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
 		location={{ lng: lng, lat: lat, zoom: 35 }}
 		bind:map
 	/>
-	<div class="joy" id="joy" />
+	<div
+		style="display: {showCalibration ? 'none' : 'flex'}"
+		class="joy"
+		id="joy"
+	/>
 </main>
 <div id="dashboard">
 	<FireControlDashboard
@@ -624,6 +638,7 @@
 	height="10%"
 	backgroundColor="#2400ff20"
 />
+<CalibrationOverlay {map} {showCalibration} {onCalibrationFinish} />
 <Button
 	id="start"
 	top="40%"
@@ -664,18 +679,6 @@
 		background-color: #000;
 		font-family: "Electrolize", sans-serif;
 	}
-
-	@media (orientation: landscape) {
-		#start {
-			display: flex;
-		}
-	}
-
-	@media (orientation: portrait) {
-		#start {
-			display: none !important;
-		}
-	}
 	.joy {
 		position: absolute;
 		top: 0%; /*32.777777778*/
@@ -690,22 +693,5 @@
 		width: 100%;
 		height: 100%;
 		position: absolute;
-	}
-	#fullScreenButton {
-		position: absolute;
-		align-items: center;
-		justify-content: center;
-		top: 20%;
-		left: 30%;
-		display: flex;
-		color: #5c41ff;
-		font-size: 2.8vh;
-		z-index: 150000;
-		width: 50%;
-		backdrop-filter: blur(5px);
-		background-color: #2400ff20;
-		height: 10%;
-		border-radius: 3px;
-		border: solid 1px #2400ff;
 	}
 </style>

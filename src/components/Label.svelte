@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
 
     let id;
-    let label;
+    let text;
     let className;
     let color;
     let style;
@@ -17,7 +17,6 @@
     let horizontalFont;
     let verticalFont;
     let opacity;
-    let touchStartUnix = 0;
 
     const root = document.documentElement;
     let fontSize = "2.4vh";
@@ -27,22 +26,6 @@
     onMount(() => {
         fontController();
     });
-
-    const updateTouchUnix = (tx) => {
-        touchStartUnix = tx;
-    };
-
-    const checkClick = (e) => {
-        if (Date.now() - touchStartUnix < 300) {
-            onClick(e);
-            if (lightColor != undefined) {
-                e.target.style.color = lightColor;
-                setTimeout(() => {
-                    e.target.style.color = color;
-                }, 500);
-            }
-        }
-    };
 
     function onResize(e) {
         clientHeight = root.clientHeight;
@@ -59,13 +42,21 @@
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
         if (orientation == "portrait") {
             if (verticalFont != undefined) {
-                fontSize = verticalFont;
+                if(clientWidth < 1000){
+                    fontSize = verticalFont;
+                }else{
+                    fontSize = (parseFloat(horizontalFont.substring(0, horizontalFont.toString().length - 2)) - 0.4) + 'vh';
+                }
             } else {
                 fontSize = "1.4vh";
             }
         } else {
             if (horizontalFont != undefined) {
-                fontSize = horizontalFont;
+                if(clientWidth < 1000){
+                    fontSize = horizontalFont;
+                }else{
+                    fontSize = (parseFloat(horizontalFont.substring(0, horizontalFont.toString().length - 2)) - 1.2) + 'vh';
+                }
             } else {
                 fontSize = "2.8vh";
             }
@@ -77,7 +68,7 @@
         lightColor,
         id,
         onClick,
-        label,
+        text,
         className,
         color,
         borderColor,
@@ -96,31 +87,29 @@
 <svelte:window on:resize={onResize} />
 <div
     {id}
-    on:touchstart={() => updateTouchUnix(Date.now())}
-    on:touchend={checkClick}
-    class={`button ${iu(className, "")}`}
+    class={`label ${className}`}
     style="
-        opacity: {iu(opacity, '1')}; 
-        font-size: {iu(fontSize, '2vh')}; 
-        left: {iu(left, 'auto')}; 
-        top: {iu(top, 'auto')}; 
-        width: {iu(width, 'auto')}; 
-        height: {iu(height, 'auto')}; 
-        color: {iu(color, '#FFF')}; 
-        background-color: {iu(backgroundColor, '#0500FF00')}; 
-        {iu(style, '')}"
+    opacity: {iu(opacity, '1')}; 
+    font-size: {iu(fontSize, '2vh')}; 
+    left: {iu(left, 'auto')}; 
+    top: {iu(top, 'auto')}; 
+    width: {iu(width, 'auto')}; 
+    height: {iu(height, 'auto')}; 
+    color: {iu(color, '#FFF')}; 
+    background-color: {iu(backgroundColor, '#2400FF00')};
+    {iu(style, '')}"
 >
-    {label}
+    {text}
 </div>
 
 <style>
-    .button {
+    .label {
         user-select: none;
         position: absolute;
         display: flex;
         align-items: center;
         justify-content: center;
         top: 0%;
-        backdrop-filter: blur(5px);
+        text-align: center;
     }
 </style>
