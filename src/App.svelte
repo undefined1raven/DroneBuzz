@@ -61,15 +61,34 @@
 	let verticalScreenDistance = 0;
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
+
 	//--| Entities
+	function getBasicEnemyConfig(coords, id) {
+		return {
+			map: map,
+			coords: coords,
+			type: "Enemy",
+			id: id,
+			enemiesArr: enemies,
+			missleArr: missles,
+			missleCount: 20,
+			missleCooldown: 1000,
+			countermeasuresCount: 2,
+			countermeasuresCooldown: 800,
+			enemyDefensiveMissles: enemyDefensiveMissles,
+			rawDefensiveRadius: 0.00425082508,
+			screenDistanceObj: {
+				vertical: verticalScreenDistance,
+				horizontal: horizontalScreenDistance,
+			},
+			rawOffensiveRadius: 0.00336666667,
+		};
+	}
 	let enemies = [];
 	let missles = [];
 	let friendlyMissles = [];
 	let friendlyDefensiveMissles = [];
 	let enemyDefensiveMissles = [];
-
-	let zoom = 0;
-	let center = {};
 
 	//---| Player State
 	let lng = 26.02985041110172; /*25.609*/
@@ -180,28 +199,7 @@
 			for (let ix = 0; ix <= 21; ix++) {
 				let ncoords = new getRandomCoords(lng, lat, 15).get();
 				let id = `${Math.random().toFixed(4) + Date.now()}`;
-				let eni = new Enemy(
-					map,
-					{ lng: ncoords.lng, lat: ncoords.lat },
-					"",
-					"",
-					(enemiesArr) => {},
-					id,
-					enemies,
-					missles,
-					20,
-					1000,
-					0,
-					2,
-					500,
-					enemyDefensiveMissles,
-					0.00425082508,
-					{
-						vertical: verticalScreenDistance,
-						horizontal: horizontalScreenDistance,
-					},
-					0.00336666667
-				);
+				let eni = new Enemy(getBasicEnemyConfig(ncoords, id));
 				enemies.push(eni);
 			}
 
@@ -432,6 +430,7 @@
 								) == -1
 							) {
 								friendlyMisslesTargets.push(targetEnemy.id);
+								targetEnemy.isHunted = true;
 								friendlyMissleUpdate(
 									enemyID,
 									targetEnemy,
@@ -450,6 +449,7 @@
 										friendlyMisslesTargets.length
 									];
 								if (targetEnemy != undefined) {
+									targetEnemy.isHunted = true;
 									friendlyMisslesTargets.push(targetEnemy.id);
 									friendlyMissleUpdate(
 										enemyID,
@@ -496,26 +496,7 @@
 							).get();
 							let id = `${Math.random().toFixed(4) + Date.now()}`;
 							let eni = new Enemy(
-								map,
-								{ lng: ncoords.lng, lat: ncoords.lat },
-								"",
-								"",
-								(enemiesArr) => {},
-								id,
-								enemies,
-								missles,
-								20,
-								1000,
-								0,
-								2,
-								500,
-								enemyDefensiveMissles,
-								0.00425082508,
-								{
-									vertical: verticalScreenDistance,
-									horizontal: horizontalScreenDistance,
-								},
-								0.00336666667
+								getBasicEnemyConfig(ncoords, id)
 							);
 							enemies.push(eni);
 						}

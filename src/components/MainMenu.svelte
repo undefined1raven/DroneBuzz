@@ -2,17 +2,28 @@
     import MainMenuDeco from "./deco/MainMenuDeco.svelte";
     import Label from "./Label.svelte";
     import Button from "./Button.svelte";
+    import SurvivalRunSetup from "./SurvivalRunSetup.svelte";
     import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
     import CampaignDeco from "./deco/CampaignDeco.svelte";
     let show;
     let onHideMenu;
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
+    let screenHeight = root.clientHeight;
+
+    //Menu State
+    let activeWindowID = "menu"; //menu | survivalRunSetup | ....
+
+    function onWindowResize() {
+        screenWidth = root.clientWidth;
+        screenHeight = root.clientHeight;
+    }
 
     export { show, onHideMenu };
 </script>
 
-{#if show && screenWidth < 1020}
+<svelte:window on:resize={onWindowResize} />
+{#if show && screenWidth < 1020 && screenHeight < screenWidth}
     <div class="mainMenuContainer">
         <div class="topGradientBkg" />
         <div class="bottomGradientBkg" />
@@ -44,48 +55,73 @@
         <div
             style="position: absolute; top: 0%; left: 0%; width: 100%; height: 34.7222vh; background-color: #2400FF01; backdrop-filter: blur(2px) hue-rotate(00deg); border-bottom: solid 1px #4200FF"
         />
-        <div
-            style="position: absolute; top: 46.111111111%; left: 7.5%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
-        >
-            <Button
-                onClick={() => onHideMenu()}
-                label="Survival Run"
-                color="#5C41FF"
-                backdropFilter="none"
-                top=""
-                left=""
-                borderColor="#2400FF"
-                style="border-radius: 5px; align-items: start; padding-top: 10%"
-                backgroundColor="#2400FF20"
-                width="100%"
-                height="90%"
-                horizontalFont="16px"
-            />
-            <SurvivalRunDeco top="48.333333333%" />
-        </div>
-        <div
-        style="position: absolute; top: 46.111111111%; left: 57.34375%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
-    >
-        <Button
-            onClick={() => onHideMenu()}
-            label="Campaign"
-            color="#5C41FF"
-            backdropFilter="none"
-            top=""
-            left=""
-            borderColor="#2400FF"
-            style="border-radius: 5px; align-items: start; padding-top: 10%"
-            backgroundColor="#2400FF20"
-            width="100%"
-            height="90%"
-            horizontalFont="16px"
-        />
-        <CampaignDeco top="48.333333333%" />
-    </div>
+
+        {#if activeWindowID == "menu"}
+            <div id="menuContainerActual">
+                <div
+                    on:click={() => (activeWindowID = "survivalRunSetup")}
+                    class="menuButton"
+                    style="position: absolute; top: 46.111111111%;  left: 7.5%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
+                >
+                    <Button
+                        onClick={() => (activeWindowID = "survivalRunSetup")}
+                        label="Survival Run"
+                        color="#5C41FF"
+                        backdropFilter="none"
+                        top=""
+                        left=""
+                        borderColor="#2400FF"
+                        style="border-radius: 5px; align-items: start; padding-top: 10%"
+                        backgroundColor="#2400FF20"
+                        width="100%"
+                        height="90%"
+                        horizontalFont="16px"
+                    />
+                    <SurvivalRunDeco top="48.333333333%" />
+                </div>
+                <div
+                    class="menuButton"
+                    style="position: absolute; top: 46.111111111%; left: 57.34375%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
+                >
+                    <Button
+                        onClick={() => onHideMenu()}
+                        label="Campaign"
+                        color="#5C41FF"
+                        backdropFilter="none"
+                        top=""
+                        left=""
+                        borderColor="#2400FF"
+                        style="border-radius: 5px; align-items: start; padding-top: 10%"
+                        backgroundColor="#2400FF20"
+                        width="100%"
+                        height="90%"
+                        horizontalFont="16px"
+                    />
+                    <CampaignDeco top="48.333333333%" />
+                </div>
+            </div>
+        {/if}
+        {#if activeWindowID == "survivalRunSetup"}
+            <SurvivalRunSetup onBack={() => (activeWindowID = "menu")} onStartRun={() => onHideMenu()} />
+        {/if}
     </div>
 {/if}
 
 <style>
+    @keyframes ini {
+        0% {
+            transform: translateY(50%) scaleY(0.4) scaleX(0.4);
+        }
+        50% {
+            transform: translateY(20%) scaleY(0.8) scaleX(0.8);
+        }
+        100% {
+            transform: translateY(0%) scaleY(1) scaleX(1);
+        }
+    }
+    .menuButton {
+        animation: ini ease-in-out 0.1s;
+    }
     .bottomGradientBkg {
         position: absolute;
         top: 60.277777778%;
@@ -93,11 +129,10 @@
         width: 100%;
         height: 39.722222222%;
         background: radial-gradient(
-                100% 100% at 50% 0%,
-                rgba(27, 0, 193, 0.3) 0%,
-                rgba(19, 0, 43, 0) 100%
-            )
-            /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+            100% 100% at 50% 0%,
+            rgba(27, 0, 193, 0.3) 0%,
+            rgba(19, 0, 43, 0) 100%
+        );
         transform: rotate(-180deg);
     }
     .topGradientBkg {

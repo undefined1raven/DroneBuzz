@@ -1,8 +1,9 @@
 <script>
     let top;
     let left;
+    let size;
 
-    export { top, left };
+    export { top, left, size };
 </script>
 
 <svg
@@ -10,8 +11,8 @@
     position: absolute; 
     top: {top ? top : 'auto'}; 
     left: {left ? left : 'auto'};"
-    width="20.8333vh"
-    height="20.8333vh"
+    width="{size ? size : '20.8333vh'}"
+    height="{size ? size : '20.8333vh'}"
     viewBox="0 0 75 75"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

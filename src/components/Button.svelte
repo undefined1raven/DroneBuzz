@@ -18,6 +18,7 @@
     let verticalFont;
     let backdropFilter;
     let opacity;
+    let borderRadius;
     let touchStartUnix = 0;
     const root = document.documentElement;
     let fontSize = "2.4vh";
@@ -102,6 +103,7 @@
         opacity,
         style,
         backdropFilter,
+        borderRadius,
     };
 </script>
 
@@ -121,7 +123,9 @@
         color: {iu(color, '#FFF')}; 
         background-color: {iu(backgroundColor, '#0500FF00')}; 
         border: solid 1px {iu(borderColor, '#0500FF')};
+        border-radius: {iu(borderRadius, '0px')};
         backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
+        --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         {iu(style, '')}"
 >
     {label}

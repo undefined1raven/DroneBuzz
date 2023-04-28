@@ -30,7 +30,6 @@
     function onResize(e) {
         clientHeight = root.clientHeight;
         clientWidth = root.clientWidth;
-        console.log(clientWidth);
         fontController();
     }
 
@@ -79,6 +78,7 @@
 <svelte:window on:resize={onResize} />
 <div
     {id}
+    on:click={onClick}
     class={`label ${className}`}
     style="
     opacity: {iu(opacity, '1')}; 
