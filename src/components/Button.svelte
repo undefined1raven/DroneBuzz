@@ -16,9 +16,9 @@
     let left;
     let horizontalFont;
     let verticalFont;
+    let backdropFilter;
     let opacity;
     let touchStartUnix = 0;
-
     const root = document.documentElement;
     let fontSize = "2.4vh";
     let clientWidth = root.clientWidth;
@@ -59,19 +59,30 @@
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
         if (orientation == "portrait") {
             if (verticalFont != undefined) {
-                fontSize = ((parseFloat(verticalFont.substring(0, verticalFont.length - 2)) * clientWidth) / 640) + 'px'
+                fontSize =
+                    (parseFloat(
+                        verticalFont.substring(0, verticalFont.length - 2)
+                    ) *
+                        clientWidth) /
+                        640 +
+                    "px";
             } else {
                 fontSize = "1.4vh";
             }
         } else {
             if (horizontalFont != undefined) {
-                fontSize = ((parseFloat(horizontalFont.substring(0, horizontalFont.length - 2)) * clientWidth) / 640) + 'px'
+                fontSize =
+                    (parseFloat(
+                        horizontalFont.substring(0, horizontalFont.length - 2)
+                    ) *
+                        clientWidth) /
+                        640 +
+                    "px";
             } else {
                 fontSize = "2.8vh";
             }
         }
     }
-
 
     export {
         lightColor,
@@ -90,6 +101,7 @@
         verticalFont,
         opacity,
         style,
+        backdropFilter,
     };
 </script>
 
@@ -108,6 +120,8 @@
         height: {iu(height, 'auto')}; 
         color: {iu(color, '#FFF')}; 
         background-color: {iu(backgroundColor, '#0500FF00')}; 
+        border: solid 1px {iu(borderColor, '#0500FF')};
+        backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         {iu(style, '')}"
 >
     {label}
@@ -121,6 +135,5 @@
         align-items: center;
         justify-content: center;
         top: 0%;
-        backdrop-filter: blur(5px);
     }
 </style>

@@ -10,6 +10,7 @@
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
+	import MainMenu from "./components/MainMenu.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
 	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
@@ -59,6 +60,7 @@
 	let hasVerifiedCalibration = false;
 	let verticalScreenDistance = 0;
 	let horizontalScreenDistance = 0;
+	let showMenu = true;
 	//--| Entities
 	let enemies = [];
 	let missles = [];
@@ -672,6 +674,10 @@
 		showCalibration = false;
 	}
 
+	function onHideMenu(){
+		showMenu = false;
+	}
+
 	function pans() {
 		if (root.requestFullscreen) {
 			root.requestFullscreen();
@@ -760,7 +766,7 @@
 	}}
 	backgroundColor="#2400ff20"
 />
-
+<MainMenu show={!showCalibration && showMenu} {onHideMenu}></MainMenu>
 <style lang="scss">
 	:global(body) {
 		background-color: #000;
