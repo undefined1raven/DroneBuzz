@@ -9,7 +9,7 @@
     const dispatch = createEventDispatcher();
 
     let show;
-    let startSurvivalRun;
+    let started;
     let setActiveWindow;
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
@@ -23,7 +23,14 @@
         screenHeight = root.clientHeight;
     }
 
-    export { show, startSurvivalRun, setActiveWindow };
+    function startRun(runConfig) {
+        dispatch("startSurvivalRun", {
+            restart: started,
+            runConfig: runConfig,
+        });
+    }
+
+    export { show, setActiveWindow, started };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
@@ -88,7 +95,7 @@
                     style="position: absolute; top: 46.111111111%; left: 57.34375%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
                 >
                     <Button
-                        onClick={() => dispatch('hideMenu')}
+                        onClick={() => dispatch("hideMenu")}
                         label="Campaign"
                         color="#5C41FF"
                         backdropFilter="none"
@@ -108,7 +115,7 @@
         {#if activeWindowID == "survivalRunSetup"}
             <SurvivalRunSetup
                 onBack={() => (activeWindowID = "menu")}
-                onStartRun={(runConfig) => startSurvivalRun(runConfig)}
+                onStartRun={(runConfig) => startRun(runConfig)}
             />
         {/if}
     </div>
