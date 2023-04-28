@@ -1,4 +1,4 @@
 <p align="center">
-  <img src="./src/components/MainMenuDeco.svelte"></img>
+  <img src="./public/visual_assets/Logo.svg"></img>
 </p>
 [Coming Soon]
