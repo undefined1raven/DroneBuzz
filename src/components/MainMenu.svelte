@@ -7,6 +7,7 @@
     import CampaignDeco from "./deco/CampaignDeco.svelte";
     let show;
     let onHideMenu;
+    let startSurvivalRun;
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
     let screenHeight = root.clientHeight;
@@ -19,7 +20,7 @@
         screenHeight = root.clientHeight;
     }
 
-    export { show, onHideMenu };
+    export { show, onHideMenu, startSurvivalRun };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
@@ -102,7 +103,7 @@
             </div>
         {/if}
         {#if activeWindowID == "survivalRunSetup"}
-            <SurvivalRunSetup onBack={() => (activeWindowID = "menu")} onStartRun={() => onHideMenu()} />
+            <SurvivalRunSetup onBack={() => (activeWindowID = "menu")} onStartRun={(runConfig) => startSurvivalRun(runConfig)} />
         {/if}
     </div>
 {/if}
@@ -111,12 +112,11 @@
     @keyframes ini {
         0% {
             transform: translateY(50%) scaleY(0.4) scaleX(0.4);
-        }
-        50% {
-            transform: translateY(20%) scaleY(0.8) scaleX(0.8);
+            opacity: 0;
         }
         100% {
             transform: translateY(0%) scaleY(1) scaleX(1);
+            opacity: 1;
         }
     }
     .menuButton {

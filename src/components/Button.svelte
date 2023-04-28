@@ -139,5 +139,6 @@
         align-items: center;
         justify-content: center;
         top: 0%;
+        transition: all linear 0.1s;
     }
 </style>

@@ -23,6 +23,7 @@
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
 	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
+	import { run } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -47,6 +48,44 @@
 		],
 	];
 
+	//---| Survival Run Params
+	let enemyMissileCountRange = [20, 24];
+	let enemyMissileCooldown = 1000;
+	let enemyCountermeasuresCountRange = [2, 4];
+	let enemyCountermeasuresCooldown = 800;
+	let rawDefensiveRadius = 0.00425082508;
+	let rawOffensiveRadius = 0.00336666667;
+	let enemyWaveIntermission = 30000;
+	let enemyWaveCount = 12;
+
+	function getBasicEnemyConfig(coords, id) {
+		return {
+			map: map,
+			coords: coords,
+			type: "Enemy",
+			id: id,
+			enemiesArr: enemies,
+			missleArr: missles,
+			missleCount: getRandomInt(
+				enemyMissileCountRange[0],
+				enemyMissileCountRange[1]
+			),
+			missleCooldown: enemyMissileCooldown,
+			countermeasuresCount: getRandomInt(
+				enemyCountermeasuresCountRange[0],
+				enemyCountermeasuresCountRange[1]
+			),
+			countermeasuresCooldown: enemyCountermeasuresCooldown,
+			enemyDefensiveMissles: enemyDefensiveMissles,
+			rawDefensiveRadius: rawDefensiveRadius,
+			screenDistanceObj: {
+				vertical: verticalScreenDistance,
+				horizontal: horizontalScreenDistance,
+			},
+			rawOffensiveRadius: rawOffensiveRadius,
+		};
+	}
+
 	//---| Game State
 	let map;
 	let lastEnemyRefresh = 0;
@@ -63,27 +102,6 @@
 	let showMenu = true;
 
 	//--| Entities
-	function getBasicEnemyConfig(coords, id) {
-		return {
-			map: map,
-			coords: coords,
-			type: "Enemy",
-			id: id,
-			enemiesArr: enemies,
-			missleArr: missles,
-			missleCount: 20,
-			missleCooldown: 1000,
-			countermeasuresCount: 2,
-			countermeasuresCooldown: 800,
-			enemyDefensiveMissles: enemyDefensiveMissles,
-			rawDefensiveRadius: 0.00425082508,
-			screenDistanceObj: {
-				vertical: verticalScreenDistance,
-				horizontal: horizontalScreenDistance,
-			},
-			rawOffensiveRadius: 0.00336666667,
-		};
-	}
 	let enemies = [];
 	let missles = [];
 	let friendlyMissles = [];
@@ -484,11 +502,11 @@
 							.padStart(2, "0")}`;
 					}
 					if (
-						Date.now() - lastEnemyRefresh > 30000 ||
+						Date.now() - lastEnemyRefresh > enemyWaveIntermission ||
 						lastEnemyRefresh == 0
 					) {
 						lastEnemyRefresh = Date.now();
-						for (let ix = 0; ix <= 12; ix++) {
+						for (let ix = 0; ix <= enemyWaveCount; ix++) {
 							let ncoords = new getRandomCoords(
 								lng,
 								lat,
@@ -672,6 +690,39 @@
 		}
 	}
 
+	function startSurvivalRun(runConfig) {
+		if (runConfig.difficulty == "easy") {
+			enemyMissileCountRange = [10, 15];
+			enemyMissileCooldown = 1250;
+			enemyCountermeasuresCountRange = [0, 0];
+			enemyWaveIntermission = 60000;
+			enemyWaveCount = 12;
+		}
+		if (runConfig.difficulty == "medium") {
+			enemyMissileCountRange = [18, 22];
+			enemyMissileCooldown = 1000;
+			enemyCountermeasuresCountRange = [0, 2];
+			enemyWaveIntermission = 30000;
+			enemyWaveCount = 14;
+		}
+		if (runConfig.difficulty == "hard") {
+			enemyMissileCountRange = [25, 35];
+			enemyMissileCooldown = 700;
+			enemyCountermeasuresCountRange = [5, 15];
+			enemyWaveIntermission = 20000;
+			enemyWaveCount = 18;
+		}
+		if (runConfig.difficulty == "insane") {
+			enemyMissileCountRange = [35, 150];
+			enemyMissileCooldown = 300;
+			enemyCountermeasuresCountRange = [20, 45];
+			enemyWaveIntermission = 25000;
+			enemyWaveCount = 22;
+		}
+		showMenu = false;
+		start();
+	}
+
 	function onCalibrationFinish(args) {
 		localStorage.setItem(
 			"calibration",
@@ -779,7 +830,7 @@
 	}}
 	backgroundColor="#2400ff20"
 />
-<MainMenu show={!showCalibration && showMenu} {onHideMenu} />
+<MainMenu show={!showCalibration && showMenu} {startSurvivalRun} {onHideMenu} />
 
 <style lang="scss">
 	:global(body) {
