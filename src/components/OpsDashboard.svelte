@@ -9,44 +9,48 @@
 </script>
 
 {#if started}
-<div class="opsDashboard">
+    <!--<div class="opsDashboard"></div>-->
+    {#if isHunted}
+        <Button
+            top="75.277777778%"
+            left="78.28125%"
+            color="#FF0010"
+            borderColor="#FF0010"
+            lightColor="#FF00AA"
+            label="Deploy Countermeasures"
+            width="20.15625%"
+            height="10.277777778%"
+            horizontalFont="10px"
+            VerticalFont="15px"
+            backdropFilter="blur(4px)"
+            borderRadius="5px"
+            onClick={(e) => {
+                defensiveFire();
+            }}
+            backgroundColor="#FF001020"
+        />
+    {/if}
     <Button
         id="fireButton"
-        top="20.290322581%"
-        left="20.438016529%"
+        top="86.944444444%"
+        left="78.28125%"
         color="#5C41FF"
         borderColor="#2400FF"
+        backdropFilter="blur(4px)"
+        backgroundColor="#2400FF20"
         label="Fire"
         lightColor="#7963FF"
-        width="60.0331%"
-        height="55.032258065%"
-        horizontalFont="18px"
+        width="20.15625%"
+        height="10.277777778%"
+        horizontalFont="14px"
         VerticalFont="15px"
+        borderRadius="5px"
         onClick={() => {
             fire();
         }}
-        backgroundColor="#2400FF20"
     />
-    {#if isHunted}
-    <Button
-        top="-45.290322581%"
-        left="20.438016529%"
-        color="#FF0010"
-        borderColor="#FF0010"
-        lightColor="#FF00AA"
-        label="Deploy Countermeasures"
-        width="60.0331%"
-        height="55.032258065%"
-        horizontalFont="12px"
-        VerticalFont="15px"
-        onClick={(e) => {
-            defensiveFire();
-        }}
-        backgroundColor="#FF001020"
-    />
-    {/if}
-</div>
 {/if}
+
 <style>
     .opsDashboard {
         position: absolute;

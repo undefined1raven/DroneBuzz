@@ -1,8 +1,9 @@
 <script>
     import Label from "./Label.svelte";
     import CalibrationDeco from ".//deco/CalibrationDeco.svelte";
-    import { onMount } from "svelte";
+    import { onMount, getContext } from "svelte";
     import cartesianDistance from "../fn/cartesianDistance.js";
+    const { getMap } = getContext("map");
     const root = document.documentElement;
     let showCalibration;
     let statusObj = { top: false, bottom: false, left: false, right: false };
@@ -12,7 +13,7 @@
         topLat: { lat: 0, refLng: 0 },
         bottomLat: 0,
     }; //used to compute visible map bounds
-    let map;
+    let map = getMap();
     let onCalibrationFinish;
 
     onMount(() => {

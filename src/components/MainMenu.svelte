@@ -5,9 +5,12 @@
     import SurvivalRunSetup from "./SurvivalRunSetup.svelte";
     import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
     import CampaignDeco from "./deco/CampaignDeco.svelte";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
+
     let show;
-    let onHideMenu;
     let startSurvivalRun;
+    let setActiveWindow;
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
     let screenHeight = root.clientHeight;
@@ -20,7 +23,7 @@
         screenHeight = root.clientHeight;
     }
 
-    export { show, onHideMenu, startSurvivalRun };
+    export { show, startSurvivalRun, setActiveWindow };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
@@ -85,7 +88,7 @@
                     style="position: absolute; top: 46.111111111%; left: 57.34375%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
                 >
                     <Button
-                        onClick={() => onHideMenu()}
+                        onClick={() => dispatch('hideMenu')}
                         label="Campaign"
                         color="#5C41FF"
                         backdropFilter="none"
@@ -103,7 +106,10 @@
             </div>
         {/if}
         {#if activeWindowID == "survivalRunSetup"}
-            <SurvivalRunSetup onBack={() => (activeWindowID = "menu")} onStartRun={(runConfig) => startSurvivalRun(runConfig)} />
+            <SurvivalRunSetup
+                onBack={() => (activeWindowID = "menu")}
+                onStartRun={(runConfig) => startSurvivalRun(runConfig)}
+            />
         {/if}
     </div>
 {/if}

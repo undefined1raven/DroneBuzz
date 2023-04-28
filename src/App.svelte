@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from "svelte";
+	import { onMount, setContext } from "svelte";
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
 	import Button from "./components/Button.svelte";
@@ -101,6 +101,9 @@
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
 
+	//--- Context
+	setContext("map", { getMap: () => map });
+
 	//--| Entities
 	let enemies = [];
 	let missles = [];
@@ -113,6 +116,8 @@
 	let lat = 44.35381465897361; /*45.653*/
 	let ang = 0;
 	let misslecooldown = 500;
+	let maxConcurentMissileCount = 5;
+	let maxConcurentCountermeasuresCount = 5;
 	let lastMissleFire = Date.now();
 	let defensiveMissleCooldown = 800;
 	let lastDefensiveMissleFire = Date.now();
@@ -640,7 +645,8 @@
 		if (targetMissle != undefined) {
 			if (
 				targetMissle.distance < 0.00425082508 &&
-				friendlyDefensiveMissles.length <= 5 &&
+				friendlyDefensiveMissles.length <=
+					maxConcurentCountermeasuresCount &&
 				Date.now() - lastDefensiveMissleFire > defensiveMissleCooldown
 			) {
 				lastDefensiveMissleFire = Date.now();
@@ -672,7 +678,7 @@
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
 		if (
 			targetEnemy.distance < 0.00725082508 &&
-			friendlyMissles.length < 5 &&
+			friendlyMissles.length <= maxConcurentMissileCount &&
 			Date.now() - lastMissleFire > misslecooldown
 		) {
 			lastMissleFire = Date.now();
@@ -711,6 +717,9 @@
 			enemyCountermeasuresCountRange = [5, 15];
 			enemyWaveIntermission = 20000;
 			enemyWaveCount = 18;
+			maxConcurentCountermeasuresCount = 9;
+			maxConcurentMissileCount = 7;
+			misslecooldown = 450;
 		}
 		if (runConfig.difficulty == "insane") {
 			enemyMissileCountRange = [35, 150];
@@ -718,6 +727,10 @@
 			enemyCountermeasuresCountRange = [20, 45];
 			enemyWaveIntermission = 25000;
 			enemyWaveCount = 22;
+			maxConcurentCountermeasuresCount = 25;
+			maxConcurentMissileCount = 15;
+			defensiveMissleCooldown = 350;
+			misslecooldown = 250;
 		}
 		showMenu = false;
 		start();
@@ -736,10 +749,6 @@
 		verticalScreenDistance = args.vertical;
 		horizontalScreenDistance = args.horizontal;
 		showCalibration = false;
-	}
-
-	function onHideMenu() {
-		showMenu = false;
 	}
 
 	function pans() {
@@ -815,22 +824,46 @@
 />
 <Button
 	id="retry"
-	top="60%"
+	top="77.777777778%"
 	left="40%"
-	color="#5c41ff"
-	borderColor="#5c41ff"
+	color="#3817FF"
+	borderColor="#1E00D2"
 	label="Retry"
-	horizontalFont="16px"
+	horizontalFont="12px"
 	verticalFont="12px"
-	width="20%"
+	width="20.15625%"
+	borderRadius="5px"
+	backdropFilter="blur(4px)"
 	opacity={deadcount > 0 ? 1 : 0}
-	height="7%"
+	height="8.611111111%"
 	onClick={() => {
 		restart();
 	}}
-	backgroundColor="#2400ff20"
+	backgroundColor="#1700A520"
 />
-<MainMenu show={!showCalibration && showMenu} {startSurvivalRun} {onHideMenu} />
+<Button
+	top="88.611111111%"
+	left="40%"
+	color="#3817FF"
+	borderColor="#1E00D2"
+	label="Back to Menu"
+	horizontalFont="12px"
+	verticalFont="12px"
+	width="20.15625%"
+	borderRadius="5px"
+	backdropFilter="blur(4px)"
+	opacity={deadcount > 0 ? 1 : 0}
+	height="8.611111111%"
+	onClick={() => {
+		showMenu = true;
+	}}
+	backgroundColor="#1700A520"
+/>
+<MainMenu
+	on:hideMenu={() => (showMenu = false)}
+	show={!showCalibration && showMenu}
+	{startSurvivalRun}
+/>
 
 <style lang="scss">
 	:global(body) {
