@@ -1,9 +1,9 @@
 <script>
-    import MainMenuDeco from "./MainMenuDeco.svelte";
+    import MainMenuDeco from "./deco/MainMenuDeco.svelte";
     import Label from "./Label.svelte";
     import Button from "./Button.svelte";
-    import SurvivalRunDeco from "./SurvivalRunDeco.svelte";
-    import CampaignDeco from "./CampaignDeco.svelte";
+    import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
+    import CampaignDeco from "./deco/CampaignDeco.svelte";
     let show;
     let onHideMenu;
     const root = document.documentElement;
@@ -21,7 +21,7 @@
             text="Drone Buzz"
             top="7.222222222%"
             left="23.59375%"
-            color="#4200FF"
+            color="#9E7CFF"
             horizontalFont="20px"
             style="letter-spacing: 1.4vh"
         />
@@ -29,7 +29,7 @@
             text="Build [230428+0]"
             top="15.833333333%"
             left="23.59375%"
-            color="#4200FF"
+            color="#7B4DFF"
             horizontalFont="10px"
             style="letter-spacing: 0.4vh"
         />
@@ -37,7 +37,7 @@
             text="[49C235C]"
             top="21.111111111%"
             left="23.59375%"
-            color="#4200FF"
+            color="#7B4DFF"
             horizontalFont="10px"
             style="letter-spacing: 0.4vh"
         />

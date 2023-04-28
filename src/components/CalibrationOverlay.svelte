@@ -1,6 +1,6 @@
 <script>
     import Label from "./Label.svelte";
-    import CalibrationDeco from "./CalibrationDeco.svelte";
+    import CalibrationDeco from ".//deco/CalibrationDeco.svelte";
     import { onMount } from "svelte";
     import cartesianDistance from "../fn/cartesianDistance.js";
     const root = document.documentElement;
