@@ -2,7 +2,8 @@
     import MainMenuDeco from "./MainMenuDeco.svelte";
     import Label from "./Label.svelte";
     import Button from "./Button.svelte";
-
+    import SurvivalRunDeco from "./SurvivalRunDeco.svelte";
+    import CampaignDeco from "./CampaignDeco.svelte";
     let show;
     let onHideMenu;
     const root = document.documentElement;
@@ -40,8 +41,47 @@
             horizontalFont="10px"
             style="letter-spacing: 0.4vh"
         />
-        <div style="position: absolute; top: 0%; left: 0%; width: 34.7222vh; height: 34.7222vh; background-color: #2400FF05; backdrop-filter: blur(3px);"></div>
-        <Button onClick={() => onHideMenu()} label="Survival Run" color="#5C41FF" backdropFilter="none" top="46.111111111%" left="7.5%" borderColor="#2400FF" style="border-radius: 5px" backgroundColor="#2400FF20" width="35.15625%" height="41.666666667%" horizontalFont="16px" />
+        <div
+            style="position: absolute; top: 0%; left: 0%; width: 100%; height: 34.7222vh; background-color: #2400FF01; backdrop-filter: blur(2px) hue-rotate(00deg); border-bottom: solid 1px #4200FF"
+        />
+        <div
+            style="position: absolute; top: 46.111111111%; left: 7.5%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
+        >
+            <Button
+                onClick={() => onHideMenu()}
+                label="Survival Run"
+                color="#5C41FF"
+                backdropFilter="none"
+                top=""
+                left=""
+                borderColor="#2400FF"
+                style="border-radius: 5px; align-items: start; padding-top: 10%"
+                backgroundColor="#2400FF20"
+                width="100%"
+                height="90%"
+                horizontalFont="16px"
+            />
+            <SurvivalRunDeco top="48.333333333%" />
+        </div>
+        <div
+        style="position: absolute; top: 46.111111111%; left: 57.34375%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
+    >
+        <Button
+            onClick={() => onHideMenu()}
+            label="Campaign"
+            color="#5C41FF"
+            backdropFilter="none"
+            top=""
+            left=""
+            borderColor="#2400FF"
+            style="border-radius: 5px; align-items: start; padding-top: 10%"
+            backgroundColor="#2400FF20"
+            width="100%"
+            height="90%"
+            horizontalFont="16px"
+        />
+        <CampaignDeco top="48.333333333%" />
+    </div>
     </div>
 {/if}
 
