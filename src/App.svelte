@@ -151,6 +151,24 @@
 		entityBelongingArray.splice(ix, 1);
 	}
 
+	function friendlyMissleUpdate(enemyID, targetEnemy, friendlyMissle, ix) {
+		enemyID = targetEnemy.id;
+		friendlyMissle.targetID = enemyID;
+		updateEnemyHeadings(
+			friendlyMissle,
+			targetEnemy.coords.lng,
+			targetEnemy.coords.lat
+		);
+		if (friendlyMissle.distance < friendlyMissle.killRadius) {
+			removeEntity(friendlyMissle, friendlyMissles, ix);
+			enemies.forEach((enemy, ix) => {
+				if (enemy.id == enemyID) {
+					removeEntity(enemy, enemies, ix);
+				}
+			});
+		}
+	}
+
 	function start(isRestart) {
 		if (
 			verticalScreenDistance != 0 &&
@@ -399,33 +417,47 @@
 						}
 					);
 
+					let friendlyMisslesTargets = [];
+
 					friendlyMissles.forEach((friendlyMissle, ix) => {
 						friendlyMissle.draw({ lng: lng, lat: lat });
 
 						let targetEnemy = getNearestEnemy(enemies);
+						let enemyID;
 
 						if (targetEnemy != undefined) {
-							let enemyID = targetEnemy.id;
-							friendlyMissle.targetID = enemyID;
-							updateEnemyHeadings(
-								friendlyMissle,
-								targetEnemy.coords.lng,
-								targetEnemy.coords.lat
-							);
 							if (
-								friendlyMissle.distance <
-								friendlyMissle.killRadius
+								friendlyMisslesTargets.indexOf(
+									targetEnemy.id
+								) == -1
 							) {
-								removeEntity(
+								friendlyMisslesTargets.push(targetEnemy.id);
+								friendlyMissleUpdate(
+									enemyID,
+									targetEnemy,
 									friendlyMissle,
-									friendlyMissles,
 									ix
 								);
-								enemies.forEach((enemy, ix) => {
-									if (enemy.id == enemyID) {
-										removeEntity(enemy, enemies, ix);
-									}
+							} else {
+								let sortedEnemies = enemies.sort((a, b) => {
+									return (
+										parseFloat(a.distance) -
+										parseFloat(b.distance)
+									);
 								});
+								targetEnemy =
+									sortedEnemies[
+										friendlyMisslesTargets.length
+									];
+								if (targetEnemy != undefined) {
+									friendlyMisslesTargets.push(targetEnemy.id);
+									friendlyMissleUpdate(
+										enemyID,
+										targetEnemy,
+										friendlyMissle,
+										ix
+									);
+								}
 							}
 						} else {
 							removeEntity(friendlyMissle, friendlyMissles, ix);
@@ -641,7 +673,7 @@
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
 		if (
 			targetEnemy.distance < 0.00725082508 &&
-			friendlyMissles.length < 3 &&
+			friendlyMissles.length < 5 &&
 			Date.now() - lastMissleFire > misslecooldown
 		) {
 			lastMissleFire = Date.now();
@@ -674,7 +706,7 @@
 		showCalibration = false;
 	}
 
-	function onHideMenu(){
+	function onHideMenu() {
 		showMenu = false;
 	}
 
@@ -766,7 +798,8 @@
 	}}
 	backgroundColor="#2400ff20"
 />
-<MainMenu show={!showCalibration && showMenu} {onHideMenu}></MainMenu>
+<MainMenu show={!showCalibration && showMenu} {onHideMenu} />
+
 <style lang="scss">
 	:global(body) {
 		background-color: #000;
