@@ -6,6 +6,8 @@
     import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
     import CampaignDeco from "./deco/CampaignDeco.svelte";
     import FullscreenDeco from "./deco/FullscreenDeco.svelte";
+    import RefreshDeco from "./deco/RefreshDeco.svelte";
+    import CalibrationDeco from "./deco/CalibrationDeco.svelte";
     import { createEventDispatcher } from "svelte";
     import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
     const dispatch = createEventDispatcher();
@@ -44,13 +46,37 @@
         <Button
             onClick={() => dispatch("onFullscreen")}
             top="10.555555556%"
-            left="82.03125%"
-            width="10.46875%"
+            left="83.4375%"
+            width="9.0625%"
             height="12.222222222%"
             backgroundColor="#2400FF20"
             style="z-index: 1500;"
             borderRadius="5px"
-            borderColor="#2400FF">{#if !isFullscreen}<FullscreenDeco />{:else}<MinifyScreenDeco/>{/if}</Button
+            borderColor="#2400FF"
+            >{#if !isFullscreen}<FullscreenDeco />{:else}<MinifyScreenDeco
+                />{/if}</Button
+        >
+        <Button
+            onClick={() => window.location.reload()}
+            top="10.555555556%"
+            left="72.5%"
+            width="9.0625%"
+            height="12.222222222%"
+            backgroundColor="#2400FF20"
+            style="z-index: 1500;"
+            borderRadius="5px"
+            borderColor="#2400FF"><RefreshDeco /></Button
+        >
+        <Button
+            onClick={() => dispatch("onStartCalibration")}
+            top="10.555555556%"
+            left="61.40625%"
+            width="9.0625%"
+            height="12.222222222%"
+            backgroundColor="#2400FF20"
+            style="z-index: 1500;"
+            borderRadius="5px"
+            borderColor="#2400FF"><CalibrationDeco staticColor="#2400FF" style="top: auto;" size="8vh" /></Button
         >
         <MainMenuDeco />
         <Label

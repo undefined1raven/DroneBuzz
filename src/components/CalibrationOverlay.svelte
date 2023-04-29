@@ -1,7 +1,7 @@
 <script>
     import Label from "./Label.svelte";
     import Button from "./Button.svelte";
-    import CalibrationDeco from ".//deco/CalibrationDeco.svelte";
+    import CalibrationDeco from "./deco/CalibrationDeco.svelte";
     import { onMount, getContext } from "svelte";
     import cartesianDistance from "../fn/cartesianDistance.js";
     import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";

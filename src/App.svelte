@@ -605,22 +605,8 @@
 						showCalibration = true;
 					} else {
 						//check if screen size matches the one when calibration took place
-						if (
-							Math.abs(
-								calibrationObj.screenWidth - root.clientWidth
-							) >
-								(18 / 100) * root.clientWidth ||
-							Math.abs(
-								calibrationObj.screenHeight - root.clientHeight
-							) >
-								(18 / 100) * root.clientHeight
-						) {
-							showCalibration = true;
-						} else {
-							verticalScreenDistance = calibrationObj.vertical;
-							horizontalScreenDistance =
-								calibrationObj.horizontal;
-						}
+						verticalScreenDistance = calibrationObj.vertical;
+						horizontalScreenDistance = calibrationObj.horizontal;
 					}
 					hasVerifiedCalibration = true;
 				}
@@ -941,6 +927,7 @@
 <MainMenu
 	{started}
 	{isFullscreen}
+	on:onStartCalibration={() => (showCalibration = true)}
 	on:onFullscreen={pans}
 	on:hideMenu={() => (showMenu = false)}
 	on:startSurvivalRun={(args) => startSurvivalRun(args)}
