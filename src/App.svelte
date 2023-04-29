@@ -182,7 +182,7 @@
 		started = true;
 		lastEnemyRefresh = 0;
 		start(true);
-		updateBest(); 
+		updateBest();
 	}
 
 	function getNearestEnemy(enemiesArray) {
@@ -609,11 +609,11 @@
 							Math.abs(
 								calibrationObj.screenWidth - root.clientWidth
 							) >
-								(5 / 100) * root.clientWidth ||
+								(18 / 100) * root.clientWidth ||
 							Math.abs(
 								calibrationObj.screenHeight - root.clientHeight
 							) >
-								(5 / 100) * root.clientHeight
+								(18 / 100) * root.clientHeight
 						) {
 							showCalibration = true;
 						} else {
@@ -875,6 +875,7 @@
 	backgroundColor="#2400ff20"
 /> -->
 <CalibrationOverlay
+	{isFullscreen}
 	on:onFullscreen={pans}
 	{map}
 	{showCalibration}

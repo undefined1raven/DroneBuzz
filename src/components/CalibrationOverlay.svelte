@@ -4,6 +4,7 @@
     import CalibrationDeco from ".//deco/CalibrationDeco.svelte";
     import { onMount, getContext } from "svelte";
     import cartesianDistance from "../fn/cartesianDistance.js";
+    import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
     import FullscreenDeco from "./deco/FullscreenDeco.svelte";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
@@ -19,6 +20,7 @@
     }; //used to compute visible map bounds
     let map = getMap();
     let onCalibrationFinish;
+    let isFullscreen;
 
     onMount(() => {
         setTimeout(() => {
@@ -86,7 +88,7 @@
         }, 50);
     });
 
-    export { showCalibration, map, onCalibrationFinish };
+    export { showCalibration, map, onCalibrationFinish, isFullscreen };
 </script>
 
 {#if showCalibration}
@@ -132,7 +134,7 @@
         borderRadius="5px"
         borderColor="#2400FF"
         backdropFilter="blur(5px)"
-        ><FullscreenDeco />
+        >{#if !isFullscreen}<FullscreenDeco />{:else}<MinifyScreenDeco />{/if}
     </Button>
 {/if}
 
