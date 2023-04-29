@@ -182,7 +182,7 @@
 		started = true;
 		lastEnemyRefresh = 0;
 		start(true);
-		updateBest();
+		updateBest(); 
 	}
 
 	function getNearestEnemy(enemiesArray) {
