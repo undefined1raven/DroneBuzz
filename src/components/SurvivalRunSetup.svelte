@@ -2,14 +2,29 @@
     import Label from "./Label.svelte";
     import Button from "./Button.svelte";
     import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
 
     let onBack;
     let onStartRun;
     let runConfig = {
+        displayDifficulty: "easy",
         difficulty: "easy",
         objective: "none",
         location: { lng: 26.02985041110172, lat: 44.35381465897361 },
     };
+
+    function onDifficultySelected(difficulty, e) {
+        runConfig.displayDifficulty = difficulty;
+        runConfig.difficulty = difficulty;
+        e.target.style.transition = "all linear 0.15s";
+        setTimeout(() => {
+            runConfig.difficulty = "lx";
+        }, 50);
+        setTimeout(() => {
+            runConfig.difficulty = difficulty;
+        }, 110);
+    }
 
     let buttonColorsHash = {
         true: {
@@ -70,20 +85,27 @@
             tabletLeft="25%"
             left="25%"
         />
-        <Label
-            className="fromAboveAni"
-            text="Location"
-            color="#6D55FF"
-            horizontalFont="13px"
-            backgroundColor="#1A00BA30"
-            style="border-left: solid 1px #6D55FF; border-radius: 0px 5px 5px 0px;"
-            width="14.53125%"
-            height="8.333333333%"
-            top="65.555555556%"
-            left="25%"
-            tabletTop="65.555555556%"
-            tabletLeft="25%"
-        />
+        <!--Location Start-->
+        <div class="locationControlsGroup">
+            <Button
+                className="fromAboveAni"
+                onClick={(e) => {
+                    dispatch("onLocationPick");
+                }}
+                label="Pick"
+                color={buttonColorsHash[true].color}
+                horizontalFont="13px"
+                backgroundColor={buttonColorsHash[true].backgroundColor}
+                borderRadius="5px"
+                borderColor={buttonColorsHash[true].borderColor}
+                width="11.875%"
+                height="8.333333333%"
+                top="65.555555556%"
+                left="41.40625%"
+                tabletTop="40.555555556%"
+                tabletLeft="41.40625%"
+            />
+        </div>
 
         <!--Difficulty Start-->
         <div class="difficultyControlsGroup">
@@ -103,7 +125,9 @@
             />
             <Button
                 className="fromAboveAni"
-                onClick={() => (runConfig.difficulty = "easy")}
+                onClick={(e) => {
+                    onDifficultySelected("easy", e);
+                }}
                 label="Easy"
                 color={buttonColorsHash[runConfig.difficulty === "easy"].color}
                 horizontalFont="13px"
@@ -122,7 +146,9 @@
             />
             <Button
                 className="fromAboveAni"
-                onClick={() => (runConfig.difficulty = "medium")}
+                onClick={(e) => {
+                    onDifficultySelected("medium", e);
+                }}
                 label="Medium"
                 color={buttonColorsHash[runConfig.difficulty === "medium"]
                     .color}
@@ -142,7 +168,9 @@
             />
             <Button
                 className="fromAboveAni"
-                onClick={() => (runConfig.difficulty = "hard")}
+                onClick={(e) => {
+                    onDifficultySelected("hard", e);
+                }}
                 label="Hard"
                 color={buttonColorsHash[runConfig.difficulty === "hard"].color}
                 horizontalFont="13px"
@@ -161,7 +189,9 @@
             />
             <Button
                 className="fromAboveAni"
-                onClick={() => (runConfig.difficulty = "insane")}
+                onClick={(e) => {
+                    onDifficultySelected("insane", e);
+                }}
                 label="Goodluck :))"
                 color={buttonColorsHash[runConfig.difficulty === "insane"]
                     .color}
@@ -185,7 +215,9 @@
     <div class="flyButtonBkg" />
     <Button
         id="survivalRunStartButton"
-        onClick={() => onStartRun(runConfig)}
+        onClick={() => {
+            onStartRun(runConfig);
+        }}
         label="Fly"
         color="#FFF"
         borderColor="#2400FF"

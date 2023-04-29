@@ -10,6 +10,8 @@
     let borderColor;
     let backgroundColor;
     let onClick;
+    let onTouchStart;
+    let onTouchEnd;
     let width;
     let height;
     let top;
@@ -42,7 +44,7 @@
     } //shorthand for isUndefined. short name for readibility
 
     function positionParser(mobilePosition, tabletPosition) {
-        if (clientWidth > 1023 && tabletPosition != 'auto') {
+        if (clientWidth > 1023 && tabletPosition != "auto") {
             return tabletPosition;
         } else {
             return mobilePosition;
@@ -99,12 +101,16 @@
         tabletTop,
         backdropFilter,
         borderRadius,
+        onTouchStart,
+        onTouchEnd,
     };
 </script>
 
 <svelte:window on:resize={onResize} />
 <div
     {id}
+    on:touchstart={onTouchStart}
+    on:touchend={onTouchEnd}
     on:click={onClick}
     class={`label ${className}`}
     style="
@@ -122,6 +128,7 @@
     {iu(style, '')}"
 >
     {text}
+    <slot />
 </div>
 
 <style>

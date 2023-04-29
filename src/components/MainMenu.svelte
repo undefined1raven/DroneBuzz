@@ -8,13 +8,12 @@
     import FullscreenDeco from "./deco/FullscreenDeco.svelte";
     import RefreshDeco from "./deco/RefreshDeco.svelte";
     import CalibrationDeco from "./deco/CalibrationDeco.svelte";
-    import { createEventDispatcher } from "svelte";
     import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
+    import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
     let show;
     let started;
-    let setActiveWindow;
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
     let screenHeight = root.clientHeight;
@@ -35,7 +34,12 @@
         });
     }
 
-    export { show, setActiveWindow, started, isFullscreen };
+    function setActiveWindow(WID) {
+        activeWindowID = WID;
+        dispatch("stateChange", { WID: WID });
+    }
+
+    export { show, started, isFullscreen };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
@@ -76,7 +80,12 @@
             backgroundColor="#2400FF20"
             style="z-index: 1500;"
             borderRadius="5px"
-            borderColor="#2400FF"><CalibrationDeco staticColor="#2400FF" style="top: auto;" size="8vh" /></Button
+            borderColor="#2400FF"
+            ><CalibrationDeco
+                staticColor="#2400FF"
+                style="top: auto;"
+                size="8vh"
+            /></Button
         >
         <MainMenuDeco />
         <Label
@@ -116,12 +125,12 @@
         {#if activeWindowID == "menu"}
             <div id="menuContainerActual">
                 <div
-                    on:click={() => (activeWindowID = "survivalRunSetup")}
+                    on:click={() => setActiveWindow("survivalRunSetup")}
                     class="menuButton"
                     style="position: absolute; top: 46.111111111%;  left: 7.5%; display: flex; align-items: center; justify-content: center; width: 35.15625%; height: calc(41.666666667% - 4%);"
                 >
                     <Button
-                        onClick={() => (activeWindowID = "survivalRunSetup")}
+                        onClick={() => setActiveWindow("survivalRunSetup")}
                         label="Survival Run"
                         color="#5C41FF"
                         backdropFilter="none"
@@ -160,7 +169,8 @@
         {/if}
         {#if activeWindowID == "survivalRunSetup"}
             <SurvivalRunSetup
-                onBack={() => (activeWindowID = "menu")}
+                on:onLocationPick
+                onBack={() => setActiveWindow("menu")}
                 onStartRun={(runConfig) => startRun(runConfig)}
             />
         {/if}

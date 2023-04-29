@@ -24,7 +24,6 @@
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
 	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
-	import { run } from "svelte/internal";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -91,6 +90,8 @@
 	let isFullscreen = false;
 	let clientWidth = root.clientWidth;
 	let clientHeight = root.clientHeight;
+	let menuState = "menu";
+	let isPickingLocation = false;
 
 	//---| Game State
 	let map;
@@ -927,12 +928,51 @@
 <MainMenu
 	{started}
 	{isFullscreen}
+	on:stateChange={(e) => {
+		console.log(e.detail);
+		menuState = e.detail;
+	}}
+	on:onLocationPick={() => {
+		showMenu = false;
+		map.minZoom = 1;
+		isPickingLocation = true;
+	}}
 	on:onStartCalibration={() => (showCalibration = true)}
 	on:onFullscreen={pans}
 	on:hideMenu={() => (showMenu = false)}
 	on:startSurvivalRun={(args) => startSurvivalRun(args)}
 	show={!showCalibration && showMenu}
 />
+{#if menuState.WID == "survivalRunSetup" && !started && !isPickingLocation}
+	<Label
+		className="fromAboveAni"
+		text="Location"
+		onTouchStart={(e) => {
+			showMenu = false;
+			e.style.backdropFilter = "blur(6px) !important;";
+		}}
+		onTouchEnd={(e) => {
+			showMenu = true;
+			e.style.backdropFilter = "none;";
+		}}
+		color="#6D55FF"
+		horizontalFont="13px"
+		backgroundColor="#1A00BA30"
+		style="border-left: solid 1px #6D55FF; border-radius: 0px 5px 5px 0px; align-items: start; padding-bottom: 3%; padding-top: 0.5%"
+		width="14.53125%"
+		height="1.423333333%"
+		top="65.555555556%"
+		left="25%"
+		tabletTop="65.555555556%"
+		tabletLeft="25%"
+		><Label
+			text="Hold to preview"
+			color="#4227EA"
+			top="62%"
+			horizontalFont="8px"
+		/></Label
+	>
+{/if}
 {#if clientHeight > clientWidth}<Label
 		width="100%"
 		height="100%"
