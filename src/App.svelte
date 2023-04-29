@@ -7,11 +7,13 @@
 	import FireControlDashboard from "./components/FireControlDashboard.svelte";
 	import NavDashboard from "./components/NavDashboard.svelte";
 	import OpsDashboard from "./components/OpsDashboard.svelte";
+	import LocationPickerOverlay from "./components/LocationPickerOverlay.svelte";
 	import { RangeScaler } from "./fn/RangeScaler.js";
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
 	import MainMenu from "./components/MainMenu.svelte";
+	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
 	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
@@ -122,6 +124,12 @@
 	//---| Player State
 	let lng = 26.02985041110172; /*25.609*/
 	let lat = 44.35381465897361; /*45.653*/
+
+	let nlatFromPicker = lat;
+	let nlngFromPicker = lng;
+	let displayNlatFromPicker = lat;
+	let displayNlngFromPicker = lng;
+
 	let ang = 0;
 	let misslecooldown = 500;
 	let maxConcurentMissileCount = 5;
@@ -619,6 +627,14 @@
 		updateBest();
 		map.on("load", () => {
 			onWindowResize();
+			map.on("move", (e) => {
+				if (isPickingLocation) {
+					const nlng = map.getCenter().lng;
+					const nlat = map.getCenter().lat;
+					displayNlatFromPicker = nlat;
+					displayNlngFromPicker = nlng;
+				}
+			});
 		});
 		// 	map.addSource("source", {
 		// 		type: "geojson",
@@ -763,11 +779,7 @@
 			defensiveMissleCooldown = 350;
 			misslecooldown = 250;
 		}
-		const nlng = runConfig.location.lng;
-		const nlat = runConfig.location.lat;
-		lng = nlng;
-		lat = nlat;
-		map.panTo([nlng, nlat], { duration: 0 });
+		map.panTo([lng, lat], { duration: 0 });
 		showMenu = false;
 		if (args.detail.restart) {
 			restart();
@@ -814,6 +826,13 @@
 			}
 		}, 150);
 	}
+	function getDynamicBorderRadius(pxRadius) {
+		return `${
+			(parseFloat(pxRadius * 100) / 360 / 100) *
+				document.documentElement.clientHeight +
+			"px"
+		}`;
+	}
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:resize={onWindowResize} />
@@ -828,7 +847,9 @@
 		bind:map
 	/>
 	<div
-		style="display: {showCalibration ? 'none' : 'flex'}"
+		style="display: {showCalibration || isPickingLocation
+			? 'none'
+			: 'flex'}"
 		class="joy"
 		id="joy"
 	/>
@@ -929,7 +950,6 @@
 	{started}
 	{isFullscreen}
 	on:stateChange={(e) => {
-		console.log(e.detail);
 		menuState = e.detail;
 	}}
 	on:onLocationPick={() => {
@@ -946,7 +966,7 @@
 {#if menuState.WID == "survivalRunSetup" && !started && !isPickingLocation}
 	<Label
 		className="fromAboveAni"
-		text="Location"
+		text=""
 		onTouchStart={(e) => {
 			showMenu = false;
 			e.style.backdropFilter = "blur(6px) !important;";
@@ -958,20 +978,51 @@
 		color="#6D55FF"
 		horizontalFont="13px"
 		backgroundColor="#1A00BA30"
-		style="border-left: solid 1px #6D55FF; border-radius: 0px 5px 5px 0px; align-items: start; padding-bottom: 3%; padding-top: 0.5%"
+		style="border-left: solid 1px #6D55FF; border-radius: 0px {getDynamicBorderRadius(
+			5
+		)} {getDynamicBorderRadius(5)} 0px ;"
 		width="14.53125%"
-		height="1.423333333%"
+		height="8.333333333%"
 		top="65.555555556%"
 		left="25%"
 		tabletTop="65.555555556%"
 		tabletLeft="25%"
-		><Label
+	>
+		<Label
+			text="Location"
+			color="#6D55FF"
+			horizontalFont="13px"
+			top="10%"
+		/>
+		<Label
 			text="Hold to preview"
 			color="#4227EA"
 			top="62%"
 			horizontalFont="8px"
 		/></Label
 	>
+{/if}
+{#if isPickingLocation}
+	<LoactionPickerDeco
+		size="8vh"
+		tabletSize="6vh"
+		style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20000;"
+	/>
+	<LocationPickerOverlay
+		on:newLocationPicked={() => {
+			lat = displayNlatFromPicker;
+			lng = displayNlngFromPicker;
+			isPickingLocation = false;
+			showMenu = true;
+		}}
+		on:hidePicker={() => {
+			isPickingLocation = false;
+			showMenu = true;
+		}}
+		text={`Lat: ${displayNlatFromPicker.toFixed(
+			5
+		)} | Lng: ${displayNlngFromPicker.toFixed(5)}`}
+	/>
 {/if}
 {#if clientHeight > clientWidth}<Label
 		width="100%"

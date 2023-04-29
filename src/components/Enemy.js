@@ -134,7 +134,6 @@ class Enemy {
     onDistanceUpdate(enemyID) {
         if (this.isHunted == true && this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && this.distance < 0.808) {
             this.defensiveFire();
-            console.log('def')
         }
         if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < this.offensiveRadius && !this.invisble) {
             this.fireMissle();

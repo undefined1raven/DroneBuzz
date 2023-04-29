@@ -39,6 +39,14 @@
         },
     };
 
+    function getDynamicBorderRadius(pxRadius) {
+        return `${
+            (parseFloat(pxRadius * 100) / 360 / 100) *
+                document.documentElement.clientHeight +
+            "px"
+        }`;
+    }
+
     export { onBack, onStartRun };
 </script>
 
@@ -77,7 +85,9 @@
             color="#6D55FF"
             horizontalFont="13px"
             backgroundColor="#1A00BA30"
-            style="border-left: solid 1px #6D55FF; border-radius: 0px 5px 5px 0px;"
+            style="border-left: solid 1px #6D55FF; border-radius: 0px {getDynamicBorderRadius(
+                5
+            )} {getDynamicBorderRadius(5)} 0px ;"
             width="14.53125%"
             height="8.333333333%"
             top="53.055555556%"
@@ -102,7 +112,6 @@
                 height="8.333333333%"
                 top="65.555555556%"
                 left="41.40625%"
-                tabletTop="40.555555556%"
                 tabletLeft="41.40625%"
             />
         </div>
@@ -115,7 +124,9 @@
                 color="#6D55FF"
                 horizontalFont="13px"
                 backgroundColor="#1A00BA30"
-                style="border-left: solid 1px #6D55FF; border-radius: 0px 5px 5px 0px;"
+                style="border-left: solid 1px #6D55FF; border-radius: 0px {getDynamicBorderRadius(
+                    5
+                )} {getDynamicBorderRadius(5)} 0px ;"
                 width="14.53125%"
                 height="8.333333333%"
                 top="40.555555556%"

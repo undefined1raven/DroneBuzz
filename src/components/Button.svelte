@@ -135,7 +135,7 @@
         color: {iu(color, '#FFF')}; 
         background-color: {iu(backgroundColor, '#0500FF00')}; 
         border: solid 1px {iu(borderColor, '#0500FF')};
-        border-radius: {iu(borderRadius, '0px')};
+        border-radius: {((((parseFloat(iu(borderRadius, '0px').substring(0, iu(borderRadius, '0px').length - 2)) * 100) / 360) / 100) * clientHeight) + 'px;'};
         backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         {iu(style, '')}"
