@@ -3,6 +3,7 @@
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
 	import Button from "./components/Button.svelte";
+	import Label from "./components/Label.svelte";
 	import FireControlDashboard from "./components/FireControlDashboard.svelte";
 	import NavDashboard from "./components/NavDashboard.svelte";
 	import OpsDashboard from "./components/OpsDashboard.svelte";
@@ -86,6 +87,11 @@
 		};
 	}
 
+	//---| Page State
+	let isFullscreen = false;
+	let clientWidth = root.clientWidth;
+	let clientHeight = root.clientHeight;
+
 	//---| Game State
 	let map;
 	let lastEnemyRefresh = 0;
@@ -166,6 +172,8 @@
 		enemies.forEach((enemy) => {
 			enemy.hideEnemy();
 		});
+		friendlyMissles = [];
+		enemyDefensiveMissles = [];
 		missles = [];
 		enemies = [];
 		deadTime = 0;
@@ -585,6 +593,8 @@
 	}
 
 	function onWindowResize() {
+		clientWidth = root.clientWidth;
+		clientHeight = root.clientHeight;
 		setTimeout(() => {
 			if (!hasVerifiedCalibration) {
 				if (root.clientHeight < root.clientWidth) {
@@ -795,12 +805,27 @@
 	}
 
 	function pans() {
+		let beforeHeight = root.clientHeight;
+		let afterHeight;
 		if (root.requestFullscreen) {
 			root.requestFullscreen();
+			setTimeout(() => {
+				afterHeight = root.clientHeight;
+			}, 70);
 		}
 		if (root.webkitRequestFullscreen) {
 			root.webkitRequestFullscreen();
+			setTimeout(() => {
+				afterHeight = root.clientHeight;
+			}, 70);
 		}
+		setTimeout(() => {
+			if (afterHeight > beforeHeight) {
+				isFullscreen = true;
+			} else {
+				isFullscreen = false;
+			}
+		}, 150);
 	}
 </script>
 
@@ -832,10 +857,12 @@
 	<NavDashboard {started} />
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
-<Button
+<!-- <Button
 	onClick={pans}
 	id="fullscreen"
 	top="20%"
+	tabletTop="20%"
+	tabletLeft="4%"
 	left="30%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
@@ -846,11 +873,18 @@
 	opacity={started ? 0 : 1}
 	height="10%"
 	backgroundColor="#2400ff20"
+/> -->
+<CalibrationOverlay
+	on:onFullscreen={pans}
+	{map}
+	{showCalibration}
+	{onCalibrationFinish}
 />
-<CalibrationOverlay {map} {showCalibration} {onCalibrationFinish} />
-<Button
+<!-- <Button
 	id="start"
 	top="40%"
+	tabletTop="2%"
+	tabletLeft="4%"
 	left="30%"
 	color="#5c41ff"
 	borderColor="#5c41ff"
@@ -864,7 +898,7 @@
 		start();
 	}}
 	backgroundColor="#2400ff20"
-/>
+/> -->
 <Button
 	id="retry"
 	top="77.777777778%"
@@ -905,10 +939,22 @@
 />
 <MainMenu
 	{started}
+	{isFullscreen}
+	on:onFullscreen={pans}
 	on:hideMenu={() => (showMenu = false)}
 	on:startSurvivalRun={(args) => startSurvivalRun(args)}
 	show={!showCalibration && showMenu}
 />
+{#if clientHeight > clientWidth}<Label
+		width="100%"
+		height="100%"
+		text="Go into landscape mode to continue"
+		color="#5C41FF"
+		backgroundColor="#0E006520"
+		verticalFont="25px"
+		backdropFilter="blur(3px)"
+		style="z-index: 1000000;"
+	/>{/if}
 
 <style lang="scss">
 	:global(body) {

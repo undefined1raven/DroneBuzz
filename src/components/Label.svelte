@@ -13,10 +13,14 @@
     let width;
     let height;
     let top;
+    let tabletTop;
+    let tabletLeft;
     let left;
     let horizontalFont;
     let verticalFont;
     let opacity;
+    let backdropFilter;
+    let borderRadius;
 
     const root = document.documentElement;
     let fontSize = "2.4vh";
@@ -37,23 +41,42 @@
         return val != undefined ? val : valDefault;
     } //shorthand for isUndefined. short name for readibility
 
+    function positionParser(mobilePosition, tabletPosition) {
+        if (clientWidth > 1023 && tabletPosition != 'auto') {
+            return tabletPosition;
+        } else {
+            return mobilePosition;
+        }
+    }
+
     function fontController() {
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
         if (orientation == "portrait") {
             if (verticalFont != undefined) {
-                fontSize = ((parseFloat(verticalFont.substring(0, verticalFont.length - 2)) * clientWidth) / 640) + 'px'
+                fontSize =
+                    (parseFloat(
+                        verticalFont.substring(0, verticalFont.length - 2)
+                    ) *
+                        clientWidth) /
+                        640 +
+                    "px";
             } else {
                 fontSize = "1.4vh";
             }
         } else {
             if (horizontalFont != undefined) {
-                fontSize = ((parseFloat(horizontalFont.substring(0, horizontalFont.length - 2)) * clientWidth) / 640) + 'px'
+                fontSize =
+                    (parseFloat(
+                        horizontalFont.substring(0, horizontalFont.length - 2)
+                    ) *
+                        clientWidth) /
+                        640 +
+                    "px";
             } else {
                 fontSize = "2.8vh";
             }
         }
     }
-
 
     export {
         lightColor,
@@ -72,6 +95,10 @@
         verticalFont,
         opacity,
         style,
+        tabletLeft,
+        tabletTop,
+        backdropFilter,
+        borderRadius,
     };
 </script>
 
@@ -83,12 +110,15 @@
     style="
     opacity: {iu(opacity, '1')}; 
     font-size: {iu(fontSize, '2vh')}; 
-    left: {iu(left, 'auto')}; 
-    top: {iu(top, 'auto')}; 
+    left: {positionParser(iu(left, 'auto'), iu(tabletLeft, 'auto'))}; 
+    top: {positionParser(iu(top, 'auto'), iu(tabletTop, 'auto'))}; 
     width: {iu(width, 'auto')}; 
     height: {iu(height, 'auto')}; 
     color: {iu(color, '#FFF')}; 
     background-color: {iu(backgroundColor, '#2400FF00')};
+    border-radius: {iu(borderRadius, '0px')};
+    backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
+    --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
     {iu(style, '')}"
 >
     {text}

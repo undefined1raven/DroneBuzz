@@ -1,18 +1,30 @@
 <script>
     let top;
+    let tabletTop;
+    let tabletLeft;
     let left;
     let size;
+    let tableSize;
 
-    export { top, left, size };
+    function positionParser(mobilePosition, tabletPosition) {
+        if (document.documentElement.clientWidth < 1023) {
+            return mobilePosition;
+        } else {
+            return tabletPosition;
+        }
+    }
+
+
+    export { top, left, size, tabletTop, tabletLeft, tableSize };
 </script>
 
 <svg
     style="
     position: absolute; 
-    top: {top ? top : 'auto'}; 
-    left: {left ? left : 'auto'};"
-    width="{size ? size : '20.8333vh'}"
-    height="{size ? size : '20.8333vh'}"
+    top: {positionParser(top ? top : 'auto', tabletTop ? tabletTop : 'auto')}; 
+    left: {positionParser(left ? left : 'auto', tabletLeft ? tabletLeft : 'auto')};"
+    width="{positionParser(size ? size : '20.8333vh', tableSize ? tableSize : '20.8333vh')}"
+    height="{positionParser(size ? size : '20.8333vh', tableSize ? tableSize : '20.8333vh')}"
     viewBox="0 0 75 75"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

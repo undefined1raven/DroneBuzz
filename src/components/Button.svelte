@@ -18,6 +18,8 @@
     let verticalFont;
     let backdropFilter;
     let opacity;
+    let tabletTop;
+    let tabletLeft;
     let borderRadius;
     let touchStartUnix = 0;
     const root = document.documentElement;
@@ -85,6 +87,14 @@
         }
     }
 
+    function positionParser(mobilePosition, tabletPosition) {
+        if (clientWidth > 1050 && tabletPosition != 'auto') {
+            return tabletPosition;
+        } else {
+            return mobilePosition;
+        }
+    }
+
     export {
         lightColor,
         id,
@@ -104,6 +114,8 @@
         style,
         backdropFilter,
         borderRadius,
+        tabletLeft,
+        tabletTop
     };
 </script>
 
@@ -116,8 +128,8 @@
     style="
         opacity: {iu(opacity, '1')}; 
         font-size: {iu(fontSize, '2vh')}; 
-        left: {iu(left, 'auto')}; 
-        top: {iu(top, 'auto')}; 
+        left: {positionParser(iu(left, 'auto'), iu(tabletLeft, 'auto'))}; 
+        top: {positionParser(iu(top, 'auto'), iu(tabletTop, 'auto'))};     
         width: {iu(width, 'auto')}; 
         height: {iu(height, 'auto')}; 
         color: {iu(color, '#FFF')}; 
@@ -128,7 +140,8 @@
         --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         {iu(style, '')}"
 >
-    {label}
+    {label ? label : ''}
+    <slot></slot>
 </div>
 
 <style>

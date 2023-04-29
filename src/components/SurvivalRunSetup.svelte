@@ -29,12 +29,18 @@
 
 <div class="survivalRunSetupContainer">
     <div class="navContainer">
-        <SurvivalRunDeco size="30vh" top="47.210300429%" />
+        <SurvivalRunDeco
+            size="30vh"
+            tabletSize="25vh"
+            top="47.210300429%"
+            tabletTop="50%"
+        />
         <Label
             text="Survival Run"
             color="#5C41FF"
             horizontalFont="15px"
             top="34.334763948%"
+            tabletTop="35%"
         />
         <Button
             onClick={onBack}
@@ -43,6 +49,7 @@
             borderColor="#1A00BA"
             horizontalFont="15px"
             top="7.296137339%"
+            tabletTop="4%"
             width="89.6%"
             height="14.163090129%"
             borderRadius="5px"
@@ -59,6 +66,8 @@
             width="14.53125%"
             height="8.333333333%"
             top="53.055555556%"
+            tabletTop="53.055555556%"
+            tabletLeft="25%"
             left="25%"
         />
         <Label
@@ -72,6 +81,8 @@
             height="8.333333333%"
             top="65.555555556%"
             left="25%"
+            tabletTop="65.555555556%"
+            tabletLeft="25%"
         />
 
         <!--Difficulty Start-->
@@ -86,6 +97,8 @@
                 width="14.53125%"
                 height="8.333333333%"
                 top="40.555555556%"
+                tabletTop="40.555555556%"
+                tabletLeft="25%"
                 left="25%"
             />
             <Button
@@ -104,6 +117,8 @@
                 height="8.333333333%"
                 top="40.555555556%"
                 left="41.40625%"
+                tabletTop="40.555555556%"
+                tabletLeft="41.40625%"
             />
             <Button
                 className="fromAboveAni"
@@ -122,6 +137,8 @@
                 height="8.333333333%"
                 top="40.555555556%"
                 left="55.15625%"
+                tabletTop="40.555555556%"
+                tabletLeft="55.15625%"
             />
             <Button
                 className="fromAboveAni"
@@ -139,6 +156,8 @@
                 height="8.333333333%"
                 top="40.555555556%"
                 left="69.0625%"
+                tabletTop="40.555555556%"
+                tabletLeft="69.0625%"
             />
             <Button
                 className="fromAboveAni"
@@ -157,6 +176,8 @@
                 height="8.333333333%"
                 top="40.555555556%"
                 left="84.6875%"
+                tabletTop="40.555555556%"
+                tabletLeft="84.6875%"
             />
         </div>
         <!--Difficulty End-->
@@ -171,6 +192,8 @@
         backgroundColor="#2400FF20"
         horizontalFont="18px"
         top="83.333333333%"
+        tabletTop="83.333333333%"
+        tabletLeft="46.875%"
         left="46.875%"
         width="29.53125%"
         height="13.055555556%"

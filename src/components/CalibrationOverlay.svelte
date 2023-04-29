@@ -1,8 +1,12 @@
 <script>
     import Label from "./Label.svelte";
+    import Button from "./Button.svelte";
     import CalibrationDeco from ".//deco/CalibrationDeco.svelte";
     import { onMount, getContext } from "svelte";
     import cartesianDistance from "../fn/cartesianDistance.js";
+    import FullscreenDeco from "./deco/FullscreenDeco.svelte";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
     const { getMap } = getContext("map");
     const root = document.documentElement;
     let showCalibration;
@@ -88,16 +92,16 @@
 {#if showCalibration}
     <div class="caliOverlayContainer">
         <Label
-            id="hi"
             top="23.404255319%"
             text="Tap on every side of the screen as close to the edge as possible"
             color="#2400FF"
             horizontalFont="15px"
             verticalFont="12px"
+            tabletTop="21%"
         />
         <Label
-            id="hi"
             top="5.404255319%"
+            tabletTop="4%"
             text="One-time calibration"
             color="#593EFF"
             horizontalFont="12px"
@@ -105,19 +109,45 @@
         />
         <CalibrationDeco {statusObj} />
     </div>
+    <Label
+        color="#725AFF"
+        backdropFilter="blur(5px)"
+        backgroundColor="#2400FF20"
+        text="Go full screen before calibrating"
+        horizontalFont="14px"
+        width="44.21875%"
+        height="12.222222222%"
+        top="61.666666667%"
+        left="15.3125%"
+        borderRadius="5px"
+    />
+    <Button
+        onClick={() => dispatch("onFullscreen")}
+        top="61.666666667%"
+        left="62.8125%"
+        width="21.71875%"
+        height="12.222222222%"
+        backgroundColor="#2400FF20"
+        style="z-index: 1500;"
+        borderRadius="5px"
+        borderColor="#2400FF"
+        backdropFilter="blur(5px)"
+        ><FullscreenDeco />
+    </Button>
 {/if}
 
 <style>
     .caliOverlayContainer {
         position: absolute;
-        top: 50%;
+        top: 31.111111111%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 69.21875%;
         height: 26.111111111%;
-        background-color: rgba(6, 0, 20, 0.6);
+        background-color: #2400ff20;
         backdrop-filter: blur(5px);
         z-index: 1500;
+        border-radius: 5px;
         display: flex;
         align-items: center;
         justify-content: center;

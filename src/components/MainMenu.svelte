@@ -5,7 +5,9 @@
     import SurvivalRunSetup from "./SurvivalRunSetup.svelte";
     import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
     import CampaignDeco from "./deco/CampaignDeco.svelte";
+    import FullscreenDeco from "./deco/FullscreenDeco.svelte";
     import { createEventDispatcher } from "svelte";
+    import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
     const dispatch = createEventDispatcher();
 
     let show;
@@ -14,6 +16,7 @@
     const root = document.documentElement;
     let screenWidth = root.clientWidth;
     let screenHeight = root.clientHeight;
+    let isFullscreen;
 
     //Menu State
     let activeWindowID = "menu"; //menu | survivalRunSetup | ....
@@ -30,19 +33,32 @@
         });
     }
 
-    export { show, setActiveWindow, started };
+    export { show, setActiveWindow, started, isFullscreen };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
-{#if show && screenWidth < 1020 && screenHeight < screenWidth}
+{#if show && screenHeight < screenWidth}
     <div class="mainMenuContainer">
         <div class="topGradientBkg" />
         <div class="bottomGradientBkg" />
+        <Button
+            onClick={() => dispatch("onFullscreen")}
+            top="10.555555556%"
+            left="82.03125%"
+            width="10.46875%"
+            height="12.222222222%"
+            backgroundColor="#2400FF20"
+            style="z-index: 1500;"
+            borderRadius="5px"
+            borderColor="#2400FF">{#if !isFullscreen}<FullscreenDeco />{:else}<MinifyScreenDeco/>{/if}</Button
+        >
         <MainMenuDeco />
         <Label
             text="Drone Buzz"
             top="7.222222222%"
             left="23.59375%"
+            tabletLeft="30%"
+            tabletTop="8%"
             color="#9E7CFF"
             horizontalFont="20px"
             style="letter-spacing: 1.4vh"
@@ -51,6 +67,8 @@
             text="Build [230428+0]"
             top="15.833333333%"
             left="23.59375%"
+            tabletLeft="30%"
+            tabletTop="16%"
             color="#7B4DFF"
             horizontalFont="10px"
             style="letter-spacing: 0.4vh"
@@ -59,6 +77,8 @@
             text="[49C235C]"
             top="21.111111111%"
             left="23.59375%"
+            tabletLeft="30%"
+            tabletTop="20%"
             color="#7B4DFF"
             horizontalFont="10px"
             style="letter-spacing: 0.4vh"
@@ -88,7 +108,7 @@
                         height="90%"
                         horizontalFont="16px"
                     />
-                    <SurvivalRunDeco top="48.333333333%" />
+                    <SurvivalRunDeco top="48.333333333%" tabletTop="38%" />
                 </div>
                 <div
                     class="menuButton"
