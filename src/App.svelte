@@ -780,6 +780,7 @@
 			misslecooldown = 250;
 		}
 		map.panTo([lng, lat], { duration: 0 });
+		map.minZoom = 14;
 		showMenu = false;
 		if (args.detail.restart) {
 			restart();
@@ -839,7 +840,7 @@
 <main>
 	<Map
 		attribution={false}
-		minzoom="0"
+		minzoom="14"
 		maxzoom="14"
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
@@ -865,23 +866,6 @@
 	<NavDashboard {started} />
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
-<!-- <Button
-	onClick={pans}
-	id="fullscreen"
-	top="20%"
-	tabletTop="20%"
-	tabletLeft="4%"
-	left="30%"
-	color="#5c41ff"
-	borderColor="#5c41ff"
-	label="Go Fullscreen"
-	width="50%"
-	horizontalFont="16px"
-	verticalFont="16px"
-	opacity={started ? 0 : 1}
-	height="10%"
-	backgroundColor="#2400ff20"
-/> -->
 <CalibrationOverlay
 	{isFullscreen}
 	on:onFullscreen={pans}
@@ -889,25 +873,6 @@
 	{showCalibration}
 	{onCalibrationFinish}
 />
-<!-- <Button
-	id="start"
-	top="40%"
-	tabletTop="2%"
-	tabletLeft="4%"
-	left="30%"
-	color="#5c41ff"
-	borderColor="#5c41ff"
-	label="Start Survival Run"
-	width="50%"
-	horizontalFont="16px"
-	verticalFont="15px"
-	opacity={started ? 0 : 1}
-	height="10%"
-	onClick={() => {
-		start();
-	}}
-	backgroundColor="#2400ff20"
-/> -->
 <Button
 	id="retry"
 	top="77.777777778%"
@@ -920,7 +885,7 @@
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount > 0 ? 1 : 0}
+	opacity={deadcount && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		restart();
@@ -938,7 +903,7 @@
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount > 0 ? 1 : 0}
+	opacity={deadcount && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		showMenu = true;
@@ -963,7 +928,7 @@
 	on:startSurvivalRun={(args) => startSurvivalRun(args)}
 	show={!showCalibration && showMenu}
 />
-{#if menuState.WID == "survivalRunSetup" && !started && !isPickingLocation}
+{#if menuState.WID == "survivalRunSetup" && (!started || (started && isPaused)) && !isPickingLocation}
 	<Label
 		className="fromAboveAni"
 		text=""
