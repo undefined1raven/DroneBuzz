@@ -24,7 +24,6 @@
     "@turf/turf": "^6.5.0",
     "leaflet": "^1.9.3",
     "maplibre-gl": "^2.1.9",
-    "nipplejs": "^0.10.1",
-    "sirv-cli": "^2.0.0"
+    "nipplejs": "^0.10.1"
   }
 }

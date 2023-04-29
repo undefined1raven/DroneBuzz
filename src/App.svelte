@@ -174,15 +174,24 @@
 
 	function restart() {
 		isPaused = false;
-		missles.forEach((missle) => {
-			missle.invisble = true;
-			missle.draw({ lng: lng, lat: lat });
-		});
-		enemies.forEach((enemy) => {
-			enemy.hideEnemy();
-		});
+		for (let fmix = 0; fmix < friendlyMissles.length; fmix++) {
+			friendlyMissles[fmix].hideMissle();
+		}
+		for (let edmix = 0; edmix < enemyDefensiveMissles.length; edmix++) {
+			enemyDefensiveMissles[edmix].hideMissle();
+		}
+		for (let fdmix = 0; fdmix < friendlyDefensiveMissles.length; fdmix++) {
+			friendlyDefensiveMissles[fdmix].hideMissle();
+		}
+		for (let eix = 0; eix < enemies.length; eix++) {
+			enemies[eix].hideEnemy();
+		}
+		for (let mix = 0; mix < missles.length; mix++) {
+			missles[mix].hideMissle();
+		}
 		friendlyMissles = [];
 		enemyDefensiveMissles = [];
+		friendlyDefensiveMissles = [];
 		missles = [];
 		enemies = [];
 		deadTime = 0;
@@ -197,12 +206,13 @@
 	function getNearestEnemy(enemiesArray) {
 		let low = 100000000; //works cuz of how smol the distances we're dealing with here are
 		let enemyID = "";
-		enemiesArray.forEach((enemy) => {
+		for (let eix = 0; eix < enemiesArray.length; eix++) {
+			const enemy = enemiesArray[eix];
 			if (enemy.distance < low) {
 				low = enemy.distance;
 				enemyID = enemy.id;
 			}
-		});
+		}
 		return enemiesArray.filter((enemy) => enemy.id == enemyID)[0];
 	}
 
@@ -222,11 +232,146 @@
 		);
 		if (friendlyMissle.distance < friendlyMissle.killRadius) {
 			removeEntity(friendlyMissle, friendlyMissles, ix);
-			enemies.forEach((enemy, ix) => {
+			for (let eix = 0; eix < enemies.length; eix++) {
+				const enemy = enemies[eix];
 				if (enemy.id == enemyID) {
-					removeEntity(enemy, enemies, ix);
+					removeEntity(enemy, enemies, eix);
 				}
-			});
+			}
+		}
+	}
+
+	function missleLoop(mix) {
+		const missle = missles[mix];
+		missle.draw({ lng: lng, lat: lat });
+		updateEnemyHeadings(missle, lng, lat);
+		if (missle.distance < missle.killRadius && missle.distance > 0) {
+			deadcount++;
+			if (deadcount == 1) {
+				deadTime = Date.now();
+				localStorage.setItem("best", deadTime - startTime);
+			}
+			removeEntity(missle, missles, mix);
+		}
+	}
+
+	function friendlyMissleLoop(fmix, friendlyMisslesTargets) {
+		const friendlyMissle = friendlyMissles[fmix];
+		friendlyMissle.draw({ lng: lng, lat: lat });
+
+		let targetEnemy = getNearestEnemy(enemies);
+		let enemyID;
+
+		if (targetEnemy != undefined) {
+			if (friendlyMisslesTargets.indexOf(targetEnemy.id) == -1) {
+				friendlyMisslesTargets.push(targetEnemy.id);
+				targetEnemy.isHunted = true;
+				friendlyMissleUpdate(
+					enemyID,
+					targetEnemy,
+					friendlyMissle,
+					fmix
+				);
+			} else {
+				let sortedEnemies = enemies.sort((a, b) => {
+					return parseFloat(a.distance) - parseFloat(b.distance);
+				});
+				targetEnemy = sortedEnemies[friendlyMisslesTargets.length];
+				if (targetEnemy != undefined) {
+					targetEnemy.isHunted = true;
+					friendlyMisslesTargets.push(targetEnemy.id);
+					friendlyMissleUpdate(
+						enemyID,
+						targetEnemy,
+						friendlyMissle,
+						fmix
+					);
+				}
+			}
+		} else {
+			removeEntity(friendlyMissle, friendlyMissles, fmix);
+		}
+	}
+
+	function enemyDefensiveMissleLoop(edmix) {
+		const enemyDefensiveMissle = enemyDefensiveMissles[edmix];
+		enemyDefensiveMissle.draw({
+			lng: lng,
+			lat: lat,
+		});
+
+		const targetEnemy = getNearestEnemy(friendlyMissles);
+
+		if (targetEnemy != undefined) {
+			const enemyMissleID = targetEnemy.id;
+			enemyDefensiveMissle.targetID = enemyMissleID;
+			updateEnemyHeadings(
+				enemyDefensiveMissle,
+				targetEnemy.coords.lng,
+				targetEnemy.coords.lat
+			);
+			if (
+				enemyDefensiveMissle.distance <=
+					enemyDefensiveMissle.killRadius &&
+				enemyDefensiveMissle.distance > 0
+			) {
+				removeEntity(
+					enemyDefensiveMissle,
+					enemyDefensiveMissles,
+					edmix
+				);
+
+				if (Math.random() < 0.4) {
+					for (let fmix = 0; fmix < friendlyMissles.length; fmix++) {
+						const missle = friendlyMissles[fmix];
+						if (missle.id == enemyMissleID) {
+							removeEntity(missle, friendlyMissles, fmix);
+						}
+					}
+				}
+			}
+		} else {
+			removeEntity(enemyDefensiveMissle, enemyDefensiveMissles, edmix);
+		}
+	}
+
+	function friendlyDefensiveMissleLoop(fdmix) {
+		const friendlyDefensiveMissle = friendlyDefensiveMissles[fdmix];
+		friendlyDefensiveMissle.draw({
+			lng: lng,
+			lat: lat,
+		});
+		let targetEnemy = getNearestEnemy(missles);
+
+		if (targetEnemy != undefined) {
+			const enemyMissleID = targetEnemy.id;
+			friendlyDefensiveMissle.targetID = enemyMissleID;
+			updateEnemyHeadings(
+				friendlyDefensiveMissle,
+				targetEnemy.coords.lng,
+				targetEnemy.coords.lat
+			);
+			if (
+				friendlyDefensiveMissle.distance <
+					friendlyDefensiveMissle.killRadius &&
+				friendlyDefensiveMissle.distance > 0
+			) {
+				removeEntity(
+					friendlyDefensiveMissle,
+					friendlyDefensiveMissles,
+					fdmix
+				);
+				if (Math.random() < 0.8) {
+					for (let mix = 0; mix < missles.length; mix++) {
+						const missle = missles[mix];
+						if (missle.id == enemyMissleID) {
+							removeEntity(missle, missles, mix);
+						}
+					}
+				}
+			}
+		} else {
+			removeEntity(friendlyDefensiveMissle, friendlyDefensiveMissles, ix);
 		}
 	}
 
@@ -286,6 +431,7 @@
 					ang = data.angle.degree;
 					playerMarker._rotation = (data.angle.degree - 90) * -1;
 				});
+				///---| Game Loop
 				setInterval(() => {
 					if (!isPaused) {
 						if (ang <= 180 && ang > 0 && ang != -1) {
@@ -319,219 +465,42 @@
 						playerBluelineMarker.setLngLat([lng, lat]);
 						playerRangeMarker.setLngLat([lng, lat]);
 
-						// if (
-						// 	booleanPointInPolygon(point([lng, lat]), polygon(poly)) &&
-						// 	!missleBarrage
-						// ) {
-						// 	// setTimeout(() => {
-						// 	missleBarrage = true;
-						// 	enemies.forEach((enemy, ix) => {
-						// 		removeEntity(enemy, enemies, ix);
-						// 	});
-						// 	enemies = [];
-						// 	for (let ix = 0; ix <= 60; ix++) {
-						// 		let coords = new getRandomCoords(lng, lat, 5).get();
-						// 		let missle = new Missle(
-						// 			map,
-						// 			coords,
-						// 			0.00008,
-						// 			"offensive",
-						// 			"",
-						// 			`${Math.random()}-${Date.now()}`,
-						// 			0,
-						// 			false
-						// 		);
-						// 		missles.push(missle);
-						// 	}
-						// 	// }, 300);
-						// }
-
-						enemies.forEach((enemy) => {
+						for (let eix = 0; eix < enemies.length; eix++) {
+							const enemy = enemies[eix];
 							enemy.draw({ lng: lng, lat: lat });
 							updateEnemyHeadings(enemy, lng, lat);
-						});
+						}
 
-						missles.forEach((missle, ix) => {
-							missle.draw({ lng: lng, lat: lat });
-							updateEnemyHeadings(missle, lng, lat);
-							if (
-								missle.distance < missle.killRadius &&
-								missle.distance > 0
-							) {
-								deadcount++;
-								if (deadcount == 1) {
-									deadTime = Date.now();
-									localStorage.setItem(
-										"best",
-										deadTime - startTime
-									);
-								}
-								removeEntity(missle, missles, ix);
-							}
-						});
+						for (let mix = 0; mix < missles.length; mix++) {
+							missleLoop(mix);
+						}
+						
 						isHunted = missles.length != 0;
-						friendlyDefensiveMissles.forEach(
-							(friendlyDefensiveMissle, ix) => {
-								friendlyDefensiveMissle.draw({
-									lng: lng,
-									lat: lat,
-								});
-								let targetEnemy = getNearestEnemy(missles);
+						for (
+							let fdmix = 0;
+							fdmix < friendlyDefensiveMissles.length;
+							fdmix++
+						) {
+							friendlyDefensiveMissleLoop(fdmix);
+						}
 
-								if (targetEnemy != undefined) {
-									const enemyMissleID = targetEnemy.id;
-									friendlyDefensiveMissle.targetID =
-										enemyMissleID;
-									updateEnemyHeadings(
-										friendlyDefensiveMissle,
-										targetEnemy.coords.lng,
-										targetEnemy.coords.lat
-									);
-									if (
-										friendlyDefensiveMissle.distance <
-											friendlyDefensiveMissle.killRadius &&
-										friendlyDefensiveMissle.distance > 0
-									) {
-										removeEntity(
-											friendlyDefensiveMissle,
-											friendlyDefensiveMissles,
-											ix
-										);
-										if (Math.random() < 0.8) {
-											missles.forEach((missle, ix) => {
-												if (
-													missle.id == enemyMissleID
-												) {
-													removeEntity(
-														missle,
-														missles,
-														ix
-													);
-												}
-											});
-										}
-									}
-								} else {
-									removeEntity(
-										friendlyDefensiveMissle,
-										friendlyDefensiveMissles,
-										ix
-									);
-								}
-							}
-						);
-
-						enemyDefensiveMissles.forEach(
-							(enemyDefensiveMissle, ix) => {
-								enemyDefensiveMissle.draw({
-									lng: lng,
-									lat: lat,
-								});
-
-								const targetEnemy =
-									getNearestEnemy(friendlyMissles);
-
-								if (targetEnemy != undefined) {
-									const enemyMissleID = targetEnemy.id;
-									enemyDefensiveMissle.targetID =
-										enemyMissleID;
-									updateEnemyHeadings(
-										enemyDefensiveMissle,
-										targetEnemy.coords.lng,
-										targetEnemy.coords.lat
-									);
-									if (
-										enemyDefensiveMissle.distance <=
-											enemyDefensiveMissle.killRadius &&
-										enemyDefensiveMissle.distance > 0
-									) {
-										removeEntity(
-											enemyDefensiveMissle,
-											enemyDefensiveMissles,
-											ix
-										);
-
-										if (Math.random() < 0.4) {
-											friendlyMissles.forEach(
-												(missle, ix) => {
-													if (
-														missle.id ==
-														enemyMissleID
-													) {
-														removeEntity(
-															missle,
-															friendlyMissles,
-															ix
-														);
-													}
-												}
-											);
-										}
-									}
-								} else {
-									removeEntity(
-										enemyDefensiveMissle,
-										enemyDefensiveMissles,
-										ix
-									);
-								}
-							}
-						);
+						for (
+							let edmix = 0;
+							edmix < enemyDefensiveMissles.length;
+							edmix++
+						) {
+							enemyDefensiveMissleLoop(edmix);
+						}
 
 						let friendlyMisslesTargets = [];
+						for (
+							let fmix = 0;
+							fmix < friendlyMissles.length;
+							fmix++
+						) {
+							friendlyMissleLoop(fmix, friendlyMisslesTargets);
+						}
 
-						friendlyMissles.forEach((friendlyMissle, ix) => {
-							friendlyMissle.draw({ lng: lng, lat: lat });
-
-							let targetEnemy = getNearestEnemy(enemies);
-							let enemyID;
-
-							if (targetEnemy != undefined) {
-								if (
-									friendlyMisslesTargets.indexOf(
-										targetEnemy.id
-									) == -1
-								) {
-									friendlyMisslesTargets.push(targetEnemy.id);
-									targetEnemy.isHunted = true;
-									friendlyMissleUpdate(
-										enemyID,
-										targetEnemy,
-										friendlyMissle,
-										ix
-									);
-								} else {
-									let sortedEnemies = enemies.sort((a, b) => {
-										return (
-											parseFloat(a.distance) -
-											parseFloat(b.distance)
-										);
-									});
-									targetEnemy =
-										sortedEnemies[
-											friendlyMisslesTargets.length
-										];
-									if (targetEnemy != undefined) {
-										targetEnemy.isHunted = true;
-										friendlyMisslesTargets.push(
-											targetEnemy.id
-										);
-										friendlyMissleUpdate(
-											enemyID,
-											targetEnemy,
-											friendlyMissle,
-											ix
-										);
-									}
-								}
-							} else {
-								removeEntity(
-									friendlyMissle,
-									friendlyMissles,
-									ix
-								);
-							}
-						});
 						map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
 						if (deadTime == 0) {
 							let ms = Date.now() - startTime;
@@ -678,12 +647,13 @@
 	function defensiveFire() {
 		let low = 100000;
 		let enemyMissleID = "";
-		missles.forEach((missle) => {
+		for (let mix = 0; mix < missles.length; mix++) {
+			const missle = missles[mix];
 			if (missle.distance < low) {
 				low = missle.distance;
 				enemyMissleID = missle.id;
 			}
-		});
+		}
 
 		let targetMissle = missles.filter(
 			(missle) => missle.id == enemyMissleID
@@ -714,12 +684,13 @@
 	function fire() {
 		let low = 100000;
 		let enemyID = "";
-		enemies.forEach((enemy) => {
+		for (let eix = 0; eix < enemies.length; eix++) {
+			const enemy = enemies[eix];
 			if (enemy.distance < low) {
 				low = enemy.distance;
 				enemyID = enemy.id;
 			}
-		});
+		}
 
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
 		if (
@@ -918,8 +889,8 @@
 		menuState = e.detail;
 	}}
 	on:onLocationPick={() => {
-		showMenu = false;
 		map.minZoom = 1;
+		showMenu = false;
 		isPickingLocation = true;
 	}}
 	on:onStartCalibration={() => (showCalibration = true)}
