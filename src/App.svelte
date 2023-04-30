@@ -138,6 +138,8 @@
 	let defensiveMissleCooldown = 800;
 	let lastDefensiveMissleFire = Date.now();
 	let isHunted = false;
+	let missileLockCount = 0;
+	let killCount = 0;
 	const mvs = 0.0002;
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
@@ -235,6 +237,7 @@
 			for (let eix = 0; eix < enemies.length; eix++) {
 				const enemy = enemies[eix];
 				if (enemy.id == enemyID) {
+					killCount++;
 					removeEntity(enemy, enemies, eix);
 				}
 			}
@@ -474,7 +477,7 @@
 						for (let mix = 0; mix < missles.length; mix++) {
 							missleLoop(mix);
 						}
-						
+
 						isHunted = missles.length != 0;
 						for (
 							let fdmix = 0;
@@ -502,6 +505,7 @@
 						}
 
 						map.panTo([lng + 0.0, lat - 0.002], { duration: 0 });
+						missileLockCount = missles.length;
 						if (deadTime == 0) {
 							let ms = Date.now() - startTime;
 							timeString = `${(ms / 1000 / 60)
@@ -833,6 +837,8 @@
 		{bestTime}
 		{fire}
 		{started}
+		{missileLockCount}
+		{killCount}
 	/>
 	<NavDashboard {started} />
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
