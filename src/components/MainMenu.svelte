@@ -99,7 +99,7 @@
             style="letter-spacing: 1.4vh"
         />
         <Label
-            text="Build [230428+0]"
+            text="Build [300423+5]"
             top="15.833333333%"
             left="23.59375%"
             tabletLeft="30%"
@@ -109,7 +109,7 @@
             style="letter-spacing: 0.4vh"
         />
         <Label
-            text="[49C235C]"
+            text="[ddc3ebd]"
             top="21.111111111%"
             left="23.59375%"
             tabletLeft="30%"

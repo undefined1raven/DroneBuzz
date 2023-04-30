@@ -29,8 +29,12 @@
         if (lockCount > 0) {
             missileLockLabelColor = "#FF4652";
             setTimeout(() => {
-                missileLockLabelColor = "#FF0010";
-            }, 250); 
+                if (lockCount > 0) {
+                    missileLockLabelColor = "#FF0010";
+                } else {
+                    missileLockLabelColor = "#5C0006";
+                }
+            }, 250);
         } else {
             missileLockLabelColor = "#5C0006";
         }
@@ -103,7 +107,7 @@
         <div class="enemyLockContainer">
             <Label
                 id="enemyLockLabel"
-                top="78.611111111%"
+                top="2.777777778%"
                 left="1.71875%"
                 color={missileLockLabelColor}
                 borderColor="#2400FF00"
@@ -125,8 +129,8 @@
         <div class="killCountContainer">
             <Label
                 id="killCount"
-                top="78.611111111%"
-                left="12.03125%"
+                top="6.944444444%"
+                left="1.71875%"
                 color={killCountLabelColor}
                 borderColor="#2400FF00"
                 text="{killCount} kills"
@@ -135,12 +139,11 @@
                 horizontalFont="6px"
                 VerticalFont="8px"
                 backdropFilter="blur(5px)"
-                borderRadius="5px"
-                style="border-right: solid 1px {killCountLabelColor}; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
+                style="{getRightCurvedBorder()} border-left: solid 1px {killCountLabelColor}; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
                 backgroundColor="{killCountLabelColor}20"
                 ><KillDeco
                     color={killCountLabelColor}
-                    size="2vh"
+                    size="2.5vh"
                     style="left: 83%;"
                 /></Label
             >

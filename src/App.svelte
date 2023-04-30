@@ -176,6 +176,8 @@
 
 	function restart() {
 		isPaused = false;
+		killCount = 0;
+		missileLockCount = 0;
 		for (let fmix = 0; fmix < friendlyMissles.length; fmix++) {
 			friendlyMissles[fmix].hideMissle();
 		}
@@ -508,19 +510,17 @@
 						missileLockCount = missles.length;
 						if (deadTime == 0) {
 							let ms = Date.now() - startTime;
-							timeString = `${(ms / 1000 / 60)
-								.toFixed(0)
+							timeString = `${Math.floor(ms / 60000)
 								.toString()
-								.padStart(2, "0")}:${(ms / 1000)
+								.padStart(2, "0")}:${((ms / 1000) % 60)
 								.toFixed(0)
 								.toString()
 								.padStart(2, "0")}`;
 						} else {
 							let ms = deadTime - startTime;
-							timeString = `${(ms / 1000 / 60)
-								.toFixed(0)
+							timeString = `${Math.floor(ms / 60000)
 								.toString()
-								.padStart(2, "0")}:${(ms / 1000)
+								.padStart(2, "0")}:${((ms / 1000) % 60)
 								.toFixed(0)
 								.toString()
 								.padStart(2, "0")}`;
@@ -555,10 +555,9 @@
 	function updateBest() {
 		let bestTimeUnix = localStorage.getItem("best");
 		if (bestTimeUnix != null && bestTimeUnix != undefined) {
-			bestTime = `${(bestTimeUnix / 1000 / 60)
-				.toFixed(0)
+			bestTime = `${Math.floor(bestTimeUnix / 60000)
 				.toString()
-				.padStart(2, "0")}:${(bestTimeUnix / 1000)
+				.padStart(2, "0")}:${((bestTimeUnix / 1000) % 60)
 				.toFixed(0)
 				.toString()
 				.padStart(2, "0")}`;
@@ -856,7 +855,7 @@
 	left="40%"
 	color="#3817FF"
 	borderColor="#1E00D2"
-	label="Retry"
+	label="Retry {deadcount > 1 ? `[${deadcount}]` : ''}"
 	horizontalFont="12px"
 	verticalFont="12px"
 	width="20.15625%"
