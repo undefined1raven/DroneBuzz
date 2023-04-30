@@ -42,7 +42,7 @@
                             statusObj.bottom = true;
                             calibrationRawData.bottomLat = e.lngLat.lat;
                         }
-                        if (e.point.y < 20) {
+                        if (e.point.y < 150) {
                             statusObj.top = true;
                             calibrationRawData.topLat = {
                                 lat: e.lngLat.lat,

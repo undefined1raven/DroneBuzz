@@ -908,13 +908,11 @@
 	<Label
 		className="fromAboveAni"
 		text=""
-		onTouchStart={(e) => {
+		onTouchStart={() => {
 			showMenu = false;
-			e.style.backdropFilter = "blur(6px) !important;";
 		}}
-		onTouchEnd={(e) => {
+		onTouchEnd={() => {
 			showMenu = true;
-			e.style.backdropFilter = "none;";
 		}}
 		color="#6D55FF"
 		horizontalFont="13px"
