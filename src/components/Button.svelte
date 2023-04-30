@@ -147,6 +147,7 @@
 <style>
     .button {
         user-select: none;
+        --webkit-user-select: none;
         position: absolute;
         display: flex;
         align-items: center;
