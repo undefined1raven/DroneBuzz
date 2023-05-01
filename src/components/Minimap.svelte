@@ -1,14 +1,14 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
 
-    let started;
+    let show;
     let UAVContactsHash;
     let UAVRadius;
 
     let minimapHeight;
     let minimapWidth;
-    let sweepAniDeg = 0;
-    let sweepAniDeg9 = 90;
+    let sweepAniSize = 0;
+    let aniInterval;
 
     function addContactToMinimap(top, left) {
         let contact = document.createElement("img");
@@ -23,7 +23,7 @@
     }
 
     $: onNewContacts(UAVContactsHash);
-    $: onStartedChange(started);
+    $: onShowChange(show);
 
     function onNewContacts(UAVContactsHash) {
         for (let ping in UAVContactsHash) {
@@ -47,21 +47,21 @@
         }
     }
 
-    function onStartedChange(started) {
-        if (started) {
+    onDestroy(() => {
+        clearInterval(aniInterval);
+    });
+
+    function onShowChange(show) {
+        if (show) {
             setTimeout(() => {
                 minimapHeight = document.getElementById("minimap").clientHeight;
                 minimapWidth = document.getElementById("minimap").clientWidth;
             }, 100);
-            setInterval(() => {
-                if (sweepAniDeg <= 360) {
-                    sweepAniDeg++;
-                    sweepAniDeg9++;
-                    if (sweepAniDeg == 360) {
-                        sweepAniDeg = 0;
-                    }
-                    if (sweepAniDeg9 == 360) {
-                        sweepAniDeg9 = 90;
+            aniInterval = setInterval(() => {
+                if (sweepAniSize <= 100) {
+                    sweepAniSize++;
+                    if (sweepAniSize == 100) {
+                        sweepAniSize = 0;
                     }
                 }
             }, 10);
@@ -69,10 +69,10 @@
     }
     const isTablet = document.documentElement.clientWidth > 1023;
 
-    export { started, UAVContactsHash, UAVRadius };
+    export { show, UAVContactsHash, UAVRadius };
 </script>
 
-{#if started}
+{#if show}
     <div
         id="minimap"
         style="
@@ -93,16 +93,7 @@ overflow: hidden;"
             style="position: absolute; top: 50%; left: 0%; transform: translate(0, -50%); width: 100%; height: 0.1vh; background-color: #0500FF;"
         />
         <div
-            style="position: absolute; top: 50%; left: 0%; transform: translate(0, -50%) rotate({sweepAniDeg}deg); width: 100%; height: 0.5vh; background-color: #0500FF01; backdrop-filter: blur(5px); z-index: 150;"
-        />
-        <div
-            style="position: absolute; top: 50%; left: 0%; transform: translate(0, -50%) rotate({-sweepAniDeg}deg); width: 100%; height: 0.5vh; background-color: #0500FF01; backdrop-filter: blur(5px); z-index: 150;"
-        />
-        <div
-            style="position: absolute; top: 50%; left: 0%; transform: translate(0, -50%) rotate({sweepAniDeg9}deg); width: 100%; height: 0.5vh; background-color: #0500FF01; backdrop-filter: blur(5px); z-index: 150;"
-        />
-        <div
-            style="position: absolute; top: 50%; left: 0%; transform: translate(0, -50%) rotate({-sweepAniDeg9}deg); width: 100%; height: 0.5vh; background-color: #0500FF01; backdrop-filter: blur(5px); z-index: 150;"
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: {sweepAniSize}%; height: {sweepAniSize}%; background-color: #0500FF00; z-index: 150; border-radius: 1000px; border: solid 1px #0500FF50"
         />
     </div>
 {/if}

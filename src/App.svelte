@@ -14,6 +14,7 @@
 	import { Missle } from "./components/Missle.js";
 	import MainMenu from "./components/MainMenu.svelte";
 	import Minimap from "./components/Minimap.svelte";
+	import Scorestreaks from "./components/Scorestreaks.svelte";
 	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
@@ -26,6 +27,7 @@
 		PlayerRangeElement,
 	} from "./components/Markers.js";
 	import nipplejs from "nipplejs";
+	import UAVConfigFunc from "./config/UAV.js";
 	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
 
 	function getRandomInt(min, max) {
@@ -111,10 +113,13 @@
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
 	let isPaused = false;
+
 	let lastUAVSweep = Date.now();
-	let UAVSweepFreq = 1000;
-	let UAVRadius = horizontalScreenDistance + 0.15;
 	let UAVContactsHash = {};
+
+	const UAVConfig = UAVConfigFunc();
+
+	let scorestreaksState = { UAV: false };
 
 	//--- Context
 	setContext("map", { getMap: () => map });
@@ -145,6 +150,7 @@
 	let isHunted = false;
 	let missileLockCount = 0;
 	let killCount = 0;
+	const scorestreakArray = ["UAV", "counterUAV", "olympusMons"];
 	const mvs = 0.0002;
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
@@ -553,18 +559,31 @@
 							}
 						}
 					}
-					if (Date.now() - lastUAVSweep > UAVSweepFreq) {
+					if (
+						Date.now() - lastUAVSweep > UAVConfig.sweepFreq &&
+						scorestreaksState.UAV == true
+					) {
 						UAVContactsHash = {};
 						lastUAVSweep = Date.now();
-						for(let ix = 0; ix < document.getElementsByClassName('UAVPing').length; ix++){
-							document.getElementsByClassName('UAVPing')[ix].remove();
+						for (
+							let ix = 0;
+							ix <
+							document.getElementsByClassName("UAVPing").length;
+							ix++
+						) {
+							document
+								.getElementsByClassName("UAVPing")
+								[ix].remove();
 						}
 						for (let eix = 0; eix < enemies.length; eix++) {
 							const enemy = enemies[eix];
-							if (Math.abs(enemy.distance) < UAVRadius) {
+							if (Math.abs(enemy.distance) < UAVConfig.radius) {
 								let deltaLng = lng - enemy.coords.lng;
 								let deltaLat = lat - enemy.coords.lat;
-								UAVContactsHash[enemy.id] = {dlng: deltaLng, dlat: deltaLat};
+								UAVContactsHash[enemy.id] = {
+									dlng: deltaLng,
+									dlat: deltaLat,
+								};
 							}
 						}
 					}
@@ -609,6 +628,9 @@
 						//check if screen size matches the one when calibration took place
 						verticalScreenDistance = calibrationObj.vertical;
 						horizontalScreenDistance = calibrationObj.horizontal;
+						UAVConfig.radius =
+							parseFloat(calibrationObj.horizontal) +
+							parseFloat(UAVConfig.radius);
 					}
 					hasVerifiedCalibration = true;
 				}
@@ -861,7 +883,22 @@
 		{killCount}
 	/>
 	<NavDashboard {started} />
-	<Minimap {started} {UAVContactsHash} {UAVRadius}/>
+	<Minimap
+		show={started && scorestreaksState.UAV == true}
+		{UAVContactsHash}
+		UAVRadius={UAVConfig.radius}
+	/>
+	<Scorestreaks
+		on:deployScorestreak={(e) => {
+			scorestreaksState[e.detail.key] = true;
+		}}
+		on:killScorestreak={(e) => {
+			scorestreaksState[e.detail.key] = false;
+		}}
+		{started}
+		{killCount}
+		{scorestreakArray}
+	/>
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
 <CalibrationOverlay
