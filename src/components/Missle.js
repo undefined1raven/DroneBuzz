@@ -25,7 +25,7 @@ function deg2rad(deg) {
 
 
 class Missle {
-    constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly) {
+    constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly, mvs) {
         this.id = id;
         this.map = map;
         this.coords = coords;
@@ -54,6 +54,7 @@ class Missle {
         this.invisble = false;
         this.colorlineRadiusHash = { 'offensive': radiusFromPercentage(4.620853081) + 'px', 'defensive': radiusFromPercentage(2.31042654) + 'px' };
         this.targetID = 0;
+        this.mvs = mvs;
     }
 
     followStep(bearing) {
@@ -62,7 +63,7 @@ class Missle {
         if (this.visible) {
             this.missleMarker._rotation = (bearing - 90) * -1;
         }
-        var mvs = 0.0003;
+        var mvs = this.mvs ? this.mvs : 0.0003;
         if (bearing <= 180 && bearing >= 0 && bearing != -1) {
             this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
             this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 90), 0, 90, mvs, 0) }

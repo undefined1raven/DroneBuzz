@@ -72,15 +72,15 @@ class Enemy {
         if (this.visible) {
             this.playerMarker._rotation = (bearing - 90) * -1;
         }
-        var mvs = 0;
-        if (Math.random() > .2) {
-            mvs = parseFloat(`0.0001${ran[3]}${ran[4]}`);
-        } else {
-            mvs = parseFloat(`0.0002${ran[3]}${ran[4]}`);
-        }
-        if (mvs >= 0.0002) {
-            mvs = 0.00018;
-        }
+        var mvs = this.mvs ? this.mvs : 0.00018;
+        // if (Math.random() > .2) {
+        //     mvs = parseFloat(`0.0001${ran[3]}${ran[4]}`);
+        // } else {
+        //     mvs = parseFloat(`0.0002${ran[3]}${ran[4]}`);
+        // }
+        // if (mvs >= 0.0002) {
+        //     mvs = 0.00018;
+        // }
         if (bearing <= 180 && bearing >= 0 && bearing != -1) {
             this.coords = { ...this.coords, lng: this.coords.lng + RangeScaler(bearing, 0, 180, mvs, mvs * -1) }
             this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 90), 0, 90, mvs, 0) }

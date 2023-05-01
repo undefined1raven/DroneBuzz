@@ -1,6 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
-
+    import { scale } from "svelte/transition";
     let show;
     let UAVContactsHash;
     let UAVRadius;
@@ -77,6 +77,7 @@
 
 {#if show}
     <div
+        transition:scale={{ duration: 200 }}
         id="minimap"
         style="
 position: absolute; 
@@ -100,3 +101,17 @@ overflow: hidden;"
         />
     </div>
 {/if}
+
+<style>
+    /* @keyframes iniAni {
+        0% {
+            transform: scaleX(0.5) scaleY(0.2);
+        }
+        100% {
+            transform: scaleX(1) scaleY(1);
+        }
+    }
+    #minimap {
+        animation: iniAni linear 0.2s;
+    } */
+</style>

@@ -29,6 +29,7 @@
 	import nipplejs from "nipplejs";
 	import UAVConfigFunc from "./config/UAV.js";
 	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
+	import counterUAVConfig from "./config/counterUAV";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -88,6 +89,7 @@
 				horizontal: horizontalScreenDistance,
 			},
 			rawOffensiveRadius: rawOffensiveRadius,
+			mvs: enemyMvs,
 		};
 	}
 
@@ -119,7 +121,7 @@
 
 	const UAVConfig = UAVConfigFunc();
 
-	let scorestreaksState = { UAV: false };
+	let scorestreaksState = { UAV: false, counterUAV: false };
 
 	//--- Context
 	setContext("map", { getMap: () => map });
@@ -151,7 +153,10 @@
 	let missileLockCount = 0;
 	let killCount = 0;
 	const scorestreakArray = ["UAV", "counterUAV", "olympusMons"];
-	const mvs = 0.0002;
+
+	let mvs = 0.0002;
+	let enemyMvs = 0;
+	let missleMvs = 0;
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -261,7 +266,15 @@
 	function missleLoop(mix) {
 		const missle = missles[mix];
 		missle.draw({ lng: lng, lat: lat });
-		updateEnemyHeadings(missle, lng, lat);
+		if (
+			missle.distance < counterUAVConfig().radius &&
+			scorestreaksState.counterUAV == true
+		) {
+			let ran = getRandomInt(0, 360);
+			missle.followStep(ran);
+		} else {
+			updateEnemyHeadings(missle, lng, lat);
+		}
 		if (missle.distance < missle.killRadius && missle.distance > 0) {
 			deadcount++;
 			if (deadcount == 1) {
@@ -388,7 +401,11 @@
 				}
 			}
 		} else {
-			removeEntity(friendlyDefensiveMissle, friendlyDefensiveMissles, fdmix);
+			removeEntity(
+				friendlyDefensiveMissle,
+				friendlyDefensiveMissles,
+				fdmix
+			);
 		}
 	}
 
@@ -628,6 +645,13 @@
 						//check if screen size matches the one when calibration took place
 						verticalScreenDistance = calibrationObj.vertical;
 						horizontalScreenDistance = calibrationObj.horizontal;
+						mvs =
+							(0.0002 * calibrationObj.horizontal) / 0.0361347198;
+						enemyMvs =
+							(0.00018 * calibrationObj.horizontal) /
+							0.0361347198;
+						missleMvs =
+							(0.0003 * calibrationObj.horizontal) / 0.0361347198;
 						UAVConfig.radius =
 							parseFloat(calibrationObj.horizontal) +
 							parseFloat(UAVConfig.radius);
@@ -720,7 +744,8 @@
 					"",
 					`${Math.random()}-${Date.now()}`,
 					0,
-					true
+					true,
+					missleMvs
 				);
 				friendlyDefensiveMissles.push(friendlyDefenisveMissle);
 			}
@@ -739,23 +764,26 @@
 		}
 
 		let targetEnemy = enemies.filter((enemy) => enemy.id == enemyID)[0];
-		if (
-			targetEnemy.distance < 0.00725082508 &&
-			friendlyMissles.length <= maxConcurentMissileCount &&
-			Date.now() - lastMissleFire > misslecooldown
-		) {
-			lastMissleFire = Date.now();
-			let friendlyMissle = new Missle(
-				map,
-				{ lng: lng, lat: lat },
-				0.00014,
-				"offensive",
-				"",
-				`${Math.random()}-${Date.now()}`,
-				0,
-				true
-			);
-			friendlyMissles.push(friendlyMissle);
+		if (targetEnemy != undefined) {
+			if (
+				targetEnemy.distance < 0.00725082508 &&
+				friendlyMissles.length <= maxConcurentMissileCount &&
+				Date.now() - lastMissleFire > misslecooldown
+			) {
+				lastMissleFire = Date.now();
+				let friendlyMissle = new Missle(
+					map,
+					{ lng: lng, lat: lat },
+					0.00014,
+					"offensive",
+					"",
+					`${Math.random()}-${Date.now()}`,
+					0,
+					true,
+					missleMvs
+				);
+				friendlyMissles.push(friendlyMissle);
+			}
 		}
 	}
 
@@ -765,14 +793,14 @@
 			enemyMissileCountRange = [10, 15];
 			enemyMissileCooldown = 1250;
 			enemyCountermeasuresCountRange = [0, 0];
-			enemyWaveIntermission = 60000;
+			enemyWaveIntermission = 30000;
 			enemyWaveCount = 12;
 		}
 		if (runConfig.difficulty == "medium") {
 			enemyMissileCountRange = [18, 22];
 			enemyMissileCooldown = 1000;
 			enemyCountermeasuresCountRange = [0, 2];
-			enemyWaveIntermission = 30000;
+			enemyWaveIntermission = 22000;
 			enemyWaveCount = 14;
 		}
 		if (runConfig.difficulty == "hard") {
@@ -788,8 +816,8 @@
 		if (runConfig.difficulty == "insane") {
 			enemyMissileCountRange = [35, 150];
 			enemyMissileCooldown = 300;
-			enemyCountermeasuresCountRange = [20, 45];
-			enemyWaveIntermission = 25000;
+			enemyCountermeasuresCountRange = [10, 30];
+			enemyWaveIntermission = 35000;
 			enemyWaveCount = 22;
 			maxConcurentCountermeasuresCount = 25;
 			maxConcurentMissileCount = 15;
