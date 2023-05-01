@@ -112,7 +112,7 @@
     on:touchstart={onTouchStart}
     on:touchend={onTouchEnd}
     on:click={onClick}
-    class={`label ${className}`}
+    class={`label ${className ? className : ''}`}
     style="
     opacity: {iu(opacity, '1')}; 
     font-size: {iu(fontSize, '2vh')}; 

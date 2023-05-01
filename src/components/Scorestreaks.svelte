@@ -1,7 +1,7 @@
 <script>
     import Button from "./Button.svelte";
     import Label from "./Label.svelte";
-    import { scale } from "svelte/transition";
+    import { fade } from "svelte/transition";
     import UAVDeco from "./deco/UAVDeco.svelte";
     import CounterUAVDeco from "./deco/CounterUAVDeco.svelte";
     import { getLeftCurvedBorder } from "../fn/dynamicBorders";
@@ -35,9 +35,6 @@
         scorestreakArray.forEach((key) => {
             availableScorestreaks[key] = false;
         });
-    });
-
-    onMount(() => {
         dogWatcherInterval = setInterval(() => {
             for (let deployedStreakKey in deployedStreaks) {
                 if (
@@ -57,9 +54,9 @@
 
     let buttonFillArray = [0, 0, 0];
 
-    $: assessDeployment(killCount);
+    $: assessAvailability(killCount);
 
-    function assessDeployment(killCount) {
+    function assessAvailability(killCount) {
         for (let ix = 0; ix < scorestreakArray.length; ix++) {
             const streakKey = scorestreakArray[ix];
             if (
@@ -68,10 +65,10 @@
             ) {
                 availableScorestreaks[streakKey] = true;
                 buttonFillArray[ix] = 0;
-            }else{
+            } else {
                 buttonFillArray.forEach((fill, ix) => {
                     buttonFillArray[ix] = getButtonDynamicFill(ix);
-                })
+                });
             }
         }
     }
@@ -79,8 +76,10 @@
     const streakAvailableColor = "#2400FF";
     const streakUnavailableColor = "#555";
 
-    function getButtonDynamicFill(scorestreakArrarIndex){
-        let cost = parseFloat(streakMap[scorestreakArray[scorestreakArrarIndex]]?.config.cost);
+    function getButtonDynamicFill(scorestreakArrarIndex) {
+        let cost = parseFloat(
+            streakMap[scorestreakArray[scorestreakArrarIndex]]?.config.cost
+        );
         return ((killCount % cost) * 100) / cost;
     }
 
@@ -97,10 +96,10 @@
                     availableScorestreaks[scorestreakArray[0]] = false;
                 }
             }}
-            top="64.444444444%"
-            left="92.03125%"
-            width="6.25%"
-            height="6.111111111%"
+            top="62.222222222%"
+            left="89.21875%"
+            width="9.0625%"
+            height="8.333333333%"
             borderColor="#0500ff00"
             style="{getLeftCurvedBorder(
                 5
@@ -115,11 +114,22 @@
             backdropFilter="blur(5px)"
             ><svelte:component
                 this={streakMap[scorestreakArray[0]].deco}
-                size="5vh"
+                size="8vh"
+                style="z-index: 150;"
                 color={availableScorestreaks[scorestreakArray[0]] == true
                     ? streakAvailableColor
                     : streakUnavailableColor}
-            /><Label width="100%" height="{buttonFillArray[0]}%" backgroundColor="#2400FF40" text="" borderColor="#2400FF00" top="{100 - buttonFillArray[0]}%" left="0%"></Label></Button
+            /><Label
+                width="100%"
+                height="{buttonFillArray[0]}%"
+                backgroundColor="#2400FF40"
+                text=""
+                borderColor="#2400FF00"
+                top="{100 - buttonFillArray[0]}%"
+                className="scorestreakFill"
+                left="0%"
+                style="{getLeftCurvedBorder(5)} border-top-left-radius: 0px;"
+            /></Button
         >
         <Button
             onClick={() => {
@@ -129,10 +139,10 @@
                     availableScorestreaks[scorestreakArray[1]] = false;
                 }
             }}
-            top="57.222222222%"
-            left="92.03125%"
-            width="6.25%"
-            height="6.111111111%"
+            top="51.111111111%"
+            left="89.21875%"
+            width="9.0625%"
+            height="8.333333333%"
             borderColor="#0500ff00"
             style="{getLeftCurvedBorder(
                 5
@@ -147,17 +157,28 @@
             backdropFilter="blur(5px)"
             ><svelte:component
                 this={streakMap[scorestreakArray[1]].deco}
-                width="8vh"
-                height="5vh"
+                width="10vh"
+                style="z-index: 150;"
+                height="7vh"
                 color={availableScorestreaks[scorestreakArray[1]] == true
                     ? streakAvailableColor
                     : streakUnavailableColor}
             />
-            <Label width="100%" height="{buttonFillArray[1]}%" backgroundColor="#2400FF40" text="" borderColor="#2400FF00" top="{100 - buttonFillArray[1]}%" left="0%"></Label></Button
+            <Label
+                className="scorestreakFill"
+                width="100%"
+                height="{buttonFillArray[1]}%"
+                backgroundColor="#2400FF40"
+                text=""
+                borderColor="#2400FF00"
+                top="{100 - buttonFillArray[1]}%"
+                left="0%"
+                style="{getLeftCurvedBorder(5)} border-top-left-radius: 0px;"
+            /></Button
         >
     </div>
     {#if deployedStreaks["counterUAV"]}
-        <div class="enemyLockContainer">
+        <div class="enemyLockContainer" transition:fade={{ duration: 150 }}>
             <Label
                 id="enemyLockLabel"
                 top="11.111111111%"
@@ -181,11 +202,18 @@
 {/if}
 
 <style>
-    @keyframes ini{
-        0%{transform: scaleX(0.2) scaleY(0.5) translateX(-70%);}
-        100%{transform: scaleX(1) scaleY(1) translateX(0%);}
+    @keyframes ini {
+        0% {
+            transform: scaleX(0.2) scaleY(0.5) translateX(-70%);
+        }
+        100% {
+            transform: scaleX(1) scaleY(1) translateX(0%);
+        }
     }
-    :global(#enemyLockLabel){
+    :global(#enemyLockLabel) {
         animation: ini linear 0.15s;
+    }
+    :global(.scorestreakFill) {
+        transition: all linear 0.08s;
     }
 </style>

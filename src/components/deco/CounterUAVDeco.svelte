@@ -2,13 +2,15 @@
     let width;
     let height;
     let color;
+    let style;
 
-    export { height, width, color };
+    export { height, width, color, style };
 </script>
 
 <svg
     width={width ? width : "2vh"}
     height={height ? height : "1.5vh"}
+    style={style ? style : ""}
     viewBox="0 0 30 12"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
