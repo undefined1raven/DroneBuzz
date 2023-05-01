@@ -55,6 +55,8 @@
         clearInterval(dogWatcherInterval);
     });
 
+    let buttonFillArray = [0, 0, 0];
+
     $: assessDeployment(killCount);
 
     function assessDeployment(killCount) {
@@ -65,12 +67,22 @@
                 0
             ) {
                 availableScorestreaks[streakKey] = true;
+                buttonFillArray[ix] = 0;
+            }else{
+                buttonFillArray.forEach((fill, ix) => {
+                    buttonFillArray[ix] = getButtonDynamicFill(ix);
+                })
             }
         }
     }
 
     const streakAvailableColor = "#2400FF";
     const streakUnavailableColor = "#555";
+
+    function getButtonDynamicFill(scorestreakArrarIndex){
+        let cost = parseFloat(streakMap[scorestreakArray[scorestreakArrarIndex]]?.config.cost);
+        return ((killCount % cost) * 100) / cost;
+    }
 
     export { started, scorestreakArray, killCount };
 </script>
@@ -107,7 +119,7 @@
                 color={availableScorestreaks[scorestreakArray[0]] == true
                     ? streakAvailableColor
                     : streakUnavailableColor}
-            /></Button
+            /><Label width="100%" height="{buttonFillArray[0]}%" backgroundColor="#2400FF40" text="" borderColor="#2400FF00" top="{100 - buttonFillArray[0]}%" left="0%"></Label></Button
         >
         <Button
             onClick={() => {
@@ -140,7 +152,8 @@
                 color={availableScorestreaks[scorestreakArray[1]] == true
                     ? streakAvailableColor
                     : streakUnavailableColor}
-            /></Button
+            />
+            <Label width="100%" height="{buttonFillArray[1]}%" backgroundColor="#2400FF40" text="" borderColor="#2400FF00" top="{100 - buttonFillArray[1]}%" left="0%"></Label></Button
         >
     </div>
     {#if deployedStreaks["counterUAV"]}
