@@ -51,20 +51,23 @@
         clearInterval(aniInterval);
     });
 
+    onMount(() => {
+        aniInterval = setInterval(() => {
+            if (sweepAniSize <= 100) {
+                sweepAniSize++;
+                if (sweepAniSize == 100) {
+                    sweepAniSize = 0;
+                }
+            }
+        }, 10);
+    });
+
     function onShowChange(show) {
         if (show) {
             setTimeout(() => {
                 minimapHeight = document.getElementById("minimap").clientHeight;
                 minimapWidth = document.getElementById("minimap").clientWidth;
             }, 100);
-            aniInterval = setInterval(() => {
-                if (sweepAniSize <= 100) {
-                    sweepAniSize++;
-                    if (sweepAniSize == 100) {
-                        sweepAniSize = 0;
-                    }
-                }
-            }, 10);
         }
     }
     const isTablet = document.documentElement.clientWidth > 1023;
