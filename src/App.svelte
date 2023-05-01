@@ -13,6 +13,7 @@
 	import { Enemy } from "./components/Enemy.js";
 	import { Missle } from "./components/Missle.js";
 	import MainMenu from "./components/MainMenu.svelte";
+	import Minimap from "./components/Minimap.svelte";
 	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
@@ -110,6 +111,10 @@
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
 	let isPaused = false;
+	let lastUAVSweep = Date.now();
+	let UAVSweepFreq = 1000;
+	let UAVRadius = horizontalScreenDistance + 0.15;
+	let UAVContactsHash = {};
 
 	//--- Context
 	setContext("map", { getMap: () => map });
@@ -144,6 +149,7 @@
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
+		let deltaLat = targetLat - enemy.coords.lat;
 
 		let distance = cartesianDistance(
 			{
@@ -547,6 +553,21 @@
 							}
 						}
 					}
+					if (Date.now() - lastUAVSweep > UAVSweepFreq) {
+						UAVContactsHash = {};
+						lastUAVSweep = Date.now();
+						for(let ix = 0; ix < document.getElementsByClassName('UAVPing').length; ix++){
+							document.getElementsByClassName('UAVPing')[ix].remove();
+						}
+						for (let eix = 0; eix < enemies.length; eix++) {
+							const enemy = enemies[eix];
+							if (Math.abs(enemy.distance) < UAVRadius) {
+								let deltaLng = lng - enemy.coords.lng;
+								let deltaLat = lat - enemy.coords.lat;
+								UAVContactsHash[enemy.id] = {dlng: deltaLng, dlat: deltaLat};
+							}
+						}
+					}
 				}, 50);
 			}
 		}
@@ -840,6 +861,7 @@
 		{killCount}
 	/>
 	<NavDashboard {started} />
+	<Minimap {started} {UAVContactsHash} {UAVRadius}/>
 	<OpsDashboard {fire} {defensiveFire} {isHunted} {started} />
 </div>
 <CalibrationOverlay
