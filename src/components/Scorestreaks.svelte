@@ -13,12 +13,6 @@
 
     let started;
     let scorestreakArray = ["UAV"];
-    let scorestreakButtonsColorHash = {};
-
-    scorestreakArray.forEach((key, ix) => {
-        scorestreakButtonsColorHash[key] = "#1B00BC";
-    });
-
     let killCount;
 
     let dogWatcherInterval;
@@ -27,6 +21,12 @@
 
     let deployedStreaks = {};
     let availableScorestreaks = {};
+
+    onMount(() => {
+        scorestreakArray.forEach((key) => {
+            availableScorestreaks[key] = false;
+        });
+    });
 
     onMount(() => {
         dogWatcherInterval = setInterval(() => {
@@ -51,21 +51,14 @@
     function assessDeployment(killCount) {
         for (let ix = 0; ix < scorestreakArray.length; ix++) {
             const streakKey = scorestreakArray[ix];
-            if (killCount % iconHash[streakKey]?.config.cost == 0) {
+            if (killCount % parseFloat(iconHash[streakKey]?.config.cost) == 0) {
                 availableScorestreaks[streakKey] = true;
-                scorestreakButtonsColorHash[streakKey] = "#2400FF";
             }
         }
     }
 
-    function getColorFromStreakAvailability(streakKey) {
-        console.log(availableScorestreaks[streakKey]);
-        if (availableScorestreaks[streakKey] == true) {
-            return "#2400FF";
-        } else {
-            return "#000000";
-        }
-    }
+    const streakAvailableColor = "#2400FF";
+    const streakUnavailableColor = "#555";
 
     export { started, scorestreakArray, killCount };
 </script>
@@ -74,12 +67,10 @@
     <div class="scorestreakContainer">
         <Button
             onClick={() => {
-                if (availableScorestreaks[scorestreakArray[0]]) {
+                if (availableScorestreaks[scorestreakArray[0]] == true) {
                     dispatch("deployScorestreak", { key: scorestreakArray[0] });
                     deployedStreaks[scorestreakArray[0]] = { tx: Date.now() };
-                    scorestreakButtonsColorHash[scorestreakArray[0]] =
-                        "#1B00BC";
-                    delete availableScorestreaks[scorestreakArray[0]];
+                    availableScorestreaks[scorestreakArray[0]] = false;
                 }
             }}
             top="64.444444444%"
@@ -89,14 +80,20 @@
             borderColor="#0500ff00"
             style="{getLeftCurvedBorder(
                 5
-            )} border-right: solid 1px {scorestreakButtonsColorHash[
-                scorestreakArray[0]
-            ]};"
-            backgroundColor="{scorestreakButtonsColorHash[
-                scorestreakArray[0]
-            ]}20"
+            )} border-right: solid 1px {availableScorestreaks['UAV'] == true
+                ? streakAvailableColor
+                : streakUnavailableColor};"
+            backgroundColor="{availableScorestreaks['UAV'] == true
+                ? streakAvailableColor
+                : streakUnavailableColor}40"
             backdropFilter="blur(5px)"
-            ><svelte:component this={iconHash["UAV"].deco} /></Button
+            ><svelte:component
+                this={iconHash["UAV"].deco}
+                size="5vh"
+                color={availableScorestreaks["UAV"] == true
+                    ? streakAvailableColor
+                    : streakUnavailableColor}
+            /></Button
         >
     </div>
 {/if}

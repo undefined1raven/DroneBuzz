@@ -388,7 +388,7 @@
 				}
 			}
 		} else {
-			removeEntity(friendlyDefensiveMissle, friendlyDefensiveMissles, ix);
+			removeEntity(friendlyDefensiveMissle, friendlyDefensiveMissles, fdmix);
 		}
 	}
 
