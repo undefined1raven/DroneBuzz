@@ -1,6 +1,7 @@
 <script>
     import Button from "./Button.svelte";
     import Label from "./Label.svelte";
+    import { scale } from "svelte/transition";
     import UAVDeco from "./deco/UAVDeco.svelte";
     import CounterUAVDeco from "./deco/CounterUAVDeco.svelte";
     import { getLeftCurvedBorder } from "../fn/dynamicBorders";
@@ -9,6 +10,8 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { onDestroy } from "svelte";
+    import { getRightCurvedBorder } from "../fn/dynamicBorders";
+    import MisslesCounterDeco from "./deco/MisslesCounterDeco.svelte";
     const dispatch = createEventDispatcher();
 
     const UAVConfig = UAVConfigFunc();
@@ -140,4 +143,36 @@
             /></Button
         >
     </div>
+    {#if deployedStreaks["counterUAV"]}
+        <div class="enemyLockContainer">
+            <Label
+                id="enemyLockLabel"
+                top="11.111111111%"
+                left="1.71875%"
+                color="#5C41FF"
+                borderColor="#2400FF00"
+                text="Jamming Active"
+                width="9.03125%"
+                height="3.055555556%"
+                horizontalFont="6px"
+                VerticalFont="8px"
+                backdropFilter="blur(5px)"
+                style="{getRightCurvedBorder(
+                    5
+                )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
+                backgroundColor="#5C41FF20"
+                ><MisslesCounterDeco size="2.5vh" style="left: 83%;" /></Label
+            >
+        </div>
+    {/if}
 {/if}
+
+<style>
+    @keyframes ini{
+        0%{transform: scaleX(0.2) scaleY(0.5) translateX(-70%);}
+        100%{transform: scaleX(1) scaleY(1) translateX(0%);}
+    }
+    :global(#enemyLockLabel){
+        animation: ini linear 0.15s;
+    }
+</style>

@@ -133,9 +133,6 @@ class Missle {
             } else {
                 this.hideMissle();
             }
-            if (distance > 5) {
-                // this.destroy(this.enemiesArr);
-            }
         } else {
             this.hideMissle();
         }
