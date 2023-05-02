@@ -22,8 +22,8 @@
     let tabletLeft;
     let borderRadius;
     let touchStartUnix = 0;
-    const root = document.documentElement;
     let fontSize = "2.4vh";
+    const root = document.documentElement;
     let clientWidth = root.clientWidth;
     let clientHeight = root.clientHeight;
 
@@ -37,7 +37,7 @@
 
     const checkClick = (e) => {
         if (Date.now() - touchStartUnix < 300) {
-            onClick != undefined ? onClick() : console.log('onClick undefined')
+            onClick != undefined ? onClick(e) : console.log('onClick undefined')
             if (lightColor != undefined) {
                 e.target.style.color = lightColor;
                 setTimeout(() => {

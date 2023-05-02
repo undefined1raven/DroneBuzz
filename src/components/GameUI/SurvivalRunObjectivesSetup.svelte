@@ -7,6 +7,7 @@
     } from "../../fn/dynamicBorders.js";
     import { createEventDispatcher } from "svelte";
     import { fade } from "svelte/transition";
+    import NumberPicker from "../common/NumberPicker.svelte";
     const dispatch = createEventDispatcher();
     let show;
     let objective = { type: "duration", lives: 1, config: 5 };
@@ -151,6 +152,15 @@
             backdropFilter="blur(3px)"
             backgroundColor="#2400FF40"
             color="#6D55FF"
+            horizontalFont="13px"
+        />
+        <NumberPicker
+            top="50.214592275%"
+            left="19.260700389%"
+            borderRadius="5px"
+            defaultValue={5}
+            max={5}
+            min={1}
             horizontalFont="13px"
         />
         <!---Config-->
