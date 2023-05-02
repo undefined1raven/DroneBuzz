@@ -1,8 +1,8 @@
 import { RedlineElement, BluelineElement, RangeElement, EnemyElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
-import { RangeScaler } from "../fn/RangeScaler.js";
+import { RangeScaler } from "../../fn/RangeScaler.js";
 import { Missle } from "./Missle.js";
-import radiusFromPercentage from "../fn/radiusFromPercentage.js";
+import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
 
 
 

@@ -37,7 +37,7 @@
 
     const checkClick = (e) => {
         if (Date.now() - touchStartUnix < 300) {
-            onClick(e);
+            onClick != undefined ? onClick() : console.log('onClick undefined')
             if (lightColor != undefined) {
                 e.target.style.color = lightColor;
                 setTimeout(() => {

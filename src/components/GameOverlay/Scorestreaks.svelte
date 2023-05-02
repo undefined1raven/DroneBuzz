@@ -1,17 +1,17 @@
 <script>
-    import Button from "./Button.svelte";
-    import Label from "./Label.svelte";
+    import Button from "../common/Button.svelte";
+    import Label from "../common/Label.svelte";
     import { fade } from "svelte/transition";
-    import UAVDeco from "./deco/UAVDeco.svelte";
-    import CounterUAVDeco from "./deco/CounterUAVDeco.svelte";
-    import { getLeftCurvedBorder } from "../fn/dynamicBorders";
-    import UAVConfigFunc from "../config/UAV";
-    import counterUAVConfigFunc from "../config/counterUAV";
+    import UAVDeco from "../deco/UAVDeco.svelte";
+    import CounterUAVDeco from "../deco/CounterUAVDeco.svelte";
+    import { getLeftCurvedBorder } from "../../fn/dynamicBorders";
+    import UAVConfigFunc from "../../config/UAV";
+    import counterUAVConfigFunc from "../../config/counterUAV";
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { onDestroy } from "svelte";
-    import { getRightCurvedBorder } from "../fn/dynamicBorders";
-    import MisslesCounterDeco from "./deco/MisslesCounterDeco.svelte";
+    import { getRightCurvedBorder } from "../../fn/dynamicBorders";
+    import MisslesCounterDeco from "../deco/MisslesCounterDeco.svelte";
     const dispatch = createEventDispatcher();
 
     const UAVConfig = UAVConfigFunc();

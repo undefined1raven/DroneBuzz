@@ -1,5 +1,5 @@
 
-import radiusFromPercentage from "../fn/radiusFromPercentage.js";
+import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
 
 class MarkerElement {
     constructor(width, height, src) {

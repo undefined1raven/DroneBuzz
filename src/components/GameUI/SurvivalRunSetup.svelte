@@ -1,7 +1,8 @@
 <script>
-    import Label from "./Label.svelte";
-    import Button from "./Button.svelte";
-    import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
+    import Label from "../common/Label.svelte";
+    import Button from "../common/Button.svelte";
+    import SurvivalRunDeco from "../deco/SurvivalRunDeco.svelte";
+    import SurvivalRunObjectivesSetup from "./SurvivalRunObjectivesSetup.svelte";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
@@ -13,6 +14,8 @@
         objective: "none",
         location: { lng: 26.02985041110172, lat: 44.35381465897361 },
     };
+
+    let activeWindowID = "main"; // main | objectives | loadout | stats
 
     function onDifficultySelected(difficulty, e) {
         runConfig.displayDifficulty = difficulty;
@@ -223,6 +226,50 @@
         </div>
         <!--Difficulty End-->
     </div>
+
+    <div class="objectivesContainer">
+        <Button
+            className="fromAboveAni"
+            onClick={(e) => {
+                onDifficultySelected("easy", e);
+            }}
+            label="None"
+            color={buttonColorsHash[runConfig.objective === "none"].color}
+            horizontalFont="13px"
+            backgroundColor={buttonColorsHash[runConfig.objective === "none"]
+                .backgroundColor}
+            borderRadius="5px"
+            borderColor={buttonColorsHash[runConfig.objective === "none"]
+                .borderColor}
+            width="11.875%"
+            height="8.333333333%"
+            top="53.055555556%"
+            left="41.40625%"
+            tabletTop="53.055555556%"
+            tabletLeft="41.40625%"
+        />
+        <Button
+            className="fromAboveAni"
+            onClick={(e) => {
+                activeWindowID = "objectives";
+                dispatch("locationPreviewOverrideUpdate", false);
+            }}
+            label="Pick"
+            color={buttonColorsHash[runConfig.objective !== "none"].color}
+            horizontalFont="13px"
+            backgroundColor={buttonColorsHash[runConfig.objective !== "none"]
+                .backgroundColor}
+            borderRadius="5px"
+            borderColor={buttonColorsHash[runConfig.objective !== "none"]
+                .borderColor}
+            width="11.875%"
+            height="8.333333333%"
+            top="53.055555556%"
+            left="55.15625%"
+            tabletTop="53.055555556%"
+            tabletLeft="55.15625%"
+        />
+    </div>
     <div class="flyButtonBkg" />
     <Button
         id="survivalRunStartButton"
@@ -241,6 +288,13 @@
         width="29.53125%"
         height="13.055555556%"
         borderRadius="5px"
+    />
+    <SurvivalRunObjectivesSetup
+        on:onBack={() => {
+            activeWindowID = "main";
+            dispatch("locationPreviewOverrideUpdate", true);
+        }}
+        show={activeWindowID == "objectives"}
     />
 </div>
 

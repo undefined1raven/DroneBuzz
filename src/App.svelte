@@ -2,19 +2,19 @@
 	import { onMount, setContext } from "svelte";
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
-	import Button from "./components/Button.svelte";
-	import Label from "./components/Label.svelte";
-	import FireControlDashboard from "./components/FireControlDashboard.svelte";
-	import NavDashboard from "./components/NavDashboard.svelte";
-	import OpsDashboard from "./components/OpsDashboard.svelte";
-	import LocationPickerOverlay from "./components/LocationPickerOverlay.svelte";
+	import Button from "./components/common/Button.svelte";
+	import Label from "./components/common/Label.svelte";
+	import FireControlDashboard from "./components/GameOverlay/FireControlDashboard.svelte";
+	import NavDashboard from "./components/GameOverlay/NavDashboard.svelte";
+	import OpsDashboard from "./components/GameOverlay/OpsDashboard.svelte";
+	import LocationPickerOverlay from "./components/GameOverlay/LocationPickerOverlay.svelte";
 	import { RangeScaler } from "./fn/RangeScaler.js";
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
-	import { Enemy } from "./components/Enemy.js";
-	import { Missle } from "./components/Missle.js";
-	import MainMenu from "./components/MainMenu.svelte";
-	import Minimap from "./components/Minimap.svelte";
-	import Scorestreaks from "./components/Scorestreaks.svelte";
+	import { Enemy } from "./components/enitities/Enemy.js";
+	import { Missle } from "./components/enitities/Missle.js";
+	import MainMenu from "./components/GameUI/MainMenu.svelte";
+	import Minimap from "./components/GameOverlay/Minimap.svelte";
+	import Scorestreaks from "./components/GameOverlay/Scorestreaks.svelte";
 	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
@@ -25,10 +25,10 @@
 		DefenceLineElement,
 		PlayerElement,
 		PlayerRangeElement,
-	} from "./components/Markers.js";
+	} from "./components/enitities/Markers.js";
 	import nipplejs from "nipplejs";
 	import UAVConfigFunc from "./config/UAV.js";
-	import CalibrationOverlay from "./components/CalibrationOverlay.svelte";
+	import CalibrationOverlay from "./components/GameOverlay/CalibrationOverlay.svelte";
 	import counterUAVConfig from "./config/counterUAV";
 
 	function getRandomInt(min, max) {
@@ -99,6 +99,7 @@
 	let clientHeight = root.clientHeight;
 	let menuState = "menu";
 	let isPickingLocation = false;
+	let locationPreviewOverride = true; // control for the SurvivalRunSetup Location Preview button that has to be scoped here
 
 	//---| Game State
 	let map;
@@ -980,6 +981,9 @@
 	on:stateChange={(e) => {
 		menuState = e.detail;
 	}}
+	on:locationPreviewOverrideUpdate={(e) => {
+		locationPreviewOverride = e.detail;
+	}}
 	on:onLocationPick={() => {
 		map.minZoom = 1;
 		showMenu = false;
@@ -991,7 +995,7 @@
 	on:startSurvivalRun={(args) => startSurvivalRun(args)}
 	show={!showCalibration && showMenu}
 />
-{#if menuState.WID == "survivalRunSetup" && (!started || (started && isPaused)) && !isPickingLocation}
+{#if menuState.WID == "survivalRunSetup" && (!started || (started && isPaused)) && !isPickingLocation && locationPreviewOverride}
 	<Label
 		className="fromAboveAni"
 		text=""

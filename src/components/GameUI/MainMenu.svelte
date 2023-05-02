@@ -1,14 +1,14 @@
 <script>
-    import MainMenuDeco from "./deco/MainMenuDeco.svelte";
-    import Label from "./Label.svelte";
-    import Button from "./Button.svelte";
+    import MainMenuDeco from "../deco/MainMenuDeco.svelte";
+    import Label from "../common/Label.svelte";
+    import Button from "../common/Button.svelte";
     import SurvivalRunSetup from "./SurvivalRunSetup.svelte";
-    import SurvivalRunDeco from "./deco/SurvivalRunDeco.svelte";
-    import CampaignDeco from "./deco/CampaignDeco.svelte";
-    import FullscreenDeco from "./deco/FullscreenDeco.svelte";
-    import RefreshDeco from "./deco/RefreshDeco.svelte";
-    import CalibrationDeco from "./deco/CalibrationDeco.svelte";
-    import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
+    import SurvivalRunDeco from "../deco/SurvivalRunDeco.svelte";
+    import CampaignDeco from "../deco/CampaignDeco.svelte";
+    import FullscreenDeco from "../deco/FullscreenDeco.svelte";
+    import RefreshDeco from "../deco/RefreshDeco.svelte";
+    import CalibrationDeco from "../deco/CalibrationDeco.svelte";
+    import MinifyScreenDeco from "../deco/MinifyScreenDeco.svelte";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
@@ -169,8 +169,12 @@
         {/if}
         {#if activeWindowID == "survivalRunSetup"}
             <SurvivalRunSetup
+                on:locationPreviewOverrideUpdate
                 on:onLocationPick
-                onBack={() => setActiveWindow("menu")}
+                onBack={() => {
+                    setActiveWindow("menu");
+                    dispatch("locationPreviewOverrideUpdate", true);
+                }}
                 onStartRun={(runConfig) => startRun(runConfig)}
             />
         {/if}

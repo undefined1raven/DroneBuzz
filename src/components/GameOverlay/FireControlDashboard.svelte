@@ -1,8 +1,8 @@
 <script>
-    import Button from "./Button.svelte";
-    import Label from "./Label.svelte";
-    import EnemyLockDeco from "./deco/EnemyLockDeco.svelte";
-    import KillDeco from "./deco/KillDeco.svelte";
+    import Button from "../common/Button.svelte";
+    import Label from "../common/Label.svelte";
+    import EnemyLockDeco from "../deco/EnemyLockDeco.svelte";
+    import KillDeco from "../deco/KillDeco.svelte";
 
     let deadcount;
     let timeString;

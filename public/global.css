@@ -7,3 +7,35 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
+@keyframes ini {
+  0% {
+      transform: translateX(-50%);
+      opacity: 0;
+  }
+  100% {
+      transform: translateX(0%);
+      opacity: 1;
+  }
+}
+@keyframes iniFromAbove {
+  0% {
+      transform: translateY(-50%);
+      opacity: 0;
+  }
+  100% {
+      transform: translateY(0%);
+      opacity: 1;
+  }
+}
+@keyframes iniFromBelow {
+  0% {
+      transform: translateY(50%);
+      opacity: 0;
+  }
+  100% {
+      transform: translateY(0%);
+      opacity: 1;
+  }
+}

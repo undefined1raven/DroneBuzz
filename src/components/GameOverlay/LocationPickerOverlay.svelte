@@ -1,7 +1,7 @@
 <script>
     let text;
-    import Button from "./Button.svelte";
-    import Label from "./Label.svelte";
+    import Button from "../common/Button.svelte";
+    import Label from "../common/Label.svelte";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
     export { text };

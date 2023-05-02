@@ -1,11 +1,11 @@
 <script>
-    import Label from "./Label.svelte";
-    import Button from "./Button.svelte";
-    import CalibrationDeco from "./deco/CalibrationDeco.svelte";
+    import Label from "../common/Label.svelte";
+    import Button from "../common/Button.svelte";
+    import CalibrationDeco from "../deco/CalibrationDeco.svelte";
     import { onMount, getContext } from "svelte";
-    import cartesianDistance from "../fn/cartesianDistance.js";
-    import MinifyScreenDeco from "./deco/MinifyScreenDeco.svelte";
-    import FullscreenDeco from "./deco/FullscreenDeco.svelte";
+    import cartesianDistance from "../../fn/cartesianDistance.js";
+    import MinifyScreenDeco from "../deco/MinifyScreenDeco.svelte";
+    import FullscreenDeco from "../deco/FullscreenDeco.svelte";
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
     const { getMap } = getContext("map");

@@ -1,7 +1,7 @@
 import { DefensiveFriendlyMissleElement, RedlineElement, BluelineElement, MissleElement, FriendlyMissleElement, DefensiveEnemyMissleElement } from "./Markers.js";
 import maplibre from "maplibre-gl";
-import { RangeScaler } from "../fn/RangeScaler.js";
-import radiusFromPercentage from "../fn/radiusFromPercentage.js";
+import { RangeScaler } from "../../fn/RangeScaler.js";
+import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
 
 
 
