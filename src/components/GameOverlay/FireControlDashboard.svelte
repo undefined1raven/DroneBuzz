@@ -1,4 +1,5 @@
 <script>
+    import { DEMData } from "maplibre-gl";
     import Button from "../common/Button.svelte";
     import Label from "../common/Label.svelte";
     import EnemyLockDeco from "../deco/EnemyLockDeco.svelte";
@@ -14,10 +15,32 @@
     let objective = { type: "none" };
     let isObjectiveCompleted = false;
 
+    let HPBarWidth = 100;
+    let HPBarColor = "#2400FF";
+
+    function HPBarController(dx) {
+        HPBarWidth = 100 - (deadcount * 100) / objective.lives;
+        if (HPBarWidth >= 40) {
+            HPBarColor = "#2400FF";
+        }
+        if (HPBarWidth < 40 && HPBarWidth >= 20) {
+            HPBarColor = "#FFB800";
+        }
+        if (HPBarWidth < 20) {
+            HPBarColor = "#FF003D";
+        }
+    }
+
+    $: HPBarController(deadcount);
     $: isObjectiveCompletedFn(objective);
     function isObjectiveCompletedFn() {
         isObjectiveCompleted =
             objective.type != "none" ? objective.completed : false;
+    }
+
+    $: iniHPBar(started);
+    function iniHPBar() {
+        HPBarController(0);
     }
 
     let killCountLabelColor = "#5C41FF";
@@ -87,6 +110,38 @@
 
 {#if started}
     <div class="objectiveContainer">
+        {#if objective.lives > 1}
+            <div
+                class="HPContainer HPLabelElement"
+                style="position: absolute; left: 1.71875%; top: 78.055555556%; width: 9.53125%; height: 3.611111111%; background-color: {HPBarColor}20; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); {getRightCurvedBorder(
+                    5
+                )} border-left: solid 1px {HPBarColor};"
+            >
+                <Label
+                    text={HPBarWidth > 0 ? "HP" : "Dead x_x"}
+                    className="HPLabelElement"
+                    horizontalFont="8px"
+                    color={HPBarWidth >= 40 ? "#5C41FF" : HPBarColor}
+                    left="5%"
+                />
+                <div
+                    id="HPLevelContainer"
+                    class="HPLabelElement"
+                    style="background-color: {HPBarColor}30; display: {HPBarWidth >
+                    0
+                        ? 'flex;'
+                        : 'none;'} border-radius: {getDynamicBorderRadius(5)};"
+                >
+                    <div
+                        id="HPLevelActual"
+                        class="HPLabelElement"
+                        style="width: {HPBarWidth}%; background-color: {HPBarColor}; border-radius: {getDynamicBorderRadius(
+                            5
+                        )};"
+                    />
+                </div>
+            </div>
+        {/if}
         <div class="currentSurvivalRunTime">
             <Label
                 id="currentRunTimer"
@@ -218,3 +273,23 @@
         </div>
     </div>
 {/if}
+
+<style>
+    :global(.HPLabelElement) {
+        transition: all ease-in-out 0.15s;
+    }
+    #HPLevelContainer {
+        position: absolute;
+        left: 28%;
+        width: 64%;
+        height: 0.7vh;
+        border-radius: 5px;
+    }
+    #HPLevelActual {
+        position: absolute;
+        top: 0%;
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+    }
+</style>

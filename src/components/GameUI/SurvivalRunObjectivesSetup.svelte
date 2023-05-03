@@ -10,7 +10,7 @@
     import NumberPicker from "../common/NumberPicker.svelte";
     const dispatch = createEventDispatcher();
     let show;
-    let objective = { type: "duration", lives: 1, config: 5 };
+    let objective = { type: "duration", lives: 5, config: 5 };
     let objectiveType = "duration"; //for configNumberPickerController reactivity
 
     let showConfigNumberPicker = true;
@@ -168,7 +168,8 @@
             className="fromBelowAniSurvivalRunObjectives"
             onClick={() => {
                 objective.type = "kills";
-                objective.config = 25;
+                objective.config =
+                    configSettingsHash[objective.type].defaultValue;
                 objectiveType = "kills";
             }}
             label="Kills"
@@ -201,11 +202,15 @@
             horizontalFont="13px"
         />
         <NumberPicker
+            on:onChange={(e) => {
+                objective.lives = e.detail;
+                dispatch("onObjective", { objective: objective });
+            }}
             top="50.214592275%"
             left="19.260700389%"
             borderRadius="5px"
             defaultValue={5}
-            max={5}
+            max={100}
             min={1}
             horizontalFont="13px"
         />

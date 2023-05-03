@@ -229,7 +229,7 @@
 		missleBarrage = false;
 		started = true;
 		lastEnemyRefresh = 0;
-		start(true);
+		startSurvivalRun();
 		updateBest();
 	}
 
@@ -810,13 +810,16 @@
 	$: updateKillArgs(killCount); //updates objective completion arg arr
 
 	function updateKillArgs(k) {
-		if (objective.type == "kills" && deadcount == 0) {
+		if (objective.type == "kills" && deadcount < objective.lives) {
 			objectiveCompletionFunction.args = [k, objective.config];
 		}
 	}
 
 	function checkObjectiveCompletion() {
-		if (objectiveCompletionFunction.fn != null && deadcount == 0) {
+		if (
+			objectiveCompletionFunction.fn != null &&
+			deadcount < objective.lives
+		) {
 			let objectiveFnReturn = objectiveCompletionFunction.fn.apply(
 				null,
 				objectiveCompletionFunction.args
@@ -824,13 +827,15 @@
 			objective["completed"] = objectiveFnReturn.completed;
 			objective["displayStatus"] = objectiveFnReturn.displayStatus;
 		}
-		if (deadcount > 0) {
-			objective["completed"] = "failed";
+		if (deadcount >= objective.lives) {
+			if (objective["completed"] !== true) {
+				objective["completed"] = "failed";
+			}
 		}
 	}
 
 	function startSurvivalRun(args) {
-		const runConfig = args.detail.runConfig;
+		const runConfig = args.detail?.runConfig;
 		objective = args.detail.runConfig.objective;
 
 		let objectiveCompletionFunctionArgs = [];
@@ -1009,13 +1014,13 @@
 	left="40%"
 	color="#3817FF"
 	borderColor="#1E00D2"
-	label="Retry {deadcount > 1 ? `[${deadcount}]` : ''}"
+	label="Retry {deadcount >= objective.lives ? `[${deadcount}]` : ''}"
 	horizontalFont="12px"
 	verticalFont="12px"
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount && !isPickingLocation > 0 ? 1 : 0}
+	opacity={deadcount >= objective.lives && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		restart();
@@ -1033,7 +1038,7 @@
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount && !isPickingLocation > 0 ? 1 : 0}
+	opacity={deadcount >= objective.lives && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		showMenu = true;
