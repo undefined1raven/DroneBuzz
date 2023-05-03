@@ -20,6 +20,9 @@
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
 	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
 	import cartesianDistance from "./fn/cartesianDistance";
+	import killsObjective from "./config/objectives/Kills";
+	import durationObjective from "./config/objectives/Duration";
+
 	import {
 		BluelineElement,
 		DefenceLineElement,
@@ -63,7 +66,12 @@
 	let rawOffensiveRadius = 0.00336666667;
 	let enemyWaveIntermission = 30000;
 	let enemyWaveCount = 12;
-
+	let objective = { type: "none" };
+	let objectiveCompletionFunctionHash = {
+		kills: killsObjective,
+		duration: durationObjective,
+	};
+	let objectiveCompletionFunction = { fn: null, args: null };
 	function getBasicEnemyConfig(coords, id) {
 		return {
 			map: map,
@@ -605,6 +613,17 @@
 							}
 						}
 					}
+					// if (
+					// 	objectiveCompletionFunction.fn != null &&
+					// 	deadcount == 0
+					// ) {
+					// 	objective["completed"] =
+					// 		objectiveCompletionFunction.fn.apply(
+					// 			null,
+					// 			objectiveCompletionFunction.args
+					// 		).completed;
+					// }
+					checkObjectiveCompletion();
 				}, 50);
 			}
 		}
@@ -788,8 +807,54 @@
 		}
 	}
 
+	$: updateKillArgs(killCount); //updates objective completion arg arr
+
+	function updateKillArgs(k) {
+		if (objective.type == "kills" && deadcount == 0) {
+			objectiveCompletionFunction.args = [k, objective.config];
+		}
+	}
+
+	function checkObjectiveCompletion() {
+		if (objectiveCompletionFunction.fn != null && deadcount == 0) {
+			let objectiveFnReturn = objectiveCompletionFunction.fn.apply(
+				null,
+				objectiveCompletionFunction.args
+			);
+			objective["completed"] = objectiveFnReturn.completed;
+			objective["displayStatus"] = objectiveFnReturn.displayStatus;
+		}
+		if (deadcount > 0) {
+			objective["completed"] = "failed";
+		}
+	}
+
 	function startSurvivalRun(args) {
 		const runConfig = args.detail.runConfig;
+		objective = args.detail.runConfig.objective;
+
+		let objectiveCompletionFunctionArgs = [];
+
+		if (objective.type == "kills") {
+			objectiveCompletionFunctionArgs = [killCount, objective.config];
+		}
+		startTime = Date.now();
+		if (objective.type == "duration") {
+			objectiveCompletionFunctionArgs = [startTime, objective.config];
+		}
+
+		if (objective.type != "none") {
+			const objectiveFnReturn = objectiveCompletionFunctionHash[
+				objective.type
+			]?.apply(null, objectiveCompletionFunctionArgs);
+			objective["displayLabel"] = objectiveFnReturn.displayLabel;
+			objective["displayStatus"] = objectiveFnReturn.displayStatus;
+			objectiveCompletionFunction = {
+				fn: objectiveCompletionFunctionHash[objective.type],
+				args: objectiveCompletionFunctionArgs,
+			};
+		}
+
 		if (runConfig.difficulty == "easy") {
 			enemyMissileCountRange = [10, 15];
 			enemyMissileCooldown = 1250;
@@ -910,6 +975,7 @@
 		{started}
 		{missileLockCount}
 		{killCount}
+		{objective}
 	/>
 	<NavDashboard {started} />
 	<Minimap

@@ -50,7 +50,6 @@
     function onResize(e) {
         clientHeight = root.clientHeight;
         clientWidth = root.clientWidth;
-        console.log(clientWidth);
         fontController();
     }
 

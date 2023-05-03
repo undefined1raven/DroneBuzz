@@ -1,5 +1,8 @@
 <script>
     import { onMount } from "svelte";
+    import Button from "./Button.svelte";
+    import { getDynamicBorderRadius } from "../../fn/dynamicBorders";
+    import { createEventDispatcher } from "svelte";
     let width;
     let height;
     let top;
@@ -11,8 +14,7 @@
     let verticalFont;
     let horizontalFont;
     let value = parseFloat(defaultValue) != NaN ? parseFloat(defaultValue) : 0;
-    import { getDynamicBorderRadius } from "../../fn/dynamicBorders";
-    import Button from "./Button.svelte";
+    const dispatch = createEventDispatcher();
     export {
         width,
         height,
@@ -34,6 +36,35 @@
     onMount(() => {
         fontController();
     });
+
+    function fireUpdate(val) {
+        dispatch("onChange", val);
+    }
+
+    function onKeyDown(e) {
+        const lval = e.target.value;
+        if (lval > max) {
+            e.preventDefault();
+            value = max;
+        }
+        if (lval < min) {
+            value = min;
+        }
+    }
+
+    function onValueChange(e) {
+        if (e.target.value >= max) {
+            value = max;
+        }
+        if (e.target.value <= min) {
+            value = min;
+        }
+        if (e.target.value >= min && e.target.value <= max) {
+            value = e.target.value;
+        }
+    }
+
+    $: fireUpdate(value);
 
     function fontController() {
         let orientation = clientHeight > clientWidth ? "portrait" : "landscape";
@@ -77,10 +108,13 @@
         : 'auto'}"
 >
     <Button
-        onClick={() => {value > min ? value-- : ''}}
+        onClick={() => {
+            value > min ? value-- : "";
+            fireUpdate(value);
+        }}
         label="-"
-        color="#2400FF"
-        backgroundColor="#2400FF20"
+        color={value > min ? "#2400FF" : "#00057C"}
+        backgroundColor="{value > min ? '#2400FF' : '#00057C'}20"
         borderRadius="5px"
         width="22.602739726%"
         height="100%"
@@ -89,10 +123,14 @@
         horizontalFont="17px"
     />
     <Button
-        onClick={() => {value < max ? value++ : ''}}
+        onClick={() => {
+            if (value < max) {
+                value += 1;
+            }
+        }}
         label="+"
-        color="#2400FF"
-        backgroundColor="#2400FF20"
+        color={value < max ? "#2400FF" : "#00057C"}
+        backgroundColor="{value < max ? '#2400FF' : '#00057C'}20"
         borderRadius="5px"
         width="22.602739726%"
         height="100%"
@@ -104,6 +142,8 @@
         {max}
         {min}
         bind:value
+        on:change={onValueChange}
+        on:keydown={onKeyDown}
         type="number"
         class="numberPickerInput"
         style="border-radius: {getDynamicBorderRadius(

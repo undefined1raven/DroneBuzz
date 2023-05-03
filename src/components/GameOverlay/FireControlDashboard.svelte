@@ -11,12 +11,26 @@
     let fire;
     let killCount = 0;
     let missileLockCount = 0;
+    let objective = { type: "none" };
+    let isObjectiveCompleted = false;
+
+    $: isObjectiveCompletedFn(objective);
+    function isObjectiveCompletedFn() {
+        isObjectiveCompleted =
+            objective.type != "none" ? objective.completed : false;
+    }
 
     let killCountLabelColor = "#5C41FF";
     let missileLockLabelColor = "#5C0006";
 
     $: handleKillCountChange(killCount);
     $: enemyLockColorHandler(missileLockCount);
+
+    let objectiveLabelColorHash = {
+        true: { color: "#00FF85", borderColor: "#00FF85" },
+        false: { color: "#5C41FF", borderColor: "#2400FF" },
+        failed: { color: "#FF003D", borderColor: "#FF003D" },
+    };
 
     function handleKillCountChange(killCount) {
         killCountLabelColor = "#BEB4FB";
@@ -67,6 +81,7 @@
         fire,
         missileLockCount,
         killCount,
+        objective,
     };
 </script>
 
@@ -153,32 +168,53 @@
                 id="bestRunTimer"
                 top="91.111111111%"
                 left="12.03125%"
-                color="#5C41FF"
+                color={objectiveLabelColorHash[isObjectiveCompleted]?.color}
                 borderColor="#2400FF00"
-                text={bestTime}
+                text={objective.type == "none"
+                    ? bestTime
+                    : objective.displayStatus}
                 width="9.53125%"
                 height="6.111111111%"
                 horizontalFont="9px"
                 VerticalFont="8px"
                 backdropFilter="blur(5px)"
-                style="{getLeftCurvedBorder()} border-right: solid 1px #2400FF;"
-                backgroundColor="#2400FF20"
+                style="{getLeftCurvedBorder()} border-right: solid 1px {objectiveLabelColorHash[
+                    isObjectiveCompleted
+                ]?.borderColor};"
+                backgroundColor="{objectiveLabelColorHash[isObjectiveCompleted]
+                    ?.borderColor}20"
             />
             <Label
                 id="bestRunLabel"
                 top="91.111111111%"
                 left="1.71875%"
-                color="#5C41FF"
                 borderColor="#2400FF00"
-                text="Best Run"
+                color="#00000000"
+                text=""
                 width="9.53125%"
                 height="6.111111111%"
-                horizontalFont="9px"
-                VerticalFont="8px"
                 backdropFilter="blur(5px)"
-                style="{getRightCurvedBorder()} border-left: solid 1px #2400FF;"
-                backgroundColor="#2400FF20"
-            />
+                style="{getRightCurvedBorder()} border-left: solid 1px {objectiveLabelColorHash[
+                    isObjectiveCompleted
+                ]?.borderColor};"
+                backgroundColor="{objectiveLabelColorHash[isObjectiveCompleted]
+                    ?.borderColor}20"
+                ><Label
+                    horizontalFont="9px"
+                    VerticalFont="8px"
+                    top="7%"
+                    color={objectiveLabelColorHash[isObjectiveCompleted]?.color}
+                    text={objective.type == "none"
+                        ? "Best Run"
+                        : objective.displayLabel}
+                /><Label
+                    text="Objective"
+                    horizontalFont="5px"
+                    top="58%"
+                    color={objectiveLabelColorHash[isObjectiveCompleted]?.color}
+                    show={objective.type != "none"}
+                /></Label
+            >
         </div>
     </div>
 {/if}

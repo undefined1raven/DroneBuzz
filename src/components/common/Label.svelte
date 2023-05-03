@@ -23,6 +23,7 @@
     let opacity;
     let backdropFilter;
     let borderRadius;
+    let show = true;
 
     const root = document.documentElement;
     let fontSize = "2.4vh";
@@ -103,17 +104,19 @@
         borderRadius,
         onTouchStart,
         onTouchEnd,
+        show,
     };
 </script>
 
 <svelte:window on:resize={onResize} />
-<div
-    {id}
-    on:touchstart={onTouchStart}
-    on:touchend={onTouchEnd}
-    on:click={onClick}
-    class={`label ${className ? className : ''}`}
-    style="
+{#if show}
+    <div
+        {id}
+        on:touchstart={onTouchStart}
+        on:touchend={onTouchEnd}
+        on:click={onClick}
+        class={`label ${className ? className : ""}`}
+        style="
     opacity: {iu(opacity, '1')}; 
     font-size: {iu(fontSize, '2vh')}; 
     left: {positionParser(iu(left, 'auto'), iu(tabletLeft, 'auto'))}; 
@@ -123,20 +126,24 @@
     color: {iu(color, '#FFF')}; 
     background-color: {iu(backgroundColor, '#2400FF00')};
     border-radius: {((parseFloat(
-        iu(borderRadius, '0px').substring(0, iu(borderRadius, '0px').length - 2)
-    ) *
-        100) /
-        360 /
-        100) *
-        clientHeight +
-        'px;'}
+            iu(borderRadius, '0px').substring(
+                0,
+                iu(borderRadius, '0px').length - 2
+            )
+        ) *
+            100) /
+            360 /
+            100) *
+            clientHeight +
+            'px;'}
     backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
     --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
     {iu(style, '')}"
->
-    {text}
-    <slot />
-</div>
+    >
+        {text}
+        <slot />
+    </div>
+{/if}
 
 <style>
     .label {

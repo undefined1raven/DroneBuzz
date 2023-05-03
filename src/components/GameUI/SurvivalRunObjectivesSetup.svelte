@@ -5,12 +5,15 @@
         getLeftCurvedBorder,
         getRightCurvedBorder,
     } from "../../fn/dynamicBorders.js";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { fade } from "svelte/transition";
     import NumberPicker from "../common/NumberPicker.svelte";
     const dispatch = createEventDispatcher();
     let show;
     let objective = { type: "duration", lives: 1, config: 5 };
+    let objectiveType = "duration"; //for configNumberPickerController reactivity
+
+    let showConfigNumberPicker = true;
 
     let buttonColorsHash = {
         true: {
@@ -24,6 +27,44 @@
             borderColor: "#2400FF",
         },
     };
+    $: onShowChange(show);
+    function onShowChange(show) {
+        if (show) {
+            dispatch("onObjective", { objective: objective });
+        }
+    }
+
+    const configLabelHash = {
+        duration: "Config (mins)",
+        kills: "Config (kills)",
+        waypoints: "Config",
+    };
+
+    const configSettingsHash = {
+        duration: { min: 1, max: 720, defaultValue: 5 },
+        kills: { min: 1, max: 99999, defaultValue: 20 },
+        waypoints: { min: 0, max: 0, defaultValue: 0 },
+    };
+
+    function configNumberPickerController(objectiveType) {
+        if (objectiveType == "duration") {
+            showConfigNumberPicker = false;
+            setTimeout(() => {
+                showConfigNumberPicker = true;
+            }, 5);
+        }
+        if (objectiveType == "kills") {
+            showConfigNumberPicker = false;
+            setTimeout(() => {
+                showConfigNumberPicker = true;
+            }, 5); // flikr to reset so the defaults in configSettingsHash would match the current selection
+        }
+        if (objectiveType != "kills" && objectiveType != "duration") {
+            showConfigNumberPicker = false;
+        }
+    }
+
+    $: configNumberPickerController(objectiveType);
 
     export { show };
 </script>
@@ -84,6 +125,9 @@
             className="fromBelowAniSurvivalRunObjectives"
             onClick={() => {
                 objective.type = "duration";
+                objectiveType = "duration";
+                objective.config =
+                    configSettingsHash[objective.type].defaultValue;
             }}
             label="Duration"
             top="29.613733906%"
@@ -104,6 +148,7 @@
             onClick={() => {
                 objective.type = "waypoints";
                 objective.config = { waypoints: [] };
+                objectiveType = "waypoints";
             }}
             label="Waypoints"
             top="29.613733906%"
@@ -124,6 +169,7 @@
             onClick={() => {
                 objective.type = "kills";
                 objective.config = 25;
+                objectiveType = "kills";
             }}
             label="Kills"
             top="29.613733906%"
@@ -166,7 +212,7 @@
         <!---Config-->
         <Label
             className="fromLeftAniSurvivalRunObjectives"
-            text="Config"
+            text={configLabelHash[objective.type]}
             top="70.815450644%"
             left="1.167315175%"
             borderColor="#2400FF00"
@@ -178,6 +224,21 @@
             color="#6D55FF"
             horizontalFont="13px"
         />
+        {#if showConfigNumberPicker}
+            <NumberPicker
+                on:onChange={(e) => {
+                    objective.config = e.detail;
+                    dispatch("onObjective", { objective: objective });
+                }}
+                top="70.815450644%"
+                left="19.260700389%"
+                borderRadius="5px"
+                defaultValue={configSettingsHash[objective.type].defaultValue}
+                max={configSettingsHash[objective.type].max}
+                min={configSettingsHash[objective.type].min}
+                horizontalFont="13px"
+            />
+        {/if}
     </div>
 {/if}
 

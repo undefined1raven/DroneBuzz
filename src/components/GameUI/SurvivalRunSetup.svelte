@@ -11,7 +11,7 @@
     let runConfig = {
         displayDifficulty: "easy",
         difficulty: "easy",
-        objective: "none",
+        objective: { type: "none" },
         location: { lng: 26.02985041110172, lat: 44.35381465897361 },
     };
 
@@ -231,15 +231,15 @@
         <Button
             className="fromAboveAni"
             onClick={(e) => {
-                onDifficultySelected("easy", e);
+                runConfig.objective = { type: "none" };
             }}
             label="None"
-            color={buttonColorsHash[runConfig.objective === "none"].color}
+            color={buttonColorsHash[runConfig.objective.type === "none"].color}
             horizontalFont="13px"
-            backgroundColor={buttonColorsHash[runConfig.objective === "none"]
+            backgroundColor={buttonColorsHash[runConfig.objective.type === "none"]
                 .backgroundColor}
             borderRadius="5px"
-            borderColor={buttonColorsHash[runConfig.objective === "none"]
+            borderColor={buttonColorsHash[runConfig.objective.type === "none"]
                 .borderColor}
             width="11.875%"
             height="8.333333333%"
@@ -255,12 +255,12 @@
                 dispatch("locationPreviewOverrideUpdate", false);
             }}
             label="Pick"
-            color={buttonColorsHash[runConfig.objective !== "none"].color}
+            color={buttonColorsHash[runConfig.objective.type !== "none"].color}
             horizontalFont="13px"
-            backgroundColor={buttonColorsHash[runConfig.objective !== "none"]
+            backgroundColor={buttonColorsHash[runConfig.objective.type !== "none"]
                 .backgroundColor}
             borderRadius="5px"
-            borderColor={buttonColorsHash[runConfig.objective !== "none"]
+            borderColor={buttonColorsHash[runConfig.objective.type !== "none"]
                 .borderColor}
             width="11.875%"
             height="8.333333333%"
@@ -290,6 +290,9 @@
         borderRadius="5px"
     />
     <SurvivalRunObjectivesSetup
+        on:onObjective={(e) => {
+            runConfig.objective = e.detail.objective;
+        }}
         on:onBack={() => {
             activeWindowID = "main";
             dispatch("locationPreviewOverrideUpdate", true);
