@@ -111,6 +111,7 @@
 
 	//---| Game State
 	let map;
+	let minzoom = 14;
 	let lastEnemyRefresh = 0;
 	let startTime = 0;
 	let bestTime = "--";
@@ -896,7 +897,7 @@
 			misslecooldown = 250;
 		}
 		map.panTo([lng, lat], { duration: 0 });
-		map.minzoom = 14;
+		minzoom = 14;
 		showMenu = false;
 		if (args.detail.restart) {
 			restart();
@@ -956,7 +957,7 @@
 <main>
 	<Map
 		attribution={false}
-		minzoom="14"
+		{minzoom}
 		maxzoom="14"
 		id="map"
 		style="https://api.maptiler.com/maps/fcae873d-7ff0-480b-8d6d-41963084ad90/style.json?key=R1cyh6lj1mTfNEycg2N1"
@@ -1056,7 +1057,7 @@
 		locationPreviewOverride = e.detail;
 	}}
 	on:onLocationPick={() => {
-		map.minzoom = 1;
+		minzoom = 1;
 		showMenu = false;
 		isPickingLocation = true;
 	}}
