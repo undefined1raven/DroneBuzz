@@ -176,6 +176,51 @@
                 style="{getLeftCurvedBorder(5)} border-top-left-radius: 0px;"
             /></Button
         >
+        <Button
+            onClick={() => {
+                if (availableScorestreaks[scorestreakArray[1]] == true) {
+                    dispatch("deployScorestreak", { key: scorestreakArray[1] });
+                    deployedStreaks[scorestreakArray[1]] = { tx: Date.now() };
+                    availableScorestreaks[scorestreakArray[1]] = false;
+                }
+            }}
+            top="40%"
+            left="89.21875%"
+            width="9.0625%"
+            height="8.333333333%"
+            borderColor="#0500ff00"
+            style="{getLeftCurvedBorder(
+                5
+            )} border-right: solid 1px {availableScorestreaks[
+                scorestreakArray[1]
+            ] == true
+                ? streakAvailableColor
+                : streakUnavailableColor};"
+            backgroundColor="{availableScorestreaks[scorestreakArray[1]] == true
+                ? streakAvailableColor
+                : streakUnavailableColor}40"
+            backdropFilter="blur(5px)"
+            ><svelte:component
+                this={streakMap[scorestreakArray[1]].deco}
+                width="10vh"
+                style="z-index: 150;"
+                height="7vh"
+                color={availableScorestreaks[scorestreakArray[1]] == true
+                    ? streakAvailableColor
+                    : streakUnavailableColor}
+            />
+            <Label
+                className="scorestreakFill"
+                width="100%"
+                height="{buttonFillArray[1]}%"
+                backgroundColor="#2400FF40"
+                text=""
+                borderColor="#2400FF00"
+                top="{100 - buttonFillArray[1]}%"
+                left="0%"
+                style="{getLeftCurvedBorder(5)} border-top-left-radius: 0px;"
+            /></Button
+        >
     </div>
     {#if deployedStreaks["counterUAV"]}
         <div class="enemyLockContainer" transition:fade={{ duration: 150 }}>
