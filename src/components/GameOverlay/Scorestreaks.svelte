@@ -4,21 +4,24 @@
     import { fade } from "svelte/transition";
     import UAVDeco from "../deco/UAVDeco.svelte";
     import CounterUAVDeco from "../deco/CounterUAVDeco.svelte";
+    import EnergyWeaponDeco from "../deco/EnergyWeaponDeco.svelte";
     import { getLeftCurvedBorder } from "../../fn/dynamicBorders";
     import UAVConfigFunc from "../../config/UAV";
     import counterUAVConfigFunc from "../../config/counterUAV";
+    import energyWeaponConfigFunc from "../../config/energyWeapon";
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { onDestroy } from "svelte";
     import { getRightCurvedBorder } from "../../fn/dynamicBorders";
     import MisslesCounterDeco from "../deco/MisslesCounterDeco.svelte";
     const dispatch = createEventDispatcher();
-
+    
     const UAVConfig = UAVConfigFunc();
     const counterUAVConfig = counterUAVConfigFunc();
+    const energyWeaponConfig = energyWeaponConfigFunc();
 
     let started;
-    let scorestreakArray = ["UAV", "counterUAV"];
+    let scorestreakArray = ["UAV", "counterUAV", "energyWeapon"];
     let killCount;
 
     let dogWatcherInterval;
@@ -26,6 +29,7 @@
     let streakMap = {
         UAV: { deco: UAVDeco, config: UAVConfig },
         counterUAV: { deco: CounterUAVDeco, config: counterUAVConfig },
+        energyWeapon: { deco: EnergyWeaponDeco, config: energyWeaponConfig },
     };
 
     let deployedStreaks = {};
@@ -178,10 +182,10 @@
         >
         <Button
             onClick={() => {
-                if (availableScorestreaks[scorestreakArray[1]] == true) {
-                    dispatch("deployScorestreak", { key: scorestreakArray[1] });
-                    deployedStreaks[scorestreakArray[1]] = { tx: Date.now() };
-                    availableScorestreaks[scorestreakArray[1]] = false;
+                if (availableScorestreaks[scorestreakArray[2]] == true) {
+                    dispatch("deployScorestreak", { key: scorestreakArray[2] });
+                    deployedStreaks[scorestreakArray[2]] = { tx: Date.now() };
+                    availableScorestreaks[scorestreakArray[2]] = false;
                 }
             }}
             top="40%"
@@ -192,31 +196,30 @@
             style="{getLeftCurvedBorder(
                 5
             )} border-right: solid 1px {availableScorestreaks[
-                scorestreakArray[1]
+                scorestreakArray[2]
             ] == true
                 ? streakAvailableColor
                 : streakUnavailableColor};"
-            backgroundColor="{availableScorestreaks[scorestreakArray[1]] == true
+            backgroundColor="{availableScorestreaks[scorestreakArray[2]] == true
                 ? streakAvailableColor
                 : streakUnavailableColor}40"
             backdropFilter="blur(5px)"
             ><svelte:component
-                this={streakMap[scorestreakArray[1]].deco}
-                width="10vh"
+                this={streakMap[scorestreakArray[2]].deco}
+                size="8vh"
                 style="z-index: 150;"
-                height="7vh"
-                color={availableScorestreaks[scorestreakArray[1]] == true
+                color={availableScorestreaks[scorestreakArray[2]] == true
                     ? streakAvailableColor
                     : streakUnavailableColor}
             />
             <Label
                 className="scorestreakFill"
                 width="100%"
-                height="{buttonFillArray[1]}%"
+                height="{buttonFillArray[2]}%"
                 backgroundColor="#2400FF40"
                 text=""
                 borderColor="#2400FF00"
-                top="{100 - buttonFillArray[1]}%"
+                top="{100 - buttonFillArray[2]}%"
                 left="0%"
                 style="{getLeftCurvedBorder(5)} border-top-left-radius: 0px;"
             /></Button

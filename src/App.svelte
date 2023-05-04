@@ -22,6 +22,8 @@
 	import cartesianDistance from "./fn/cartesianDistance";
 	import killsObjective from "./config/objectives/Kills";
 	import durationObjective from "./config/objectives/Duration";
+	import energyWeaponConfigFunc from "./config/energyWeapon";
+	const energyWeaponConfig = energyWeaponConfigFunc();
 
 	import {
 		BluelineElement,
@@ -130,7 +132,11 @@
 
 	const UAVConfig = UAVConfigFunc();
 
-	let scorestreaksState = { UAV: false, counterUAV: false };
+	let scorestreaksState = {
+		UAV: false,
+		counterUAV: false,
+		energyWeapon: false,
+	};
 
 	//--- Context
 	setContext("map", { getMap: () => map });
@@ -161,7 +167,8 @@
 	let isHunted = false;
 	let missileLockCount = 0;
 	let killCount = 0;
-	const scorestreakArray = ["UAV", "counterUAV", "olympusMons"];
+	let energyWeaponKillStreakTargetsArray = [];
+	const scorestreakArray = ["UAV", "counterUAV", "energyWeapon"];
 
 	let mvs = 0.0002;
 	let enemyMvs = 0;
@@ -199,6 +206,118 @@
 			enemy.followStep(actualBearing);
 		}
 	}
+
+	function fireEnergyWeaponStreak(state) {
+		if (state.energyWeapon === true) {
+			for (let eix = 0; eix < enemies.length; eix++) {
+				if (enemies[eix].distance < energyWeaponConfig.radius) {
+					energyWeaponKillStreakTargetsArray.push(enemies[eix].id);
+				}
+			}
+
+			let sourceArray = [];
+			let layerArray = [];
+
+			const intx = setInterval(() => {
+				energyWeaponKillStreakTargetsArray = [];
+				for (let eix = 0; eix < enemies.length; eix++) {
+					if (enemies[eix].distance < energyWeaponConfig.radius) {
+						energyWeaponKillStreakTargetsArray.push(
+							enemies[eix].id
+						);
+					}
+				}
+				for (
+					let tix = 0;
+					tix < energyWeaponKillStreakTargetsArray.length;
+					tix++
+				) {
+					const target = enemies.filter(
+						(enemy) =>
+							enemy.id == energyWeaponKillStreakTargetsArray[tix]
+					)[0];
+					if (target != undefined) {
+						if (
+							map.getLayer(
+								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+							)
+						) {
+							map.removeLayer(
+								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+							);
+						}
+						if (
+							map.getSource(
+								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
+							)
+						) {
+							map.removeSource(
+								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
+							);
+						}
+						if (
+							sourceArray.indexOf(
+								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
+							) == -1
+						) {
+							sourceArray.push(
+								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
+							);
+						}
+						map.addSource(
+							`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`,
+							{
+								type: "geojson",
+								data: {
+									type: "Feature",
+									properties: {},
+									geometry: {
+										type: "LineString",
+										coordinates: [
+											[lng, lat],
+											[
+												target.coords.lng,
+												target.coords.lat,
+											],
+										],
+									},
+								},
+							}
+						);
+						if (
+							layerArray.indexOf(
+								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+							) == -1
+						) {
+							layerArray.push(
+								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+							);
+						}
+						map.addLayer({
+							id: `LWA-${energyWeaponKillStreakTargetsArray[tix]}`,
+							type: "line",
+							source: `LWAS-${energyWeaponKillStreakTargetsArray[tix]}`,
+							paint: {
+								"line-color": "rgba(255, 0, 20, 0.7)",
+								"line-width": 2,
+							},
+						});
+					}
+				}
+			}, 100);
+			setTimeout(() => {
+				clearInterval(intx);
+				for (let lidix = 0; lidix < layerArray.length; lidix++) {
+					if (map.getLayer(layerArray[lidix])) {
+						map.removeLayer(layerArray[lidix]);
+						map.removeSource(sourceArray[lidix]);
+					}
+				}
+			}, 2000);
+		}
+	}
+
+	$: fireEnergyWeaponStreak(scorestreaksState);
 
 	function restart() {
 		isPaused = false;
@@ -265,6 +384,15 @@
 			for (let eix = 0; eix < enemies.length; eix++) {
 				const enemy = enemies[eix];
 				if (enemy.id == enemyID) {
+					if (
+						energyWeaponKillStreakTargetsArray.indexOf(enemy.id) !=
+						-1
+					) {
+						if (map.getLayer(`LWA-${enemy.id}`)) {
+							map.removeLayer(`LWA-${enemy.id}`);
+							map.removeSource(`LWAS-${enemy.id}`);
+						}
+					}
 					killCount++;
 					removeEntity(enemy, enemies, eix);
 				}
@@ -685,6 +813,10 @@
 	onMount(() => {
 		updateBest();
 		map.on("load", () => {
+			map.dragRotate.disable();
+			map.touchZoomRotate.disableRotation();
+			map.setMinPitch(0);
+			map.setMaxPitch(0);
 			onWindowResize();
 			map.on("move", (e) => {
 				if (isPickingLocation) {
