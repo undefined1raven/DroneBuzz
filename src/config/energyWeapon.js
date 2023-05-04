@@ -1,9 +1,9 @@
 
 const EnergyWeaponConfig = () => {
     const config = {
-        killDurationRange: [300, 2000],
         radius: 0.00808,
-        duration: 100,
+        powerScale: 1,
+        duration: 10000,
         cost: 1,
     }
     return config;

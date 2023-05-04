@@ -207,6 +207,55 @@
 		}
 	}
 
+	function disableLaserTargeting(targetID) {
+		if (map.getLayer(`LWA-${targetID}`)) {
+			map.removeLayer(`LWA-${targetID}`);
+		}
+		if (map.getSource(`LWAS-${targetID}`)) {
+			map.removeSource(`LWAS-${targetID}`);
+		}
+	}
+
+	function enableLaserTargeting(sourceArray, layerArray, target, tix) {
+		if (
+			sourceArray.indexOf(
+				`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
+			) == -1
+		) {
+			sourceArray.push(`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`);
+		}
+		map.addSource(`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`, {
+			type: "geojson",
+			data: {
+				type: "Feature",
+				properties: {},
+				geometry: {
+					type: "LineString",
+					coordinates: [
+						[lng, lat],
+						[target.coords.lng, target.coords.lat],
+					],
+				},
+			},
+		});
+		if (
+			layerArray.indexOf(
+				`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+			) == -1
+		) {
+			layerArray.push(`LWA-${energyWeaponKillStreakTargetsArray[tix]}`);
+		}
+		map.addLayer({
+			id: `LWA-${energyWeaponKillStreakTargetsArray[tix]}`,
+			type: "line",
+			source: `LWAS-${energyWeaponKillStreakTargetsArray[tix]}`,
+			paint: {
+				"line-color": "rgba(36, 0, 255, 0.7)",
+				"line-width": 2,
+			},
+		});
+	}
+
 	function fireEnergyWeaponStreak(state) {
 		if (state.energyWeapon === true) {
 			for (let eix = 0; eix < enemies.length; eix++) {
@@ -237,71 +286,45 @@
 							enemy.id == energyWeaponKillStreakTargetsArray[tix]
 					)[0];
 					if (target != undefined) {
-						if (
-							map.getLayer(
-								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
-							)
-						) {
-							map.removeLayer(
-								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
-							);
-						}
-						if (
-							map.getSource(
-								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
-							)
-						) {
-							map.removeSource(
-								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
-							);
-						}
-						if (
-							sourceArray.indexOf(
-								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
-							) == -1
-						) {
-							sourceArray.push(
-								`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`
-							);
-						}
-						map.addSource(
-							`LWAS-${energyWeaponKillStreakTargetsArray[tix]}`,
-							{
-								type: "geojson",
-								data: {
-									type: "Feature",
-									properties: {},
-									geometry: {
-										type: "LineString",
-										coordinates: [
-											[lng, lat],
-											[
-												target.coords.lng,
-												target.coords.lat,
-											],
-										],
-									},
-								},
+						const sqareLawRaw =
+							(50 * 0.00808) /
+							(target.distance * target.distance);
+						const instaEnergyAbsorbtion =
+							(sqareLawRaw * energyWeaponConfig.powerScale) /
+							326432;
+						if (target.energyAbsorbed != undefined) {
+							if (target.energyAbsorbed >= 1) {
+								removeEntity(
+									target,
+									enemies,
+									enemies.indexOf(target)
+								);
+								disableLaserTargeting(
+									energyWeaponKillStreakTargetsArray[tix]
+								);
+							} else {
+								target.energyAbsorbed += instaEnergyAbsorbtion;
+								disableLaserTargeting(
+									energyWeaponKillStreakTargetsArray[tix]
+								);
+								if(target.energyAbsorbed < 1){
+									enableLaserTargeting(
+										sourceArray,
+										layerArray,
+										target,
+										tix
+									);
+								}
 							}
-						);
-						if (
-							layerArray.indexOf(
-								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
-							) == -1
-						) {
-							layerArray.push(
-								`LWA-${energyWeaponKillStreakTargetsArray[tix]}`
+						} else {
+							target["energyAbsorbed"] = instaEnergyAbsorbtion;
+							enableLaserTargeting(
+								sourceArray,
+								layerArray,
+								target,
+								tix
 							);
 						}
-						map.addLayer({
-							id: `LWA-${energyWeaponKillStreakTargetsArray[tix]}`,
-							type: "line",
-							source: `LWAS-${energyWeaponKillStreakTargetsArray[tix]}`,
-							paint: {
-								"line-color": "rgba(255, 0, 20, 0.7)",
-								"line-width": 2,
-							},
-						});
 					}
 				}
 			}, 100);
@@ -313,7 +336,7 @@
 						map.removeSource(sourceArray[lidix]);
 					}
 				}
-			}, 2000);
+			}, energyWeaponConfig.duration);
 		}
 	}
 
