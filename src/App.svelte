@@ -896,7 +896,7 @@
 			misslecooldown = 250;
 		}
 		map.panTo([lng, lat], { duration: 0 });
-		map.minZoom = 14;
+		map.minzoom = 14;
 		showMenu = false;
 		if (args.detail.restart) {
 			restart();
@@ -1056,7 +1056,7 @@
 		locationPreviewOverride = e.detail;
 	}}
 	on:onLocationPick={() => {
-		map.minZoom = 1;
+		map.minzoom = 1;
 		showMenu = false;
 		isPickingLocation = true;
 	}}
