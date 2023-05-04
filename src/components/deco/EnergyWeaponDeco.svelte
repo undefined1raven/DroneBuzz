@@ -1,10 +1,11 @@
 <script>
     let size;
     let color;
-    export { size, color }
+    let style;
+    export { size, color, style }
 </script>
 
-<svg width="{size ? size : '9vh'}" height="{size ? size : '9vh'}" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="{size ? size : '9vh'}" height="{size ? size : '9vh'}" style="position: absolute; {style ? style : ""}" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="12.5" cy="12.5" r="12" stroke={color ? color : "#2400FF"} stroke-opacity="0.8"/>
 <path d="M12.5 0L23.3253 6.25V18.75L12.5 25L1.67468 18.75V6.25L12.5 0Z" fill={color ? color : "#2400FF"} fill-opacity="0.2"/>
 <path d="M0 12.5L6.25 1.67468L18.75 1.67468L25 12.5L18.75 23.3253L6.25 23.3253L0 12.5Z" fill={color ? color : "#2400FF"} fill-opacity="0.2"/>

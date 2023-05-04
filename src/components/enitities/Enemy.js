@@ -56,7 +56,7 @@ class Enemy {
         this.lastDefensiveMissle = Date.now();
         this.distance = 1000000;
         this.invisble = false;
-
+        this.energyAbsorbed = 0;
         for (let arg in args) {
             this[arg] = args[arg];
         }
@@ -90,6 +90,9 @@ class Enemy {
             this.coords = { ...this.coords, lat: this.coords.lat + RangeScaler(Math.abs(bearing - 270), 90, 0, 0, mvs * -1) }
         }
         this.updateEnemy(this.coords);
+        if (this.energyAbsorbed > 0.005) {
+            this.energyAbsorbed -= 0.005;
+        }
     }
 
     addEnemy() {

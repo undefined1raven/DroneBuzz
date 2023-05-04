@@ -307,7 +307,7 @@
 								disableLaserTargeting(
 									energyWeaponKillStreakTargetsArray[tix]
 								);
-								if(target.energyAbsorbed < 1){
+								if (target.energyAbsorbed < 1) {
 									enableLaserTargeting(
 										sourceArray,
 										layerArray,
@@ -411,10 +411,7 @@
 						energyWeaponKillStreakTargetsArray.indexOf(enemy.id) !=
 						-1
 					) {
-						if (map.getLayer(`LWA-${enemy.id}`)) {
-							map.removeLayer(`LWA-${enemy.id}`);
-							map.removeSource(`LWAS-${enemy.id}`);
-						}
+						disableLaserTargeting(enemy.id);
 					}
 					killCount++;
 					removeEntity(enemy, enemies, eix);

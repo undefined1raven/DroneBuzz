@@ -15,7 +15,7 @@
     import { getRightCurvedBorder } from "../../fn/dynamicBorders";
     import MisslesCounterDeco from "../deco/MisslesCounterDeco.svelte";
     const dispatch = createEventDispatcher();
-    
+
     const UAVConfig = UAVConfigFunc();
     const counterUAVConfig = counterUAVConfigFunc();
     const energyWeaponConfig = energyWeaponConfigFunc();
@@ -247,6 +247,33 @@
             >
         </div>
     {/if}
+    {#if deployedStreaks["energyWeapon"]}
+        <div class="energyWeaponOnlineIndi" transition:fade={{ duration: 150 }}>
+            <Label
+                id="energyWeaponOnlineLabel"
+                top="11.111111111%"
+                left="1.71875%"
+                color="#5C41FF"
+                borderColor="#2400FF00"
+                text="Laser Array Online"
+                width="9.03125%"
+                height="3.055555556%"
+                horizontalFont="5px"
+                VerticalFont="8px"
+                backdropFilter="blur(5px)"
+                style="{getRightCurvedBorder(
+                    5
+                )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
+                backgroundColor="#5C41FF20"
+                ><svelte:component
+                    this={streakMap["energyWeapon"].deco}
+                    size="2.05vh"
+                    color="#5C41FF"
+                    style="left: 82%;"
+                /></Label
+            >
+        </div>
+    {/if}
 {/if}
 
 <style>
@@ -258,7 +285,7 @@
             transform: scaleX(1) scaleY(1) translateX(0%);
         }
     }
-    :global(#enemyLockLabel) {
+    :global(#enemyLockLabel, #energyWeaponOnlineLabel) {
         animation: ini linear 0.15s;
     }
     :global(.scorestreakFill) {
