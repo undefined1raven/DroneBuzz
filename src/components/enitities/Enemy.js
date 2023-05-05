@@ -145,14 +145,14 @@ class Enemy {
 
     defensiveFire() {
         this.lastDefensiveMissle = Date.now();
-        let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+        let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.defensiveMissleMvs);
         this.enemyDefensiveMissles.push(defensiveMissle);
         this.countermeasuresCount--;
     }
 
     fireMissle() {
         this.lastMissle = Date.now();
-        let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false);
+        let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.missleMvs);
         this.missleArr.push(missle);
         this.missleCount--;
     }

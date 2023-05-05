@@ -4,6 +4,8 @@
     import SurvivalRunDeco from "../deco/SurvivalRunDeco.svelte";
     import SurvivalRunObjectivesSetup from "./SurvivalRunObjectivesSetup.svelte";
     import { createEventDispatcher } from "svelte";
+    import { getRightCurvedBorder } from "../../fn/dynamicBorders";
+    import SurvivalRunLoadoutConfig from "./SurvivalRunLoadoutConfig.svelte";
     const dispatch = createEventDispatcher();
 
     let onBack;
@@ -236,8 +238,9 @@
             label="None"
             color={buttonColorsHash[runConfig.objective.type === "none"].color}
             horizontalFont="13px"
-            backgroundColor={buttonColorsHash[runConfig.objective.type === "none"]
-                .backgroundColor}
+            backgroundColor={buttonColorsHash[
+                runConfig.objective.type === "none"
+            ].backgroundColor}
             borderRadius="5px"
             borderColor={buttonColorsHash[runConfig.objective.type === "none"]
                 .borderColor}
@@ -257,8 +260,9 @@
             label="Pick"
             color={buttonColorsHash[runConfig.objective.type !== "none"].color}
             horizontalFont="13px"
-            backgroundColor={buttonColorsHash[runConfig.objective.type !== "none"]
-                .backgroundColor}
+            backgroundColor={buttonColorsHash[
+                runConfig.objective.type !== "none"
+            ].backgroundColor}
             borderRadius="5px"
             borderColor={buttonColorsHash[runConfig.objective.type !== "none"]
                 .borderColor}
@@ -273,6 +277,7 @@
     <div class="flyButtonBkg" />
     <Button
         id="survivalRunStartButton"
+        className="fromBelowAni"
         onClick={() => {
             onStartRun(runConfig);
         }}
@@ -289,6 +294,26 @@
         height="13.055555556%"
         borderRadius="5px"
     />
+    <Button
+        id="chooseLoadoutButton"
+        className="fromBelowAni"
+        onClick={() => {
+            dispatch("locationPreviewOverrideUpdate", false);
+            activeWindowID = "loadout";
+        }}
+        label="Choose Loadout"
+        color="#AEA0FF"
+        borderColor="#2400FF"
+        backgroundColor="#2400FF20"
+        horizontalFont="13px"
+        top="86.111111111%"
+        tabletTop="86.111111111%"
+        tabletLeft="calc(76.09375% + 0.5%)"
+        left="calc(76.09375% + 0.5%)"
+        width="22.5%"
+        height="8.333333333%"
+        style={getRightCurvedBorder(5)}
+    />
     <SurvivalRunObjectivesSetup
         on:onObjective={(e) => {
             runConfig.objective = e.detail.objective;
@@ -298,6 +323,13 @@
             dispatch("locationPreviewOverrideUpdate", true);
         }}
         show={activeWindowID == "objectives"}
+    />
+    <SurvivalRunLoadoutConfig
+        on:onBack={() => {
+            activeWindowID = "main";
+            dispatch("locationPreviewOverrideUpdate", true);
+        }}
+        show={activeWindowID == "loadout"}
     />
 </div>
 
@@ -335,7 +367,7 @@
     :global(.fromAboveAni) {
         animation: iniFromAbove ease-in-out 0.15s;
     }
-    :global(#survivalRunStartButton) {
+    :global(.fromBelowAni) {
         animation: iniFromBelow ease-in-out 0.15s;
     }
     .flyButtonBkg {

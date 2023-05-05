@@ -100,6 +100,8 @@
 			},
 			rawOffensiveRadius: rawOffensiveRadius,
 			mvs: enemyMvs,
+			defensiveMissleMvs: missleMvs,
+			missleMvs: missleMvs
 		};
 	}
 
@@ -176,7 +178,6 @@
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
-		let deltaLat = targetLat - enemy.coords.lat;
 
 		let distance = cartesianDistance(
 			{
@@ -299,6 +300,7 @@
 									enemies,
 									enemies.indexOf(target)
 								);
+								killCount++;
 								disableLaserTargeting(
 									energyWeaponKillStreakTargetsArray[tix]
 								);
@@ -434,7 +436,7 @@
 		}
 		if (missle.distance < missle.killRadius && missle.distance > 0) {
 			deadcount++;
-			if (deadcount == 1) {
+			if (objective.type == 'none' && deadcount == 1 || objective.type != 'none' && deadcount >= objective.lives) {
 				deadTime = Date.now();
 				localStorage.setItem("best", deadTime - startTime);
 			}
@@ -1166,13 +1168,13 @@
 	left="40%"
 	color="#3817FF"
 	borderColor="#1E00D2"
-	label="Retry {deadcount >= objective.lives ? `[${deadcount}]` : ''}"
+	label="Retry {deadcount >= objective.lives || (objective.type == 'none' && deadcount > 0) ? `[${deadcount}]` : ''}"
 	horizontalFont="12px"
 	verticalFont="12px"
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount >= objective.lives && !isPickingLocation > 0 ? 1 : 0}
+	opacity={deadcount >= objective.lives || (objective.type == 'none' && deadcount > 0) && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		restart();
@@ -1190,7 +1192,7 @@
 	width="20.15625%"
 	borderRadius="5px"
 	backdropFilter="blur(4px)"
-	opacity={deadcount >= objective.lives && !isPickingLocation > 0 ? 1 : 0}
+	opacity={deadcount >= objective.lives || (objective.type == 'none' && deadcount > 0) && !isPickingLocation > 0 ? 1 : 0}
 	height="8.611111111%"
 	onClick={() => {
 		showMenu = true;

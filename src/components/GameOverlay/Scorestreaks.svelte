@@ -23,6 +23,7 @@
     let started;
     let scorestreakArray = ["UAV", "counterUAV", "energyWeapon"];
     let killCount;
+    let scorestreakActiveIndicatorTopHash = {}; //used to set the top for the labels showing active scorestreaks
 
     let dogWatcherInterval;
 
@@ -87,6 +88,18 @@
         return ((killCount % cost) * 100) / cost;
     }
 
+    function getActiveStreakLabelTop(streakID) {
+        const keyLen = Object.keys(scorestreakActiveIndicatorTopHash).length;
+        const offset = 4.16666666;
+        if (keyLen > 0) {
+            scorestreakActiveIndicatorTopHash[streakID] = `${
+                11.111111111 + offset * keyLen
+            }%`;
+        } else {
+            scorestreakActiveIndicatorTopHash[streakID] = "11.111111111%";
+        }
+    }
+
     export { started, scorestreakArray, killCount };
 </script>
 
@@ -95,6 +108,8 @@
         <Button
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[0]] == true) {
+                    scorestreakActiveIndicatorTopHash[scorestreakArray[0]] =
+                        getActiveStreakLabelTop(scorestreakArray[0]);
                     dispatch("deployScorestreak", { key: scorestreakArray[0] });
                     deployedStreaks[scorestreakArray[0]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[0]] = false;
@@ -138,6 +153,8 @@
         <Button
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[1]] == true) {
+                    scorestreakActiveIndicatorTopHash[scorestreakArray[1]] =
+                        getActiveStreakLabelTop(scorestreakArray[1]);
                     dispatch("deployScorestreak", { key: scorestreakArray[1] });
                     deployedStreaks[scorestreakArray[1]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[1]] = false;
@@ -183,6 +200,8 @@
         <Button
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[2]] == true) {
+                    scorestreakActiveIndicatorTopHash[scorestreakArray[2]] =
+                        getActiveStreakLabelTop(scorestreakArray[2]);
                     dispatch("deployScorestreak", { key: scorestreakArray[2] });
                     deployedStreaks[scorestreakArray[2]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[2]] = false;
@@ -229,7 +248,7 @@
         <div class="enemyLockContainer" transition:fade={{ duration: 150 }}>
             <Label
                 id="enemyLockLabel"
-                top="11.111111111%"
+                top={"11.111111111%"}
                 left="1.71875%"
                 color="#5C41FF"
                 borderColor="#2400FF00"
@@ -251,7 +270,7 @@
         <div class="energyWeaponOnlineIndi" transition:fade={{ duration: 150 }}>
             <Label
                 id="energyWeaponOnlineLabel"
-                top="11.111111111%"
+                top={"15.27777777%"}
                 left="1.71875%"
                 color="#5C41FF"
                 borderColor="#2400FF00"

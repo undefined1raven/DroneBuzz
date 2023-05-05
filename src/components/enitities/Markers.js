@@ -9,12 +9,23 @@ class MarkerElement {
     }
 
     getElement() {
+        var markerContainer = document.createElement('div');
         var marker = document.createElement("img");
         marker.style.width = this.width;
         marker.style.height = this.height;
         marker.style.backgroundSize = "contain";
         marker.src = this.src;
         marker.style.cursor = "pointer";
+
+        let demo = document.createElement('h1');
+        demo.style.color = "#FFF";
+        demo.innerText = 'we?>>';
+        demo.style.border = 'solid 1px #FFF';
+        demo.style.width = this.width;
+        demo.style.height = this.height;
+        demo.style.borderRadius = '5000px';
+        markerContainer.appendChild(marker);
+        markerContainer.appendChild(demo);
         return marker;
     }
 }
