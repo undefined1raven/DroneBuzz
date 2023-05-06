@@ -993,11 +993,13 @@
 					friendlyMissles.push(friendlyMissle);
 				}
 			}
-			if (survivalRunConfig.offensiveWeapon === "laserCannon") {
-				fireEnergyWeaponStreak({ energyWeapon: false }, true, {
-					...LaserCannonConfig,
-					duration: LaserCannonConfig.overheatTimeout,
-				});
+			if (targetEnemy.distance < 0.00808) {
+				if (survivalRunConfig.offensiveWeapon === "laserCannon") {
+					fireEnergyWeaponStreak({ energyWeapon: false }, true, {
+						...LaserCannonConfig,
+						duration: LaserCannonConfig.overheatTimeout,
+					});
+				}
 			}
 		}
 	}
