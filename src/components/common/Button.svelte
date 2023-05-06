@@ -1,6 +1,6 @@
 <script>
-    import { onMount } from "svelte";
-
+    import { onMount, createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
     let id;
     let label;
     let className;
@@ -32,12 +32,16 @@
     });
 
     const updateTouchUnix = (tx) => {
+        dispatch("onTouchStart");
         touchStartUnix = tx;
     };
 
     const checkClick = (e) => {
+        dispatch("onTouchEnd");
         if (Date.now() - touchStartUnix < 300) {
-            onClick != undefined ? onClick(e) : console.log('onClick undefined')
+            onClick != undefined
+                ? onClick(e)
+                : console.log("onClick undefined");
             if (lightColor != undefined) {
                 e.target.style.color = lightColor;
                 setTimeout(() => {
@@ -87,7 +91,7 @@
     }
 
     function positionParser(mobilePosition, tabletPosition) {
-        if (clientWidth > 1050 && tabletPosition != 'auto') {
+        if (clientWidth > 1050 && tabletPosition != "auto") {
             return tabletPosition;
         } else {
             return mobilePosition;
@@ -114,7 +118,7 @@
         backdropFilter,
         borderRadius,
         tabletLeft,
-        tabletTop
+        tabletTop,
     };
 </script>
 
@@ -134,13 +138,20 @@
         color: {iu(color, '#FFF')}; 
         background-color: {iu(backgroundColor, '#0500FF00')}; 
         border: solid 1px {iu(borderColor, '#0500FF')};
-        border-radius: {((((parseFloat(iu(borderRadius, '0px').substring(0, iu(borderRadius, '0px').length - 2)) * 100) / 360) / 100) * clientHeight) + 'px;'};
+        border-radius: {((parseFloat(
+        iu(borderRadius, '0px').substring(0, iu(borderRadius, '0px').length - 2)
+    ) *
+        100) /
+        360 /
+        100) *
+        clientHeight +
+        'px;'};
         backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
         {iu(style, '')}"
 >
-    {label ? label : ''}
-    <slot></slot>
+    {label ? label : ""}
+    <slot />
 </div>
 
 <style>

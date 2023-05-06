@@ -1,5 +1,7 @@
 <script>
+    import { createEventDispatcher } from "svelte";
     import Button from "../common/Button.svelte";
+    const dispatch = createEventDispatcher();
     let started;
     let fire;
     let defensiveFire;
@@ -31,6 +33,12 @@
         />
     {/if}
     <Button
+        on:onTouchStart={() => {
+            dispatch("onFireStart");
+        }}
+        on:onTouchEnd={() => {
+            dispatch("onFireEnd");
+        }}
         id="fireButton"
         top="86.944444444%"
         left="78.28125%"

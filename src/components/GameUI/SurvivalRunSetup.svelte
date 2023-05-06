@@ -13,6 +13,7 @@
     let runConfig = {
         displayDifficulty: "easy",
         difficulty: "easy",
+        offensiveWeapon: "smartMissile",
         objective: { type: "none" },
         location: { lng: 26.02985041110172, lat: 44.35381465897361 },
     };
@@ -325,6 +326,9 @@
         show={activeWindowID == "objectives"}
     />
     <SurvivalRunLoadoutConfig
+        on:onWeaponSelected={(e) => {
+            runConfig.offensiveWeapon = e.detail.offensive;
+        }}
         on:onBack={() => {
             activeWindowID = "main";
             dispatch("locationPreviewOverrideUpdate", true);

@@ -9,22 +9,21 @@
     import { fade } from "svelte/transition";
     import WeaponSelectionButton from "../common/WeaponSelectionButton.svelte";
     import MissileDeco from "../deco/MissileDeco.svelte";
+    import EnergyWeaponAcxDeco from "../deco/EnergyWeaponAcxDeco.svelte";
     const dispatch = createEventDispatcher();
     let show;
 
     let selectedOffensiveWeapon = "smartMissile";
 
-    let buttonColorsHash = {
-        true: {
-            color: "#FFF",
-            backgroundColor: "#2400FF40",
-            borderColor: "#2400FF",
-        },
-        false: {
-            color: "#2400FF",
-            backgroundColor: "#00000000",
-            borderColor: "#2400FF",
-        },
+    $: onSelectedWeaponChange(selectedOffensiveWeapon)
+    
+    function onSelectedWeaponChange(selectedOffensiveWeapon){
+        dispatch("onWeaponSelected", { offensive: selectedOffensiveWeapon });
+    }
+
+    let buttonDecoColorHash = {
+        true: "#3F1FFF",
+        false: "#2400FF",
     };
     export { show };
 </script>
@@ -96,7 +95,11 @@
                 height="27.5%"
                 decoThis={MissileDeco}
                 decoProps={{
-                    color: "#3F1FFF",
+                    color: `${
+                        buttonDecoColorHash[
+                            selectedOffensiveWeapon == "smartMissile"
+                        ]
+                    }`,
                     opacity: 0.7,
                     left: "87%",
                     tabletLeft: "82%",
@@ -114,14 +117,17 @@
                 secondaryLabel="is mad about the inverse square law"
                 width="100%"
                 height="27.5%"
-                decoThis={MissileDeco}
+                decoThis={EnergyWeaponAcxDeco}
                 decoProps={{
-                    color: "#2400FF",
+                    color: `${
+                        buttonDecoColorHash[
+                            selectedOffensiveWeapon == "laserCannon"
+                        ]
+                    }`,
                     opacity: 0.7,
-                    left: "87%",
-                    tabletLeft: "82%",
-                    width: "4.5vh",
-                    height: "5.5vh",
+                    left: "85%",
+                    tabletLeft: "80%",
+                    size: "6vh",
                 }}
             />
         </ul>

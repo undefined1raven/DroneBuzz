@@ -6,9 +6,9 @@
     import CounterUAVDeco from "../deco/CounterUAVDeco.svelte";
     import EnergyWeaponDeco from "../deco/EnergyWeaponDeco.svelte";
     import { getLeftCurvedBorder } from "../../fn/dynamicBorders";
-    import UAVConfigFunc from "../../config/UAV";
-    import counterUAVConfigFunc from "../../config/counterUAV";
-    import energyWeaponConfigFunc from "../../config/energyWeapon";
+    import UAVConfigFunc from "../../config/scorestreaks/UAV";
+    import counterUAVConfigFunc from "../../config/scorestreaks/counterUAV";
+    import energyWeaponConfigFunc from "../../config/scorestreaks/energyWeapon";
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { onDestroy } from "svelte";
