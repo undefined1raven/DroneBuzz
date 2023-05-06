@@ -24,6 +24,7 @@
     let backdropFilter;
     let borderRadius;
     let show = true;
+    let tabletWidth;
 
     const root = document.documentElement;
     let fontSize = "2.4vh";
@@ -105,6 +106,7 @@
         onTouchStart,
         onTouchEnd,
         show,
+        tabletWidth,
     };
 </script>
 
@@ -121,7 +123,7 @@
     font-size: {iu(fontSize, '2vh')}; 
     left: {positionParser(iu(left, 'auto'), iu(tabletLeft, 'auto'))}; 
     top: {positionParser(iu(top, 'auto'), iu(tabletTop, 'auto'))}; 
-    width: {iu(width, 'auto')}; 
+    width: {positionParser(iu(width, 'auto'), iu(tabletWidth, 'auto'))}; 
     height: {iu(height, 'auto')}; 
     color: {iu(color, '#FFF')}; 
     background-color: {iu(backgroundColor, '#2400FF00')};
@@ -140,7 +142,7 @@
     --webkit-backdrop-filter: {iu(backdropFilter, 'blur(0px)')};
     {iu(style, '')}"
     >
-        {text}
+        {text ? text : ""}
         <slot />
     </div>
 {/if}

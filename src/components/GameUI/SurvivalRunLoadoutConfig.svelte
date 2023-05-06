@@ -7,8 +7,12 @@
     } from "../../fn/dynamicBorders.js";
     import { createEventDispatcher, onMount } from "svelte";
     import { fade } from "svelte/transition";
+    import WeaponSelectionButton from "../common/WeaponSelectionButton.svelte";
+    import MissileDeco from "../deco/MissileDeco.svelte";
     const dispatch = createEventDispatcher();
     let show;
+
+    let selectedOffensiveWeapon = "smartMissile";
 
     let buttonColorsHash = {
         true: {
@@ -62,8 +66,9 @@
             color="#6D55FF"
             horizontalFont="13px"
         />
-        <!---->
+        <!--Offensive Config-->
         <Label
+            className="fromLeftAniSurvivalRunObjectives"
             text="Offensive"
             top="27.896995708%"
             left="1.167315175%"
@@ -75,13 +80,59 @@
             horizontalFont="13px"
             borderRadius="5px"
         />
-        <ul>
-            
+        <ul
+            id="offensiveAvailableWeaponsList"
+            class="fromLeftAniSurvivalRunObjectives"
+        >
+            <WeaponSelectionButton
+                on:onWeaponSelection={(e) =>
+                    (selectedOffensiveWeapon = e.detail.weaponID)}
+                selectedWeaponID={selectedOffensiveWeapon}
+                weaponID="smartMissile"
+                className="weaponsListItem"
+                displayName="Smart AT3 Missile"
+                secondaryLabel="knows where it is at all times"
+                width="100%"
+                height="27.5%"
+                decoThis={MissileDeco}
+                decoProps={{
+                    color: "#3F1FFF",
+                    opacity: 0.7,
+                    left: "87%",
+                    tabletLeft: "82%",
+                    width: "4.5vh",
+                    height: "5.5vh",
+                }}
+            />
+            <WeaponSelectionButton
+                on:onWeaponSelection={(e) =>
+                    (selectedOffensiveWeapon = e.detail.weaponID)}
+                selectedWeaponID={selectedOffensiveWeapon}
+                weaponID="laserCannon"
+                className="weaponsListItem"
+                displayName="LYTE Laser Cannon"
+                secondaryLabel="is mad about the inverse square law"
+                width="100%"
+                height="27.5%"
+                decoThis={MissileDeco}
+                decoProps={{
+                    color: "#2400FF",
+                    opacity: 0.7,
+                    left: "87%",
+                    tabletLeft: "82%",
+                    width: "4.5vh",
+                    height: "5.5vh",
+                }}
+            />
         </ul>
     </div>
 {/if}
 
 <style>
+    :global(.weaponsListItem) {
+        position: relative !important;
+        margin-bottom: 6%;
+    }
     .survivalRunObjectivesContainer {
         position: absolute;
         top: 35.277777778%;
@@ -99,5 +150,16 @@
     }
     :global(.fromBelowAniSurvivalRunObjectives) {
         animation: iniFromBelow ease-in-out 0.15s;
+    }
+    #offensiveAvailableWeaponsList {
+        position: absolute;
+        top: 46.78111588%;
+        left: 1.167315175%;
+        width: 30.93385214%;
+        height: 51.502145923%;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        margin: 0;
     }
 </style>

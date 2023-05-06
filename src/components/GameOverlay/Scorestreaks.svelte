@@ -88,18 +88,6 @@
         return ((killCount % cost) * 100) / cost;
     }
 
-    function getActiveStreakLabelTop(streakID) {
-        const keyLen = Object.keys(scorestreakActiveIndicatorTopHash).length;
-        const offset = 4.16666666;
-        if (keyLen > 0) {
-            scorestreakActiveIndicatorTopHash[streakID] = `${
-                11.111111111 + offset * keyLen
-            }%`;
-        } else {
-            scorestreakActiveIndicatorTopHash[streakID] = "11.111111111%";
-        }
-    }
-
     export { started, scorestreakArray, killCount };
 </script>
 
@@ -109,8 +97,9 @@
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[0]] == true) {
                     scorestreakActiveIndicatorTopHash[scorestreakArray[0]] =
-                        getActiveStreakLabelTop(scorestreakArray[0]);
-                    dispatch("deployScorestreak", { key: scorestreakArray[0] });
+                        dispatch("deployScorestreak", {
+                            key: scorestreakArray[0],
+                        });
                     deployedStreaks[scorestreakArray[0]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[0]] = false;
                 }
@@ -154,8 +143,9 @@
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[1]] == true) {
                     scorestreakActiveIndicatorTopHash[scorestreakArray[1]] =
-                        getActiveStreakLabelTop(scorestreakArray[1]);
-                    dispatch("deployScorestreak", { key: scorestreakArray[1] });
+                        dispatch("deployScorestreak", {
+                            key: scorestreakArray[1],
+                        });
                     deployedStreaks[scorestreakArray[1]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[1]] = false;
                 }
@@ -201,8 +191,9 @@
             onClick={() => {
                 if (availableScorestreaks[scorestreakArray[2]] == true) {
                     scorestreakActiveIndicatorTopHash[scorestreakArray[2]] =
-                        getActiveStreakLabelTop(scorestreakArray[2]);
-                    dispatch("deployScorestreak", { key: scorestreakArray[2] });
+                        dispatch("deployScorestreak", {
+                            key: scorestreakArray[2],
+                        });
                     deployedStreaks[scorestreakArray[2]] = { tx: Date.now() };
                     availableScorestreaks[scorestreakArray[2]] = false;
                 }
@@ -244,55 +235,66 @@
             /></Button
         >
     </div>
-    {#if deployedStreaks["counterUAV"]}
-        <div class="enemyLockContainer" transition:fade={{ duration: 150 }}>
-            <Label
-                id="enemyLockLabel"
-                top={"11.111111111%"}
-                left="1.71875%"
-                color="#5C41FF"
-                borderColor="#2400FF00"
-                text="Jamming Active"
-                width="9.03125%"
-                height="3.055555556%"
-                horizontalFont="6px"
-                VerticalFont="8px"
-                backdropFilter="blur(5px)"
-                style="{getRightCurvedBorder(
-                    5
-                )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
-                backgroundColor="#5C41FF20"
-                ><MisslesCounterDeco size="2.5vh" style="left: 83%;" /></Label
+    <ul id="deployedStreaksActiveLabelsList">
+        {#if deployedStreaks["counterUAV"]}
+            <div
+                class="enemyLockContainer deployedScorestreakActiveLabelItem"
+                transition:fade={{ duration: 150 }}
             >
-        </div>
-    {/if}
-    {#if deployedStreaks["energyWeapon"]}
-        <div class="energyWeaponOnlineIndi" transition:fade={{ duration: 150 }}>
-            <Label
-                id="energyWeaponOnlineLabel"
-                top={"15.27777777%"}
-                left="1.71875%"
-                color="#5C41FF"
-                borderColor="#2400FF00"
-                text="Laser Array Online"
-                width="9.03125%"
-                height="3.055555556%"
-                horizontalFont="5px"
-                VerticalFont="8px"
-                backdropFilter="blur(5px)"
-                style="{getRightCurvedBorder(
-                    5
-                )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 0.5%; transition: all linear 0.1s; transition: color linear 0s;"
-                backgroundColor="#5C41FF20"
-                ><svelte:component
-                    this={streakMap["energyWeapon"].deco}
-                    size="2.05vh"
+                <Label
+                    id="enemyLockLabel"
+                    left="0%"
                     color="#5C41FF"
-                    style="left: 82%;"
-                /></Label
+                    borderColor="#2400FF00"
+                    text="Jamming Active"
+                    width="96%"
+                    height="100%"
+                    horizontalFont="6px"
+                    tabletWidth="99%"
+                    VerticalFont="8px"
+                    backdropFilter="blur(5px)"
+                    style="{getRightCurvedBorder(
+                        5
+                    )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 4%; transition: all linear 0.1s; transition: color linear 0s;"
+                    backgroundColor="#5C41FF20"
+                    ><MisslesCounterDeco
+                        size="2.5vh"
+                        style="left: 83%;"
+                    /></Label
+                >
+            </div>
+        {/if}
+        {#if deployedStreaks["energyWeapon"]}
+            <div
+                class="energyWeaponOnlineIndi deployedScorestreakActiveLabelItem"
+                transition:fade={{ duration: 150 }}
             >
-        </div>
-    {/if}
+                <Label
+                    id="energyWeaponOnlineLabel"
+                    left="0%"
+                    color="#5C41FF"
+                    borderColor="#2400FF00"
+                    text="Laser Array Online"
+                    width="96%"
+                    tabletWidth="99%"
+                    height="100%"
+                    horizontalFont="5px"
+                    VerticalFont="8px"
+                    backdropFilter="blur(5px)"
+                    style="{getRightCurvedBorder(
+                        5
+                    )} border-left: solid 1px #5C41FF; justify-content: start; padding-left: 4%; transition: all linear 0.1s; transition: color linear 0s;"
+                    backgroundColor="#5C41FF20"
+                    ><svelte:component
+                        this={streakMap["energyWeapon"].deco}
+                        size="2.05vh"
+                        color="#5C41FF"
+                        style="left: 82%;"
+                    /></Label
+                >
+            </div>
+        {/if}
+    </ul>
 {/if}
 
 <style>
@@ -309,5 +311,22 @@
     }
     :global(.scorestreakFill) {
         transition: all linear 0.08s;
+    }
+    #deployedStreaksActiveLabelsList {
+        position: absolute;
+        top: 11.11%;
+        left: 1.71875%;
+        width: 9.43125%;
+        height: 24.444444444%;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        margin: 0;
+    }
+    .deployedScorestreakActiveLabelItem {
+        margin-bottom: 4.545454545%;
+        position: relative;
+        width: 100%;
+        height: 12.5%;
     }
 </style>
