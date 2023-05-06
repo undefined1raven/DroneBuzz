@@ -264,16 +264,6 @@
 
 	function fireEnergyWeaponStreak(state, weaponOverride, config) {
 		if (state.energyWeapon === true || weaponOverride) {
-			for (let eix = 0; eix <= config.maxTargets; eix++) {
-				if (enemies[eix] != undefined) {
-					if (enemies[eix].distance < config.radius) {
-						energyWeaponKillStreakTargetsArray.push(
-							enemies[eix].id
-						);
-					}
-				}
-			}
-
 			let sourceArray = [];
 			let layerArray = [];
 
