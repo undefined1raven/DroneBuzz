@@ -174,6 +174,7 @@
 	let killCount = 0;
 	let energyWeaponKillStreakTargetsArray = [];
 	let isFiring = false;
+	let laserCannonFireStartUnix = Date.now();
 	const scorestreakArray = ["UAV", "counterUAV", "energyWeapon"];
 
 	let mvs = 0.0002;
@@ -348,6 +349,7 @@
 						}
 					}
 				} else {
+					isFiring = false;
 					clearInterval(intx);
 					for (let lidix = 0; lidix < layerArray.length; lidix++) {
 						if (map.getLayer(layerArray[lidix])) {
@@ -358,6 +360,7 @@
 				}
 			}, 100);
 			setTimeout(() => {
+				isFiring = false;
 				clearInterval(intx);
 				for (let lidix = 0; lidix < layerArray.length; lidix++) {
 					if (map.getLayer(layerArray[lidix])) {
@@ -1200,8 +1203,13 @@
 			isFiring = true;
 			if (survivalRunConfig.offensiveWeapon == "laserCannon") {
 				fire();
+				laserCannonFireStartUnix = Date.now();
 			}
 		}}
+		isLaserCannonFiring={survivalRunConfig.offensiveWeapon ==
+			"laserCannon" && isFiring}
+		{laserCannonFireStartUnix}
+		laserCannonOverheatDuration={LaserCannonConfig.overheatDuration}
 		{fire}
 		{defensiveFire}
 		{isHunted}
