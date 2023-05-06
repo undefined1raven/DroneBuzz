@@ -261,7 +261,7 @@
 		});
 	}
 
-	function fireEnergyWeaponStreak(state, weaponOverride, config, isFiring) {
+	function fireEnergyWeaponStreak(state, weaponOverride, config) {
 		if (state.energyWeapon === true || weaponOverride) {
 			for (let eix = 0; eix <= config.maxTargets; eix++) {
 				if (enemies[eix] != undefined) {
@@ -277,7 +277,10 @@
 			let layerArray = [];
 
 			const intx = setInterval(() => {
-				if (weaponOverride && isFiring || state.energyWeapon === true) {
+				if (
+					(weaponOverride && isFiring) ||
+					state.energyWeapon === true
+				) {
 					energyWeaponKillStreakTargetsArray = [];
 					for (let eix = 0; eix < enemies.length; eix++) {
 						if (
@@ -990,7 +993,7 @@
 			if (survivalRunConfig.offensiveWeapon === "laserCannon") {
 				fireEnergyWeaponStreak({ energyWeapon: false }, true, {
 					...LaserCannonConfig,
-					duration: 1000,
+					duration: LaserCannonConfig.overheatTimeout,
 				});
 			}
 		}
@@ -1195,6 +1198,9 @@
 		}}
 		on:onFireStart={() => {
 			isFiring = true;
+			if (survivalRunConfig.offensiveWeapon == "laserCannon") {
+				fire();
+			}
 		}}
 		{fire}
 		{defensiveFire}
