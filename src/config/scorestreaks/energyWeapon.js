@@ -5,7 +5,7 @@ const EnergyWeaponConfig = () => {
         radius: 0.00808,
         powerScale: 6,
         duration: 15000,
-        cost: 2,
+        cost: 50,
     }
     return config;
 }
