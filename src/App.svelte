@@ -105,8 +105,17 @@
 			mvs: enemyMvs,
 			defensiveMissleMvs: missleMvs,
 			missleMvs: missleMvs,
+			offensiveWeaponType:
+				Math.random() > 0.8 ? "smartMissile" : "laserCannon",
+			targetEnergyAbsorbed: energyAbsorbed,
+			updateTargetEnergyAbsorbed: (newLvl) => {
+				energyAbsorbed = newLvl;
+			},
+			playerHit: playerHit,
 		};
 	}
+
+	$: console.log(energyAbsorbed);
 
 	//---| Page State
 	let isFullscreen = false;
@@ -162,6 +171,7 @@
 	let displayNlatFromPicker = lat;
 	let displayNlngFromPicker = lng;
 
+	let energyAbsorbed = 0;
 	let ang = 0;
 	let misslecooldown = 500;
 	let maxConcurentMissileCount = 5;
@@ -181,6 +191,17 @@
 	let enemyMvs = 0;
 	let missleMvs = 0;
 
+	function playerHit() {
+		deadcount++;
+		if (
+			(objective.type == "none" && deadcount == 1) ||
+			(objective.type != "none" && deadcount >= objective.lives)
+		) {
+			deadTime = Date.now();
+			localStorage.setItem("best", deadTime - startTime);
+		}
+	}
+
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
 
@@ -195,6 +216,8 @@
 
 		if (enemy.onDistanceUpdate != undefined) {
 			enemy.onDistanceUpdate(enemy.id);
+			enemy.target = { coords: { lng: lng, lat: lat } };
+			enemy.targetEnergyAbsorbed = energyAbsorbed;
 		}
 
 		if (targetLat >= enemy.coords.lat) {
@@ -262,25 +285,25 @@
 		});
 	}
 
-	function fireEnergyWeaponStreak(state, weaponOverride, config) {
-		if (state.energyWeapon === true || weaponOverride) {
+	function fireEnergyWeaponStreak(state, weaponOverride, config, enemyArray) {
+		if (state?.energyWeapon === true || weaponOverride) {
 			let sourceArray = [];
 			let layerArray = [];
 
 			const intx = setInterval(() => {
 				if (
 					(weaponOverride && isFiring) ||
-					state.energyWeapon === true
+					state?.energyWeapon === true
 				) {
 					energyWeaponKillStreakTargetsArray = [];
-					for (let eix = 0; eix < enemies.length; eix++) {
+					for (let eix = 0; eix < enemyArray.length; eix++) {
 						if (
-							enemies[eix].distance < config.radius &&
+							enemyArray[eix].distance < config.radius &&
 							energyWeaponKillStreakTargetsArray.length <
 								config.maxTargets
 						) {
 							energyWeaponKillStreakTargetsArray.push(
-								enemies[eix].id
+								enemyArray[eix].id
 							);
 						}
 					}
@@ -289,7 +312,7 @@
 						tix < energyWeaponKillStreakTargetsArray.length;
 						tix++
 					) {
-						const target = enemies.filter(
+						const target = enemyArray.filter(
 							(enemy) =>
 								enemy.id ==
 								energyWeaponKillStreakTargetsArray[tix]
@@ -302,10 +325,11 @@
 								(sqareLawRaw * config.powerScale) / 326432;
 							if (target.energyAbsorbed != undefined) {
 								if (target.energyAbsorbed >= 1) {
+									target.hideEnemy();
 									removeEntity(
 										target,
-										enemies,
-										enemies.indexOf(target)
+										enemyArray,
+										enemyArray.indexOf(target)
 									);
 									killCount++;
 									disableLaserTargeting(
@@ -362,7 +386,13 @@
 		}
 	}
 
-	$: fireEnergyWeaponStreak(scorestreaksState, false, energyWeaponConfig);
+	$: fireEnergyWeaponStreak(
+		scorestreaksState,
+		false,
+		energyWeaponConfig,
+		enemies,
+		true
+	);
 
 	function restart() {
 		isPaused = false;
@@ -436,6 +466,7 @@
 						disableLaserTargeting(enemy.id);
 					}
 					killCount++;
+					enemy.hideEnemy();
 					removeEntity(enemy, enemies, eix);
 				}
 			}
@@ -455,14 +486,7 @@
 			updateEnemyHeadings(missle, lng, lat);
 		}
 		if (missle.distance < missle.killRadius && missle.distance > 0) {
-			deadcount++;
-			if (
-				(objective.type == "none" && deadcount == 1) ||
-				(objective.type != "none" && deadcount >= objective.lives)
-			) {
-				deadTime = Date.now();
-				localStorage.setItem("best", deadTime - startTime);
-			}
+			playerHit();
 			removeEntity(missle, missles, mix);
 		}
 	}
@@ -603,7 +627,11 @@
 			for (let ix = 0; ix <= 21; ix++) {
 				let ncoords = new getRandomCoords(lng, lat, 15).get();
 				let id = `${Math.random().toFixed(4) + Date.now()}`;
-				let eni = new Enemy(getBasicEnemyConfig(ncoords, id));
+				let eni = new Enemy({
+					...getBasicEnemyConfig(ncoords, id),
+					offensiveWeaponType:
+						Math.random() > 0.5 ? "smartMissile" : "laserCannon",
+				});
 				enemies.push(eni);
 			}
 
@@ -648,6 +676,9 @@
 					playerMarker._rotation = (data.angle.degree - 90) * -1;
 				});
 				///---| Game Loop
+				setInterval(() => {
+					energyAbsorbed -= 0.0015;
+				}, 50)
 				setInterval(() => {
 					if (!isPaused) {
 						if (ang <= 180 && ang > 0 && ang != -1) {
@@ -751,9 +782,13 @@
 								let id = `${
 									Math.random().toFixed(4) + Date.now()
 								}`;
-								let eni = new Enemy(
-									getBasicEnemyConfig(ncoords, id)
-								);
+								let eni = new Enemy({
+									...getBasicEnemyConfig(ncoords, id),
+									offensiveWeaponType:
+										Math.random() > 0.5
+											? "smartMissile"
+											: "laserCannon",
+								});
 								enemies.push(eni);
 							}
 						}
@@ -985,10 +1020,16 @@
 			}
 			if (targetEnemy.distance < 0.00808) {
 				if (survivalRunConfig.offensiveWeapon === "laserCannon") {
-					fireEnergyWeaponStreak({ energyWeapon: false }, true, {
-						...LaserCannonConfig,
-						duration: LaserCannonConfig.overheatTimeout,
-					});
+					fireEnergyWeaponStreak(
+						{ energyWeapon: false },
+						true,
+						{
+							...LaserCannonConfig,
+							duration: LaserCannonConfig.overheatTimeout,
+						},
+						enemies,
+						true
+					);
 				}
 			}
 		}
@@ -1183,6 +1224,7 @@
 		on:killScorestreak={(e) => {
 			scorestreaksState[e.detail.key] = false;
 		}}
+		{energyAbsorbed}
 		{started}
 		{killCount}
 		{scorestreakArray}

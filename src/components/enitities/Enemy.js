@@ -3,7 +3,7 @@ import maplibre from "maplibre-gl";
 import { RangeScaler } from "../../fn/RangeScaler.js";
 import { Missle } from "./Missle.js";
 import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
-
+import LaserCannonConfig from "../../config/weapons/LaserCannon.js";
 
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -53,6 +53,7 @@ class Enemy {
         this.bearing = 0;
         this.visible = false;
         this.lastMissle = 0;
+        this.lastLaserCannonOverheat = Date.now();
         this.lastDefensiveMissle = Date.now();
         this.distance = 1000000;
         this.invisble = false;
@@ -60,10 +61,12 @@ class Enemy {
         for (let arg in args) {
             this[arg] = args[arg];
         }
-
+        this.isFiring = false;
         this.offensiveRadius = ((this.rawOffensiveRadius * this.screenDistanceObj.horizontal) / 0.0360059738);
         this.defensiveRadius = (this.rawDefensiveRadius * this.screenDistanceObj.horizontal) / 0.0361776352;
         this.renderedOffensiveRadius = radiusFromPercentage((23.104265403 * this.offensiveRadius) / 0.0033626539605827906);
+        this.laserCannonConfig = LaserCannonConfig(2, this.offensiveRadius + 0.001, 0.08, 4000, 1500);
+        this.targetEnergyAbsorbed = 0;
     }
 
     followStep(bearing) {
@@ -127,6 +130,7 @@ class Enemy {
 
     hideEnemy() {
         if (this.visible) {
+            this.disableLaserTargeting();
             this.playerMarker.remove();
             this.playerRedlineMarker.remove();
             this.playerRangeMarker.remove();
@@ -138,9 +142,121 @@ class Enemy {
         if (this.isHunted == true && this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && this.distance < 0.808) {
             this.defensiveFire();
         }
-        if (this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < this.offensiveRadius && !this.invisble) {
+        if (this.offensiveWeaponType == 'smartMissile' && this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < this.offensiveRadius && !this.invisble) {
             this.fireMissle();
         }
+        if (this.offensiveWeaponType == 'laserCannon' && !this.isFiring && this.distance < this.offensiveRadius + 0.001 && Date.now() - this.lastLaserCannonOverheat >= this.laserCannonConfig.overheatTimeout) {
+            this.fireLaserCannon();
+        }
+    }
+
+
+    enableLaserTargeting(sourceArray, layerArray) {
+        if (
+            sourceArray.indexOf(
+                `LWAS-${this.id}`
+            ) == -1 && !this.invisble
+        ) {
+            sourceArray.push(`LWAS-${this.id}`);
+        }
+        this.map.addSource(`LWAS-${this.id}`, {
+            type: "geojson",
+            data: {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                    type: "LineString",
+                    coordinates: [
+                        [this.coords.lng, this.coords.lat],
+                        [this.target.coords.lng, this.target.coords.lat],
+                    ],
+                },
+            },
+        });
+        if (
+            layerArray.indexOf(
+                `LWA-${this.id}`
+            ) == -1
+        ) {
+            layerArray.push(`LWA-${this.id}`);
+        }
+        this.map.addLayer({
+            id: `LWA-${this.id}`,
+            type: "line",
+            source: `LWAS-${this.id}`,
+            paint: {
+                "line-color": "rgba(255, 0, 36, 0.7)",
+                "line-width": 2,
+            },
+        });
+    }
+
+    disableLaserTargeting() {
+        if (this.map.getLayer(`LWA-${this.id}`)) {
+            this.map.removeLayer(`LWA-${this.id}`);
+        }
+        if (this.map.getSource(`LWAS-${this.id}`)) {
+            this.map.removeSource(`LWAS-${this.id}`);
+        }
+    }
+    fireLaserCannon() {
+        const config = this.laserCannonConfig;
+        let sourceArray = [];
+        let layerArray = [];
+
+        this.isFiring = true;
+
+        const intx = setInterval(() => {
+            if (this.isFiring && !this.invisble) {
+                const sqareLawRaw =
+                    (50 * 0.00808) /
+                    (this.distance * this.distance);
+                const instaEnergyAbsorbtion =
+                    (sqareLawRaw * config.powerScale) / 326432;
+                if (this.targetEnergyAbsorbed != undefined) {
+                    if (this.targetEnergyAbsorbed >= 1) {
+                        this.playerHit();
+                        this.updateTargetEnergyAbsorbed(0);
+                        this.disableLaserTargeting();
+                    } else {
+                        this.updateTargetEnergyAbsorbed(this.targetEnergyAbsorbed += instaEnergyAbsorbtion);
+                        this.disableLaserTargeting();
+                        if (this.targetEnergyAbsorbed < 1) {
+                            this.enableLaserTargeting(
+                                sourceArray,
+                                layerArray,
+                            );
+                        }
+                    }
+                } else {
+                    this.updateTargetEnergyAbsorbed(instaEnergyAbsorbtion);
+                    this.enableLaserTargeting(
+                        sourceArray,
+                        layerArray,
+                    );
+                }
+            } else {
+                this.isFiring = false;
+                clearInterval(intx);
+                for (let lidix = 0; lidix < layerArray.length; lidix++) {
+                    if (this.map.getLayer(layerArray[lidix])) {
+                        this.map.removeLayer(layerArray[lidix]);
+                        this.map.removeSource(sourceArray[lidix]);
+                    }
+                }
+            }
+        }, 100);
+        setTimeout(() => {
+            this.lastLaserCannonOverheat = Date.now();
+            this.isFiring = false;
+            clearInterval(intx);
+            for (let lidix = 0; lidix < layerArray.length; lidix++) {
+                if (this.map.getLayer(layerArray[lidix])) {
+                    this.map.removeLayer(layerArray[lidix]);
+                    this.map.removeSource(sourceArray[lidix]);
+                }
+            }
+        }, config.overheatDuration);
     }
 
     defensiveFire() {

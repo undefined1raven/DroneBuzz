@@ -14,6 +14,7 @@
     import { onDestroy } from "svelte";
     import { getRightCurvedBorder } from "../../fn/dynamicBorders";
     import MisslesCounterDeco from "../deco/MisslesCounterDeco.svelte";
+    import { round } from "@turf/turf";
     const dispatch = createEventDispatcher();
 
     const UAVConfig = UAVConfigFunc();
@@ -23,6 +24,7 @@
     let started;
     let scorestreakArray = ["UAV", "counterUAV", "energyWeapon"];
     let killCount;
+    let energyAbsorbed = 0;
     let scorestreakActiveIndicatorTopHash = {}; //used to set the top for the labels showing active scorestreaks
 
     let dogWatcherInterval;
@@ -88,7 +90,7 @@
         return ((killCount % cost) * 100) / cost;
     }
 
-    export { started, scorestreakArray, killCount };
+    export { started, scorestreakArray, killCount, energyAbsorbed };
 </script>
 
 {#if started}
@@ -289,6 +291,36 @@
                         this={streakMap["energyWeapon"].deco}
                         size="2.05vh"
                         color="#5C41FF"
+                        style="left: 82%;"
+                    /></Label
+                >
+            </div>
+        {/if}
+        {#if energyAbsorbed > 0}
+            <div
+                class="energyWeaponOnlineIndi deployedScorestreakActiveLabelItem"
+                transition:fade={{ duration: 150 }}
+            >
+                <Label
+                    id="energyWeaponOnlineLabel"
+                    left="0%"
+                    color="rgba(255, 0, 30, {energyAbsorbed + 0.2})"
+                    borderColor="#2400FF00"
+                    text="Laser Lock {Math.round(energyAbsorbed.toFixed(2) * 100)}%"
+                    width="96%"
+                    tabletWidth="99%"
+                    height="100%"
+                    horizontalFont="5px"
+                    VerticalFont="8px"
+                    backdropFilter="blur(5px)"
+                    style="{getRightCurvedBorder(
+                        5
+                    )} border-left: solid 1px rgba(255, 0, 30, {energyAbsorbed + 0.2}); justify-content: start; padding-left: 4%; transition: all linear 0.1s; transition: color linear 0s;"
+                    backgroundColor="#5C41FF20"
+                    ><svelte:component
+                        this={streakMap["energyWeapon"].deco}
+                        size="2.05vh"
+                        color="rgba(255, 0, 30, {energyAbsorbed + 0.2})"
                         style="left: 82%;"
                     /></Label
                 >
