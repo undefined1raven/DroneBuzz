@@ -8,7 +8,7 @@ class MarkerElement {
         this.height = height;
     }
 
-    getElement() {
+    getElement(radius, id) {
         var markerContainer = document.createElement('div');
         var marker = document.createElement("img");
         marker.style.width = this.width;
@@ -16,6 +16,10 @@ class MarkerElement {
         marker.style.backgroundSize = "contain";
         marker.src = this.src;
         marker.style.cursor = "pointer";
+
+        if (id) {
+            marker.id = id;
+        }
 
         let demo = document.createElement('h1');
         demo.style.color = "#FFF";
@@ -106,6 +110,21 @@ class EnemyElement {
     }
 }
 
+class WaypointElement {
+    getElement(id) {
+        return new MarkerElement("10%",
+            "10%",
+            "./visual_assets/waypointMarker.svg", id).getElement()
+    }
+}
+
+class WaypointAreaElement {
+    getElement(radius, id) {
+        return new MarkerElement(radius,
+            radius,
+            "./visual_assets/waypointAreaMarker.svg", id).getElement()
+    }
+}
 
 let missleWidth = radiusFromPercentage(1.848341232) + 'px';
 let missleHeight = radiusFromPercentage(1.386255924) + 'px';
@@ -143,4 +162,4 @@ class DefensiveEnemyMissleElement {
 }
 
 
-export { DefensiveEnemyMissleElement, DefensiveFriendlyMissleElement, FriendlyMissleElement, EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }
+export { WaypointAreaElement, WaypointElement, DefensiveEnemyMissleElement, DefensiveFriendlyMissleElement, FriendlyMissleElement, EnemyElement, BluelineElement, RangeElement, PlayerElement, MarkerElement, RedlineElement, DefenceLineElement, EnemyDefenceLine, MissleElement, PlayerRangeElement }

@@ -17,8 +17,15 @@
 	import Scorestreaks from "./components/GameOverlay/Scorestreaks.svelte";
 	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
 	import { pulsingDot } from "./fn/pulsingDot.js";
+	import addWaypoint from "./fn/addWaypoint.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
-	import { booleanPointInPolygon, point, polygon } from "@turf/turf";
+	import {
+		booleanPointInPolygon,
+		point,
+		polygon,
+		bearing,
+		bearingToAngle,
+	} from "@turf/turf";
 	import cartesianDistance from "./fn/cartesianDistance";
 	import killsObjective from "./config/objectives/Kills";
 	import durationObjective from "./config/objectives/Duration";
@@ -37,6 +44,7 @@
 	import UAVConfigFunc from "./config/scorestreaks/UAV.js";
 	import CalibrationOverlay from "./components/GameOverlay/CalibrationOverlay.svelte";
 	import counterUAVConfig from "./config/scorestreaks/counterUAV";
+	import WaypointIndi from "./components/deco/WaypointIndi.svelte";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -115,8 +123,6 @@
 		};
 	}
 
-	$: console.log(energyAbsorbed);
-
 	//---| Page State
 	let isFullscreen = false;
 	let clientWidth = root.clientWidth;
@@ -171,6 +177,7 @@
 	let displayNlatFromPicker = lat;
 	let displayNlngFromPicker = lng;
 
+	let waypointHeading = 0;
 	let energyAbsorbed = 0;
 	let ang = 0;
 	let misslecooldown = 500;
@@ -201,6 +208,48 @@
 			localStorage.setItem("best", deadTime - startTime);
 		}
 	}
+
+	setInterval(() => {
+		let enemy = getNearestEnemy(enemies);
+
+		let targetLng = lng; //25.57277113378028
+		let targetLat = lat; //45.64908858132366
+		let targetLng1 = 26.07306688827199; //25.57277113378028
+		let targetLat1 = 44.44779305032908; //45.64908858132366
+
+		// let p1 = point([targetLng, targetLat]);
+		// let p2 = point([targetLng1, targetLat1]);
+		// let bear = bearing(p1, p2, { final: true });
+		// console.log(`${bear} | ${lat} | ${lng}`);
+		// waypointHeading = bear;
+
+		let B = targetLng - targetLng1;
+
+		let distance = cartesianDistance(
+			{
+				lng: targetLng,
+				lat: targetLat,
+			},
+			{ lng: targetLng1, lat: targetLat1 }
+		);
+
+		if (targetLat >= targetLat1) {
+			waypointHeading =
+				(Math.acos((B / distance).toFixed(15)) * 57.29578 - 90) * -1 -
+				180;
+		} else {
+			let actualBearing = RangeScaler(
+				Math.abs(
+					Math.acos((B / distance).toFixed(15)) * 57.29578 + 180
+				),
+				180,
+				360,
+				360,
+				180
+			);
+			waypointHeading = (actualBearing - 90) * -1 - 180;
+		}
+	}, 50);
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -625,6 +674,7 @@
 			started = true;
 			startTime = Date.now();
 			for (let ix = 0; ix <= 21; ix++) {
+				//21
 				let ncoords = new getRandomCoords(lng, lat, 15).get();
 				let id = `${Math.random().toFixed(4) + Date.now()}`;
 				let eni = new Enemy({
@@ -678,7 +728,7 @@
 				///---| Game Loop
 				setInterval(() => {
 					energyAbsorbed -= 0.0015;
-				}, 50)
+				}, 50);
 				setInterval(() => {
 					if (!isPaused) {
 						if (ang <= 180 && ang > 0 && ang != -1) {
@@ -774,6 +824,7 @@
 						) {
 							lastEnemyRefresh = Date.now();
 							for (let ix = 0; ix <= enemyWaveCount; ix++) {
+								//enemyWaveCount
 								let ncoords = new getRandomCoords(
 									lng,
 									lat,
@@ -893,6 +944,15 @@
 	onMount(() => {
 		updateBest();
 		map.on("load", () => {
+			let targetLng = 44.44779305032908; //25.57277113378028
+			let targetLat = 26.07306688827199; //45.64908858132366
+			let p1 = point([targetLng, targetLat]);
+
+			addWaypoint(map, "100vh", { lng: targetLng, lat: targetLat });
+			addWaypoint(map, "20vh", { lng: targetLng + 0.005, lat: targetLat - 0.0004 });
+			addWaypoint(map, "35vh", { lng: targetLng - 0.00005, lat: targetLat + 0.0028 });
+			addWaypoint(map, "50vh", { lng: targetLng + 0.00078, lat: targetLat - 0.0004 });
+
 			map.dragRotate.disable();
 			map.touchZoomRotate.disableRotation();
 			map.setMinPitch(0);
@@ -1393,6 +1453,15 @@
 		backdropFilter="blur(3px)"
 		style="z-index: 1000000;"
 	/>{/if}
+{#if started}
+	<WaypointIndi
+		color="#6C54FF"
+		width="10vh"
+		height="auto"
+		style="z-index: 500; left: 50%; top: 40%;"
+		rotation={`${waypointHeading}deg`}
+	/>
+{/if}
 
 <style lang="scss">
 	:global(body) {
