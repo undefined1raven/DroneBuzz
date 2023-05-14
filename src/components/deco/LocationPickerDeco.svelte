@@ -3,6 +3,7 @@
     let size;
     let tabletSize;
     let sizeActual;
+    let show = false;
 
     const root = document.documentElement;
     if (root.clientWidth < 1023) {
@@ -12,7 +13,7 @@
     }
 
     import { onMount, onDestroy } from "svelte";
-    export { style, size, tabletSize };
+    export { style, size, tabletSize, show };
     let opacities = [];
     let interval;
     onMount(() => {
@@ -37,7 +38,7 @@
         }
     }
 </script>
-
+{#if show}
 <svg
     width={sizeActual}
     height={size ? size : "5vh"}
@@ -112,7 +113,7 @@
         fill-opacity={opacities[6]}
     />
 </svg>
-
+{/if}
 <style>
     rect,
     circle {

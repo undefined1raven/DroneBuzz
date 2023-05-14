@@ -31,6 +31,7 @@
 	import durationObjective from "./config/objectives/Duration";
 	import energyWeaponConfigFunc from "./config/scorestreaks/energyWeapon";
 	import LaserCannonConfigFunc from "./config/weapons/LaserCannon";
+	import getDisplayRadius from "./fn/getDisplayRadius.js";
 	const energyWeaponConfig = energyWeaponConfigFunc();
 	const LaserCannonConfig = LaserCannonConfigFunc();
 
@@ -45,6 +46,7 @@
 	import CalibrationOverlay from "./components/GameOverlay/CalibrationOverlay.svelte";
 	import counterUAVConfig from "./config/scorestreaks/counterUAV";
 	import WaypointIndi from "./components/deco/WaypointIndi.svelte";
+	import WaypointEditorOverlay from "./components/GameOverlay/WaypointEditorOverlay.svelte";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -129,6 +131,7 @@
 	let clientHeight = root.clientHeight;
 	let menuState = "menu";
 	let isPickingLocation = false;
+	let isEditingWaypoints = false;
 	let locationPreviewOverride = true; // control for the SurvivalRunSetup Location Preview button that has to be scoped here
 
 	//---| Game State
@@ -688,13 +691,24 @@
 			if (!isRestart) {
 				let bluelinePercentage = 36.966824645;
 				let rangePercentage = 55.450236967;
-				let defenceline = new DefenceLineElement("20%").getElement();
+				let defenceline = new DefenceLineElement(
+					getDisplayRadius(
+						(7 / 100) * horizontalScreenDistance,
+						horizontalScreenDistance
+					)
+				).getElement();
 				let blueline = new BluelineElement(
-					`${radiusFromPercentage(bluelinePercentage)}px`
+					getDisplayRadius(
+						(11.644063474 / 100) * horizontalScreenDistance,
+						horizontalScreenDistance
+					)
 				).getElement();
 				let playerElement = new PlayerElement().getElement();
 				let rangeline = new PlayerRangeElement(
-					`${radiusFromPercentage(rangePercentage)}px`
+					getDisplayRadius(
+						(17.644063474 / 100) * horizontalScreenDistance,
+						horizontalScreenDistance
+					)
 				).getElement();
 				var playerMarker = new maplibre.Marker(playerElement)
 					.setLngLat([lng, lat])
@@ -949,9 +963,18 @@
 			let p1 = point([targetLng, targetLat]);
 
 			addWaypoint(map, "100vh", { lng: targetLng, lat: targetLat });
-			addWaypoint(map, "20vh", { lng: targetLng + 0.005, lat: targetLat - 0.0004 });
-			addWaypoint(map, "35vh", { lng: targetLng - 0.00005, lat: targetLat + 0.0028 });
-			addWaypoint(map, "50vh", { lng: targetLng + 0.00078, lat: targetLat - 0.0004 });
+			addWaypoint(map, "20vh", {
+				lng: targetLng + 0.005,
+				lat: targetLat - 0.0004,
+			});
+			addWaypoint(map, "35vh", {
+				lng: targetLng - 0.00005,
+				lat: targetLat + 0.0028,
+			});
+			addWaypoint(map, "50vh", {
+				lng: targetLng + 0.00078,
+				lat: targetLat - 0.0004,
+			});
 
 			map.dragRotate.disable();
 			map.touchZoomRotate.disableRotation();
@@ -1022,7 +1045,8 @@
 		)[0];
 		if (targetMissle != undefined) {
 			if (
-				targetMissle.distance < 0.00425082508 &&
+				targetMissle.distance <
+					(7 / 100) * horizontalScreenDistance + 0.001 &&
 				friendlyDefensiveMissles.length <=
 					maxConcurentCountermeasuresCount &&
 				Date.now() - lastDefensiveMissleFire > defensiveMissleCooldown
@@ -1037,7 +1061,11 @@
 					`${Math.random()}-${Date.now()}`,
 					0,
 					true,
-					missleMvs
+					missleMvs,
+					{
+						horizontal: horizontalScreenDistance,
+						vertical: verticalScreenDistance,
+					}
 				);
 				friendlyDefensiveMissles.push(friendlyDefenisveMissle);
 			}
@@ -1059,7 +1087,9 @@
 		if (targetEnemy != undefined) {
 			if (survivalRunConfig.offensiveWeapon === "smartMissile") {
 				if (
-					targetEnemy.distance < 0.00725082508 &&
+					targetEnemy.distance <
+						(17.644063474 / 100) * horizontalScreenDistance +
+							0.0008 &&
 					friendlyMissles.length <= maxConcurentMissileCount &&
 					Date.now() - lastMissleFire > misslecooldown
 				) {
@@ -1073,12 +1103,19 @@
 						`${Math.random()}-${Date.now()}`,
 						0,
 						true,
-						missleMvs
+						missleMvs,
+						{
+							horizontal: horizontalScreenDistance,
+							vertical: verticalScreenDistance,
+						}
 					);
 					friendlyMissles.push(friendlyMissle);
 				}
 			}
-			if (targetEnemy.distance < 0.00808) {
+			if (
+				targetEnemy.distance <
+				(17.644063474 / 100) * horizontalScreenDistance + 0.002
+			) {
 				if (survivalRunConfig.offensiveWeapon === "laserCannon") {
 					fireEnergyWeaponStreak(
 						{ energyWeapon: false },
@@ -1239,6 +1276,20 @@
 			"px"
 		}`;
 	}
+
+	function setWaypointEditor(e){
+		if (e.detail) {
+			showMenu = false;
+			locationPreviewOverride = false;
+			isEditingWaypoints = true;
+			map.setMinZoom(0);
+		} else {
+			isEditingWaypoints = false;
+			showMenu = true;
+			locationPreviewOverride = true;
+			map.setMinZoom(14);
+		}
+	}
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:resize={onWindowResize} />
@@ -1367,6 +1418,9 @@
 <MainMenu
 	{started}
 	{isFullscreen}
+	on:setWaypointEditor={(e) => {
+		setWaypointEditor(e)
+	}}
 	on:stateChange={(e) => {
 		menuState = e.detail;
 	}}
@@ -1421,12 +1475,13 @@
 		/></Label
 	>
 {/if}
+<LoactionPickerDeco
+	show={isPickingLocation || isEditingWaypoints}
+	size="8vh"
+	tabletSize="6vh"
+	style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20000;"
+/>
 {#if isPickingLocation}
-	<LoactionPickerDeco
-		size="8vh"
-		tabletSize="6vh"
-		style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20000;"
-	/>
 	<LocationPickerOverlay
 		on:newLocationPicked={() => {
 			lat = displayNlatFromPicker;
@@ -1462,6 +1517,7 @@
 		rotation={`${waypointHeading}deg`}
 	/>
 {/if}
+<WaypointEditorOverlay show={isEditingWaypoints} on:setWaypointEditor={(e) => setWaypointEditor(e)} />
 
 <style lang="scss">
 	:global(body) {

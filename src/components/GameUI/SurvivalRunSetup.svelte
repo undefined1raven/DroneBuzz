@@ -316,6 +316,7 @@
         style={getRightCurvedBorder(5)}
     />
     <SurvivalRunObjectivesSetup
+        on:setWaypointEditor
         on:onObjective={(e) => {
             runConfig.objective = e.detail.objective;
         }}

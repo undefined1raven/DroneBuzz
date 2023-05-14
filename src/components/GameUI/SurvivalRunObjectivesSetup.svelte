@@ -149,6 +149,7 @@
                 objective.type = "waypoints";
                 objective.config = { waypoints: [] };
                 objectiveType = "waypoints";
+                dispatch("setWaypointEditor", true);
             }}
             label="Waypoints"
             top="29.613733906%"

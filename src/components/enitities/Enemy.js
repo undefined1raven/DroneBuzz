@@ -4,7 +4,8 @@ import { RangeScaler } from "../../fn/RangeScaler.js";
 import { Missle } from "./Missle.js";
 import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
 import LaserCannonConfig from "../../config/weapons/LaserCannon.js";
-
+import cartesianDistance from '../../fn/cartesianDistance.js';
+import getDisplayRadius from '../../fn/getDisplayRadius.js'
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     var R = 6371; // Radius of the earth in km
@@ -99,8 +100,8 @@ class Enemy {
     }
 
     addEnemy() {
-        let redline = new RedlineElement(`${this.renderedOffensiveRadius}px`).getElement();
-        let rangeline = new RangeElement(`${radiusFromPercentage(55.450236967)}px`).getElement();
+        let redline = new RedlineElement(getDisplayRadius((9 / 100) * this.screenDistanceObj.horizontal, this.screenDistanceObj.horizontal)).getElement();
+        let rangeline = new RangeElement(getDisplayRadius((15 / 100) * this.screenDistanceObj.horizontal, this.screenDistanceObj.horizontal)).getElement();
         var playerMarker = new maplibre.Marker(this.enemyElement, {})
             .setLngLat([this.coords.lng, this.coords.lat])
             .addTo(this.map);
@@ -139,13 +140,13 @@ class Enemy {
     }
 
     onDistanceUpdate(enemyID) {
-        if (this.isHunted == true && this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && this.distance < 0.808) {
+        if (this.isHunted == true && this.countermeasuresCount > 0 && !this.invisble && Date.now() - this.lastDefensiveMissle >= this.countermeasuresCooldown && this.distance < ((10 / 100) * this.screenDistanceObj.horizontal) + 0.001) {
             this.defensiveFire();
         }
-        if (this.offensiveWeaponType == 'smartMissile' && this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < this.offensiveRadius && !this.invisble) {
+        if (this.offensiveWeaponType == 'smartMissile' && this.missleCount > 0 && (this.lastMissle == 0 || Date.now() - this.lastMissle >= this.missleCooldown) && this.distance < ((9 / 100) * this.screenDistanceObj.horizontal) + 0.001 && !this.invisble) {
             this.fireMissle();
         }
-        if (this.offensiveWeaponType == 'laserCannon' && !this.isFiring && this.distance < this.offensiveRadius + 0.001 && Date.now() - this.lastLaserCannonOverheat >= this.laserCannonConfig.overheatTimeout) {
+        if (this.offensiveWeaponType == 'laserCannon' && !this.isFiring && this.distance < ((9 / 100) * this.screenDistanceObj.horizontal) + 0.003 && Date.now() - this.lastLaserCannonOverheat >= this.laserCannonConfig.overheatTimeout) {
             this.fireLaserCannon();
         }
     }
@@ -261,22 +262,22 @@ class Enemy {
 
     defensiveFire() {
         this.lastDefensiveMissle = Date.now();
-        let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.defensiveMissleMvs);
+        let defensiveMissle = new Missle(this.map, this.coords, 0.0008, 'defensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.defensiveMissleMvs, this.screenDistanceObj);
         this.enemyDefensiveMissles.push(defensiveMissle);
         this.countermeasuresCount--;
     }
 
     fireMissle() {
         this.lastMissle = Date.now();
-        let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.missleMvs);
+        let missle = new Missle(this.map, this.coords, 0.00008, 'offensive', '', `${Math.random()}-${Date.now()}`, 0, false, this.missleMvs, this.screenDistanceObj);
         this.missleArr.push(missle);
         this.missleCount--;
     }
 
     draw(coords) {
         if (coords != undefined) {
-            let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
-            if (distance < 0.808) {
+            let distance = cartesianDistance({ lat: coords.lat, lng: coords.lng }, { lat: this.coords.lat, lng: this.coords.lng });
+            if (distance < ((17.644063474 / 100) * this.screenDistanceObj.horizontal) + 0.001) {
                 if (!this.visible && !this.invisble) {
                     this.addEnemy();
                     this.visible = true;

@@ -169,6 +169,7 @@
         {/if}
         {#if activeWindowID == "survivalRunSetup"}
             <SurvivalRunSetup
+                on:setWaypointEditor
                 on:locationPreviewOverrideUpdate
                 on:onLocationPick
                 onBack={() => {

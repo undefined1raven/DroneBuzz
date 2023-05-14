@@ -2,30 +2,11 @@ import { DefensiveFriendlyMissleElement, RedlineElement, BluelineElement, Missle
 import maplibre from "maplibre-gl";
 import { RangeScaler } from "../../fn/RangeScaler.js";
 import radiusFromPercentage from "../../fn/radiusFromPercentage.js";
-
-
-
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-    var dLon = deg2rad(lon2 - lon1);
-    var a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        ;
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180)
-}//thx stackoverflow
-
+import getDisplayRadius from "../../fn/getDisplayRadius.js";
+import cartesianDistance from "../../fn/cartesianDistance.js";
 
 class Missle {
-    constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly, mvs) {
+    constructor(map, coords, killRadius, type, destrory, id, distance, isFriendly, mvs, screenDistanceObj) {
         this.id = id;
         this.map = map;
         this.coords = coords;
@@ -52,7 +33,8 @@ class Missle {
         this.killRadius = killRadius;
         this.distance = 1000000;
         this.invisble = false;
-        this.colorlineRadiusHash = { 'offensive': radiusFromPercentage(4.620853081) + 'px', 'defensive': radiusFromPercentage(2.31042654) + 'px' };
+        this.screenDistanceObj = screenDistanceObj;
+        this.colorlineRadiusHash = { 'offensive': getDisplayRadius((1.7 / 100) * this.screenDistanceObj.horizontal, this.screenDistanceObj.horizontal), 'defensive': getDisplayRadius((1.3 / 100) * this.screenDistanceObj.horizontal, this.screenDistanceObj.horizontal) };
         this.targetID = 0;
         this.mvs = mvs;
     }
@@ -121,8 +103,8 @@ class Missle {
 
     draw(coords) {
         if (coords != undefined) {
-            let distance = getDistanceFromLatLonInKm(coords.lat, coords.lng, this.coords.lat, this.coords.lng);
-            if (distance < 0.808) {
+            let distance = cartesianDistance({ lat: coords.lat, lng: coords.lng }, { lat: this.coords.lat, lng: this.coords.lng });
+            if (distance < ((17.644063474 / 100) * this.screenDistanceObj.horizontal) + 0.001) {
                 if (!this.visible && !this.invisble) {
                     this.addEnemy();
                     this.visible = true;
