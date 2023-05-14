@@ -1304,7 +1304,7 @@
 		bind:map
 	/>
 	<div
-		style="display: {showCalibration || isPickingLocation
+		style="display: {showCalibration || isPickingLocation || isEditingWaypoints
 			? 'none'
 			: 'flex'}"
 		class="joy"
