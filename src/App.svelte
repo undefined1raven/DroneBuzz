@@ -983,7 +983,7 @@
 			map.setMaxPitch(0);
 			onWindowResize();
 			map.on("move", (e) => {
-				if (isPickingLocation) {
+				if (isPickingLocation || isEditingWaypoints) {
 					const nlng = map.getCenter().lng;
 					const nlat = map.getCenter().lat;
 					displayNlatFromPicker = nlat;
@@ -1521,7 +1521,11 @@
 	/>
 {/if}
 <WaypointEditorOverlay
-	on:addWaypointCall={() => addWaypointFromEditor({ lng: displayNlngFromPicker.toFixed(5), lat: displayNlatFromPicker.toFixed(5) })}
+	on:addWaypointCall={() =>
+		addWaypointFromEditor({
+			lng: displayNlngFromPicker.toFixed(5),
+			lat: displayNlatFromPicker.toFixed(5),
+		})}
 	bind:addWaypointFromEditor
 	show={isEditingWaypoints}
 	on:setWaypointEditor={(e) => setWaypointEditor(e)}
