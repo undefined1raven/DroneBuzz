@@ -8,6 +8,7 @@
     const dispatch = createEventDispatcher();
     let show = false;
     let waypoints = [];
+    let selectedWaypointIndex = -1;
 
     const addWaypointFromEditor = (coords) => {
         if (waypoints.length > 0) {
@@ -23,6 +24,7 @@
                 {
                     distance: distanceBetweenWaypoints.toFixed(2),
                     coords: coords,
+                    selected: false,
                 },
             ];
         } else {
@@ -31,6 +33,7 @@
                 {
                     distance: 0,
                     coords: coords,
+                    selected: false,
                 },
             ];
         }
@@ -38,9 +41,62 @@
             document.getElementById("waypointList").scrollHeight;
     };
 
+    function onSelectedWaypoint(e) {
+        if (waypoints[selectedWaypointIndex] != undefined) {
+            waypoints[selectedWaypointIndex].selected = false;
+        }
+        selectedWaypointIndex = e.detail.index;
+        waypoints[selectedWaypointIndex].selected = true;
+    }
+
+    function removeWaypoint() {
+        let newArr = [];
+        for (let ix = 0; ix < waypoints.length; ix++) {
+            if (ix != selectedWaypointIndex) {
+                if (ix != selectedWaypointIndex + 1) {
+                    newArr.push(waypoints[ix]);
+                }
+            } else {
+                if (ix != waypoints.length - 1) {
+                    const updatedDistance = distance(
+                        [
+                            waypoints[ix - 1].coords.lng,
+                            waypoints[ix - 1].coords.lat,
+                        ],
+                        [
+                            waypoints[ix + 1].coords.lng,
+                            waypoints[ix + 1].coords.lat,
+                        ],
+                        { units: "kilometers" }
+                    );
+                    newArr.push({
+                        ...waypoints[ix + 1],
+                        distance: updatedDistance.toFixed(2),
+                    });
+                }
+            }
+        }
+        waypoints = newArr;
+    }
+
     export { show, addWaypointFromEditor };
 </script>
 
+<svelte:window
+    on:click={(e) => {
+        if (
+            e.target.className
+                .toString()
+                .split(" ")
+                .indexOf("waypointContainerElement") == -1
+        ) {
+            if (waypoints[selectedWaypointIndex] != undefined) {
+                waypoints[selectedWaypointIndex].selected = false;
+            }
+            selectedWaypointIndex = -1;
+        }
+    }}
+/>
 {#if show}
     <div class="waypointEditorContainer">
         <div
@@ -61,32 +117,54 @@
                 />
                 {#each waypoints as waypoint, ix}
                     <WaypointCard
+                        on:onSelectedWaypoint={onSelectedWaypoint}
                         ix={ix + 1}
                         distance={waypoint.distance}
                         coords={waypoint.coords}
+                        selected={waypoint.selected}
                     />
                 {/each}
             </ul>
         </div>
+        {#if selectedWaypointIndex != -1}
+            <Button
+                onClick={removeWaypoint}
+                label="Remove Waypoint"
+                horizontalFont="10px"
+                left="31%"
+                width="18.59375%"
+                height="7.222222222%"
+                color="#FF0010"
+                borderColor="#FF0010"
+                backgroundColor="#FF001020"
+                style="border-radius: {getDynamicBorderRadius(5)};"
+                backdropFilter="blur(5px)"
+                top="89.722222222%"
+            />
+        {/if}
+        {#if selectedWaypointIndex == -1}
+            <Button
+                onClick={() => dispatch("addWaypointCall")}
+                label="Add Waypoint"
+                horizontalFont="10px"
+                left="50%"
+                width="18.59375%"
+                height="7.222222222%"
+                color="#FFF"
+                borderColor="#2400FF"
+                backgroundColor="#2400FF20"
+                style="border-radius: {getDynamicBorderRadius(
+                    5
+                )}; transform: translate(-50%);"
+                backdropFilter="blur(5px)"
+                top="89.722222222%"
+            />
+        {/if}
         <Button
             onClick={() => dispatch("setWaypointEditor", false)}
             label="Done"
             horizontalFont="10px"
             left="0.625%"
-            width="18.59375%"
-            height="7.222222222%"
-            color="#FFF"
-            borderColor="#2400FF"
-            backgroundColor="#2400FF20"
-            style="border-radius: {getDynamicBorderRadius(5)};"
-            backdropFilter="blur(5px)"
-            top="89.722222222%"
-        />
-        <Button
-            onClick={() => dispatch("addWaypointCall")}
-            label="Add Waypoint"
-            horizontalFont="10px"
-            left="31.5625%"
             width="18.59375%"
             height="7.222222222%"
             color="#FFF"
