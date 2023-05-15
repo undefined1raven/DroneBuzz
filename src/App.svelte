@@ -1521,6 +1521,9 @@
 	/>
 {/if}
 <WaypointEditorOverlay
+	{map}
+	currentLat={displayNlatFromPicker}
+	currentLng={displayNlngFromPicker}
 	on:addWaypointCall={() =>
 		addWaypointFromEditor({
 			lng: displayNlngFromPicker.toFixed(5),
