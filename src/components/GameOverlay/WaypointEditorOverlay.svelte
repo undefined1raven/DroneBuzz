@@ -7,11 +7,15 @@
     const dispatch = createEventDispatcher();
     let show = false;
     let waypoints = [
-        { distance: 0, coords: {lng: 44.15155, lat: 24.69412} },
-        { distance: 0, coords: {lng: 44.15155, lat: 24.69412} },
-        { distance: 0, coords: {lng: 44.15155, lat: 24.69412} },
-        { distance: 0, coords: {lng: 44.15155, lat: 24.69412} },
-        { distance: 0, coords: {lng: 44.15155, lat: 24.69412} },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
+        { distance: 0, coords: { lng: 44.15155, lat: 24.69412 } },
     ];
     export { show };
 </script>
@@ -19,17 +23,9 @@
 {#if show}
     <div class="waypointEditorContainer">
         <div
-            on:click={() => dispatch("setWaypointEditor", false)}
             class="waypointsContainer"
             style="border-radius: {getDynamicBorderRadius(5)}"
         >
-            <Label
-                text="Waypoint Editor"
-                horizontalFont="8px"
-                color="#BEB4FF"
-                top="2.675585284%"
-                left="3.361344538%"
-            />
             <ul class="waypointList">
                 {#each waypoints as waypoint, ix}
                     <WaypointCard
@@ -40,6 +36,20 @@
                 {/each}
             </ul>
         </div>
+        <Button
+            onClick={() => dispatch("setWaypointEditor", false)}
+            label="Done"
+            horizontalFont="10px"
+            left="0.625%"
+            width="18.59375%"
+            height="7.222222222%"
+            color="#FFF"
+            borderColor="#2400FF"
+            backgroundColor="#2400FF20"
+            style="border-radius: {getDynamicBorderRadius(5)};"
+            backdropFilter="blur(5px)"
+            top="89.722222222%"
+        />
     </div>
 {/if}
 
@@ -47,20 +57,30 @@
     .waypointsContainer {
         position: absolute;
         top: 3.333333333%;
-        left: 1.875%;
-        width: 18.59375%;
-        height: 83.055555556%;
-        background-color: #2400ff20;
-        backdrop-filter: blur(5px);
+        left: 0.775%;
+        width: 18.740375%;
+        height: 85.055555556%;
     }
     .waypointList {
         position: absolute;
-        top: 7.692307692%;
+        top: 0%;
         left: 0%;
         width: 100%;
-        height: 90.969899666%;
-        background-color: #2400ff20;
+        height: 100%;
         padding: 0;
         margin: 0;
+        overflow-y: scroll;
+    }
+    .waypointList::-webkit-scrollbar {
+        width: 0vh;
+        height: 0vh;
+    }
+
+    .waypointList::-webkit-scrollbar-thumb {
+        background: #2400ff;
+    }
+    .waypointList::-webkit-scrollbar-track {
+        /* Background */
+        background: #00008300;
     }
 </style>
