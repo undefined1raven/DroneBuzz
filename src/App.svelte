@@ -149,6 +149,7 @@
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
 	let isPaused = false;
+	let addWaypointFromEditor;
 
 	let lastUAVSweep = Date.now();
 	let UAVContactsHash = {};
@@ -1277,7 +1278,7 @@
 		}`;
 	}
 
-	function setWaypointEditor(e){
+	function setWaypointEditor(e) {
 		if (e.detail) {
 			showMenu = false;
 			locationPreviewOverride = false;
@@ -1304,7 +1305,9 @@
 		bind:map
 	/>
 	<div
-		style="display: {showCalibration || isPickingLocation || isEditingWaypoints
+		style="display: {showCalibration ||
+		isPickingLocation ||
+		isEditingWaypoints
 			? 'none'
 			: 'flex'}"
 		class="joy"
@@ -1419,7 +1422,7 @@
 	{started}
 	{isFullscreen}
 	on:setWaypointEditor={(e) => {
-		setWaypointEditor(e)
+		setWaypointEditor(e);
 	}}
 	on:stateChange={(e) => {
 		menuState = e.detail;
@@ -1517,7 +1520,12 @@
 		rotation={`${waypointHeading}deg`}
 	/>
 {/if}
-<WaypointEditorOverlay show={isEditingWaypoints} on:setWaypointEditor={(e) => setWaypointEditor(e)} />
+<WaypointEditorOverlay
+	on:addWaypointCall={() => addWaypointFromEditor({ lng: lng.toFixed(5), lat: lat.toFixed(5) })}
+	bind:addWaypointFromEditor
+	show={isEditingWaypoints}
+	on:setWaypointEditor={(e) => setWaypointEditor(e)}
+/>
 
 <style lang="scss">
 	:global(body) {
