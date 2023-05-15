@@ -1521,7 +1521,7 @@
 	/>
 {/if}
 <WaypointEditorOverlay
-	on:addWaypointCall={() => addWaypointFromEditor({ lng: lng.toFixed(5), lat: lat.toFixed(5) })}
+	on:addWaypointCall={() => addWaypointFromEditor({ lng: displayNlngFromPicker.toFixed(5), lat: displayNlatFromPicker.toFixed(5) })}
 	bind:addWaypointFromEditor
 	show={isEditingWaypoints}
 	on:setWaypointEditor={(e) => setWaypointEditor(e)}
