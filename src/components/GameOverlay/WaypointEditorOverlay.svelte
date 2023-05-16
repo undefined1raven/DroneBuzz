@@ -25,6 +25,29 @@
         drawLine(map, 2, lineCoords, "Wayguide", "#2400FF");
     }
 
+    function redrawMarkers() {
+        for (let key in waypointMarkers) {
+            waypointMarkers[key].marker.remove();
+            waypointMarkers[key].markerArea.remove();
+        }
+        waypointMarkers = {};
+        for (let ix = 0; ix < waypoints.length; ix++) {
+            const currentWaypointCoords = waypoints[ix].coords;
+            waypointMarkers[
+                `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
+            ] = addWaypoint(
+                map,
+                "10vh",
+                {
+                    lng: currentWaypointCoords.lat,
+                    lat: currentWaypointCoords.lng,
+                },
+                `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
+                ix + 1
+            );
+        }
+    }
+
     const addWaypointFromEditor = (coords) => {
         if (waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] == undefined) {
             if (waypoints.length > 0) {
@@ -119,26 +142,7 @@
             }
         }
         waypoints = newArr;
-        for (let key in waypointMarkers) {
-            waypointMarkers[key].marker.remove();
-            waypointMarkers[key].markerArea.remove();
-        }
-        waypointMarkers = {};
-        for (let ix = 0; ix < waypoints.length; ix++) {
-            const currentWaypointCoords = waypoints[ix].coords;
-            waypointMarkers[
-                `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
-            ] = addWaypoint(
-                map,
-                "10vh",
-                {
-                    lng: currentWaypointCoords.lat,
-                    lat: currentWaypointCoords.lng,
-                },
-                `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
-                ix + 1
-            );
-        }
+        redrawMarkers();
         updateLine();
     }
 
@@ -197,6 +201,7 @@
             }
         }
         waypoints = newArr;
+        redrawMarkers();
         updateLine();
     }
 

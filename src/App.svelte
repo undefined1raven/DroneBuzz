@@ -961,22 +961,6 @@
 		map.on("load", () => {
 			let targetLng = 44.44779305032908; //25.57277113378028
 			let targetLat = 26.07306688827199; //45.64908858132366
-			let p1 = point([targetLng, targetLat]);
-
-			addWaypoint(map, "100vh", { lng: targetLng, lat: targetLat });
-			addWaypoint(map, "20vh", {
-				lng: targetLng + 0.005,
-				lat: targetLat - 0.0004,
-			});
-			addWaypoint(map, "35vh", {
-				lng: targetLng - 0.00005,
-				lat: targetLat + 0.0028,
-			});
-			addWaypoint(map, "50vh", {
-				lng: targetLng + 0.00078,
-				lat: targetLat - 0.0004,
-			});
-
 			map.dragRotate.disable();
 			map.touchZoomRotate.disableRotation();
 			map.setMinPitch(0);
