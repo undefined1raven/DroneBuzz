@@ -118,14 +118,13 @@
                 }
             }
         }
-        waypoints = newArr;
         for (key in waypointMarkers) {
             waypointMarkers[key].marker.remove();
             waypointMarkers[key].markerArea.remove();
         }
         waypointMarkers = {};
-        for (let ix = 0; ix < waypoints.length; ix++) {
-            const currentWaypointCoords = waypoints[ix].coords;
+        for (let ix = 0; ix < newArr.length; ix++) {
+            const currentWaypointCoords = newArr[ix].coords;
             waypointMarkers[
                 `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
             ] = addWaypoint(
@@ -139,6 +138,7 @@
                 ix + 1
             );
         }
+        waypoints = newArr;
     }
 
     function updateWaypoint() {
