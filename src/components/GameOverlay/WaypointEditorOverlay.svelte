@@ -17,8 +17,7 @@
     let currentLat = 0;
     let waypointMarkers = {};
 
-    $: onWaypointsChange(waypoints);
-    function onWaypointsChange() {
+    function updateLine() {
         let lineCoords = waypoints.map((waypoint) => [
             waypoint.coords.lng,
             waypoint.coords.lat,
@@ -27,44 +26,44 @@
     }
 
     const addWaypointFromEditor = (coords) => {
-        // if (waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] == undefined) {
-        if (waypoints.length > 0) {
-            let prevWaypointCoords = waypoints[waypoints.length - 1].coords;
-            let currentWaypointCoords = coords;
-            const distanceBetweenWaypoints = distance(
-                [prevWaypointCoords.lng, prevWaypointCoords.lat],
-                [currentWaypointCoords.lng, currentWaypointCoords.lat],
-                { units: "kilometers" }
+        if (waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] == undefined) {
+            if (waypoints.length > 0) {
+                let prevWaypointCoords = waypoints[waypoints.length - 1].coords;
+                let currentWaypointCoords = coords;
+                const distanceBetweenWaypoints = distance(
+                    [prevWaypointCoords.lng, prevWaypointCoords.lat],
+                    [currentWaypointCoords.lng, currentWaypointCoords.lat],
+                    { units: "kilometers" }
+                );
+                waypoints = [
+                    ...waypoints,
+                    {
+                        distance: distanceBetweenWaypoints.toFixed(2),
+                        coords: coords,
+                        selected: false,
+                    },
+                ];
+            } else {
+                waypoints = [
+                    ...waypoints,
+                    {
+                        distance: 0,
+                        coords: coords,
+                        selected: false,
+                    },
+                ];
+            }
+            waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] = addWaypoint(
+                map,
+                "10vh",
+                { lng: coords.lat, lat: coords.lng }, //fml we should really figure this out
+                `${coords.lat}|${coords.lng}`,
+                waypoints.length
             );
-            waypoints = [
-                ...waypoints,
-                {
-                    distance: distanceBetweenWaypoints.toFixed(2),
-                    coords: coords,
-                    selected: false,
-                },
-            ];
-        } else {
-            waypoints = [
-                ...waypoints,
-                {
-                    distance: 0,
-                    coords: coords,
-                    selected: false,
-                },
-            ];
+            document.getElementById("waypointList").scrollTop =
+                document.getElementById("waypointList").scrollHeight;
+            updateLine();
         }
-        waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] = addWaypoint(
-            map,
-            "10vh",
-            { lng: coords.lat, lat: coords.lng }, //fml we should really figure this out
-            `${coords.lat}|${coords.lng}`,
-            waypoints.length
-        );
-
-        document.getElementById("waypointList").scrollTop =
-            document.getElementById("waypointList").scrollHeight;
-        // }
     };
 
     function onSelectedWaypoint(e) {
@@ -139,8 +138,8 @@
                 `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
                 ix + 1
             );
-            console.log(ix + 1);
         }
+        updateLine();
     }
 
     function updateWaypoint() {
@@ -198,6 +197,7 @@
             }
         }
         waypoints = newArr;
+        updateLine();
     }
 
     export { show, addWaypointFromEditor, currentLng, currentLat, map };
