@@ -118,27 +118,31 @@
                 }
             }
         }
-        for (key in waypointMarkers) {
-            waypointMarkers[key].marker.remove();
-            waypointMarkers[key].markerArea.remove();
-        }
-        waypointMarkers = {};
-        for (let ix = 0; ix < newArr.length; ix++) {
-            const currentWaypointCoords = newArr[ix].coords;
-            waypointMarkers[
-                `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
-            ] = addWaypoint(
-                map,
-                "10vh",
-                {
-                    lng: currentWaypointCoords.lat,
-                    lat: currentWaypointCoords.lng,
-                },
-                `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
-                ix + 1
-            );
-        }
         waypoints = newArr;
+
+        setTimeout(() => {
+            for (key in waypointMarkers) {
+                waypointMarkers[key].marker.remove();
+                waypointMarkers[key].markerArea.remove();
+            }
+            waypointMarkers = {};
+            for (let ix = 0; ix < waypoints.length; ix++) {
+                const currentWaypointCoords = waypoints[ix].coords;
+                waypointMarkers[
+                    `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
+                ] = addWaypoint(
+                    map,
+                    "10vh",
+                    {
+                        lng: currentWaypointCoords.lat,
+                        lat: currentWaypointCoords.lng,
+                    },
+                    `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
+                    ix + 1
+                );
+                console.log(ix + 1);
+            }
+        }, 100);
     }
 
     function updateWaypoint() {
