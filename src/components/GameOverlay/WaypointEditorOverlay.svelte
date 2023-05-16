@@ -61,6 +61,10 @@
             waypoints[selectedWaypointIndex].selected = false;
         }
         selectedWaypointIndex = e.detail.index;
+        const selectedWaypoint = waypoints[selectedWaypointIndex];
+        map.panTo([selectedWaypoint.coords.lng, selectedWaypoint.coords.lat], {
+            duration: 100,
+        });
         waypoints[selectedWaypointIndex].selected = true;
     }
 
@@ -153,7 +157,10 @@
                 );
                 newArr.push({
                     ...waypoints[ix],
-                    coords: { lng: currentLng.toFixed(5), lat: currentLat.toFixed(5) },
+                    coords: {
+                        lng: currentLng.toFixed(5),
+                        lat: currentLat.toFixed(5),
+                    },
                     distance: newDistance.toFixed(2),
                 });
             }
