@@ -23,7 +23,7 @@
             waypoint.coords.lng,
             waypoint.coords.lat,
         ]);
-        drawLine(map, 5, lineCoords, "Wayguide", "#2400FF");
+        drawLine(map, 2, lineCoords, "Wayguide", "#2400FF");
     }
 
     const addWaypointFromEditor = (coords) => {
@@ -119,6 +119,26 @@
             }
         }
         waypoints = newArr;
+        for (key in waypointMarkers) {
+            waypointMarkers[key].marker.remove();
+            waypointMarkers[key].markerArea.remove();
+        }
+        waypointMarkers = {};
+        for (let ix = 0; ix < waypoints.length; ix++) {
+            const currentWaypointCoords = waypoints[ix].coords;
+            waypointMarkers[
+                `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
+            ] = addWaypoint(
+                map,
+                "10vh",
+                {
+                    lng: currentWaypointCoords.lat,
+                    lat: currentWaypointCoords.lng,
+                },
+                `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
+                ix + 1
+            );
+        }
     }
 
     function updateWaypoint() {
