@@ -8,29 +8,52 @@ class MarkerElement {
         this.height = height;
     }
 
-    getElement(radius, id) {
+    getElement(radius, id, label, labelColor, labelFontSize) {
         var markerContainer = document.createElement('div');
+        markerContainer.style.width = this.width;
+        markerContainer.style.height = this.height;
         var marker = document.createElement("img");
-        marker.style.width = this.width;
-        marker.style.height = this.height;
+        // marker.style.width = this.width;
+        // marker.style.height = this.height;
+        marker.style.width = '100%';
+        marker.style.height = '100%';
         marker.style.backgroundSize = "contain";
         marker.src = this.src;
-        marker.style.cursor = "pointer";
-
         if (id) {
             marker.id = id;
         }
 
-        let demo = document.createElement('h1');
-        demo.style.color = "#FFF";
-        demo.innerText = 'we?>>';
-        demo.style.border = 'solid 1px #FFF';
-        demo.style.width = this.width;
-        demo.style.height = this.height;
-        demo.style.borderRadius = '5000px';
+        function fontController(fontSizePX) {
+            if (fontSizePX != undefined) {
+                return (parseFloat(
+                    fontSizePX.substring(0, fontSizePX.length - 2)
+                ) *
+                    document.documentElement.clientWidth) /
+                    640 +
+                    "px";
+            } else {
+                return "2.8vh";
+            }
+        }
+
+        if (label) {
+            marker.style.position = 'absolute';
+            marker.style.top = '50%';
+            marker.style.left = '50%';
+            marker.style.transform = 'translate(-50%, -50%)';
+            let labelElement = document.createElement('div');
+            labelElement.style.position = 'absolute';
+            labelElement.style.top = '50%';
+            labelElement.style.left = '50%';
+            labelElement.style.transform = 'translate(-20%, -20%)';
+            labelElement.style.color = labelColor ? labelColor : "#FFF";
+            labelElement.innerText = label;
+            labelElement.style.fontSize = fontController(labelFontSize);
+            labelElement.style.opacity = '0.8';
+            markerContainer.appendChild(labelElement);
+        }
         markerContainer.appendChild(marker);
-        markerContainer.appendChild(demo);
-        return marker;
+        return markerContainer;
     }
 }
 
@@ -111,10 +134,10 @@ class EnemyElement {
 }
 
 class WaypointElement {
-    getElement(id) {
+    getElement(id, label, labelColor, labelFontSize) {
         return new MarkerElement("10%",
             "10%",
-            "./visual_assets/waypointMarker.svg", id).getElement()
+            "./visual_assets/waypointMarker.svg", id).getElement('auto', id, label, labelColor, labelFontSize)
     }
 }
 

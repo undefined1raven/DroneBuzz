@@ -17,40 +17,43 @@
     let waypointMarkers = {};
 
     const addWaypointFromEditor = (coords) => {
-        if (waypoints.length > 0) {
-            let prevWaypointCoords = waypoints[waypoints.length - 1].coords;
-            let currentWaypointCoords = coords;
-            const distanceBetweenWaypoints = distance(
-                [prevWaypointCoords.lng, prevWaypointCoords.lat],
-                [currentWaypointCoords.lng, currentWaypointCoords.lat],
-                { units: "kilometers" }
+        if (waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] == undefined) {
+            if (waypoints.length > 0) {
+                let prevWaypointCoords = waypoints[waypoints.length - 1].coords;
+                let currentWaypointCoords = coords;
+                const distanceBetweenWaypoints = distance(
+                    [prevWaypointCoords.lng, prevWaypointCoords.lat],
+                    [currentWaypointCoords.lng, currentWaypointCoords.lat],
+                    { units: "kilometers" }
+                );
+                waypoints = [
+                    ...waypoints,
+                    {
+                        distance: distanceBetweenWaypoints.toFixed(2),
+                        coords: coords,
+                        selected: false,
+                    },
+                ];
+            } else {
+                waypoints = [
+                    ...waypoints,
+                    {
+                        distance: 0,
+                        coords: coords,
+                        selected: false,
+                    },
+                ];
+            }
+            waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] = addWaypoint(
+                map,
+                "10vh",
+                { lng: coords.lat, lat: coords.lng }, //fml we should really figure this out
+                `${coords.lat}|${coords.lng}`,
+                waypoints.length
             );
-            waypoints = [
-                ...waypoints,
-                {
-                    distance: distanceBetweenWaypoints.toFixed(2),
-                    coords: coords,
-                    selected: false,
-                },
-            ];
-        } else {
-            waypoints = [
-                ...waypoints,
-                {
-                    distance: 0,
-                    coords: coords,
-                    selected: false,
-                },
-            ];
+            document.getElementById("waypointList").scrollTop =
+                document.getElementById("waypointList").scrollHeight;
         }
-        waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] = addWaypoint(
-            map,
-            "10vh",
-            { lng: coords.lat, lat: coords.lng }, //fml we should really figure this out
-            `${coords.lat}|${coords.lng}`
-        );
-        document.getElementById("waypointList").scrollTop =
-            document.getElementById("waypointList").scrollHeight;
     };
 
     function onSelectedWaypoint(e) {
@@ -75,22 +78,29 @@
                     waypointMarkers[waypointMarkerID].markerArea.remove();
                     delete waypointMarkers[waypointMarkerID];
                 }
-                if (ix != waypoints.length - 1) {
-                    const updatedDistance = distance(
-                        [
-                            waypoints[ix - 1].coords.lng,
-                            waypoints[ix - 1].coords.lat,
-                        ],
-                        [
-                            waypoints[ix + 1].coords.lng,
-                            waypoints[ix + 1].coords.lat,
-                        ],
-                        { units: "kilometers" }
-                    );
+                if (selectedWaypointIndex == 0) {
                     newArr.push({
                         ...waypoints[ix + 1],
-                        distance: updatedDistance.toFixed(2),
+                        distance: 0,
                     });
+                } else {
+                    if (ix != waypoints.length - 1) {
+                        const updatedDistance = distance(
+                            [
+                                waypoints[ix - 1].coords.lng,
+                                waypoints[ix - 1].coords.lat,
+                            ],
+                            [
+                                waypoints[ix + 1].coords.lng,
+                                waypoints[ix + 1].coords.lat,
+                            ],
+                            { units: "kilometers" }
+                        );
+                        newArr.push({
+                            ...waypoints[ix + 1],
+                            distance: updatedDistance.toFixed(2),
+                        });
+                    }
                 }
             }
         }
@@ -130,7 +140,8 @@
                     map,
                     "10vh",
                     { lng: currentLat, lat: currentLng }, //fml we should really figure this out
-                    `${currentLat}|${currentLng}`
+                    `${currentLat}|${currentLng}`,
+                    ix + 1
                 );
                 const newDistance = distance(
                     [currentLng, currentLat],
@@ -142,7 +153,7 @@
                 );
                 newArr.push({
                     ...waypoints[ix],
-                    coords: { lng: currentLng, lat: currentLat },
+                    coords: { lng: currentLng.toFixed(5), lat: currentLat.toFixed(5) },
                     distance: newDistance.toFixed(2),
                 });
             }
