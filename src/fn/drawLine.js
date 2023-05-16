@@ -28,6 +28,7 @@ function drawLine(map, width, coords, id, color) {
 function removeLine(map, id) {
     if (map && map?.getLayer(id)) {
         map.removeLayer(id);
+        map.removeSource(id);
     }
 }
 
