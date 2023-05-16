@@ -8,7 +8,7 @@ class MarkerElement {
         this.height = height;
     }
 
-    getElement(radius, id, label, labelColor, labelFontSize) {
+    getElement(radius, id, label, labelColor, labelFontSize, labelStyle) {
         var markerContainer = document.createElement('div');
         markerContainer.style.width = this.width;
         markerContainer.style.height = this.height;
@@ -41,15 +41,27 @@ class MarkerElement {
             marker.style.top = '50%';
             marker.style.left = '50%';
             marker.style.transform = 'translate(-50%, -50%)';
+            let labelElementStyleObj = {
+                color: labelColor ? labelColor : "#FFF",
+                fontSize: fontController(labelFontSize),
+                opacity: '1',
+                position: 'absolute',
+                top: '105%',
+                left: '50%',
+                transform: 'translate(-50%)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backdropFilter: 'blur(5px)',
+                width: '60%',
+                height: '50%',
+                ...labelStyle
+            }
             let labelElement = document.createElement('div');
-            labelElement.style.position = 'absolute';
-            labelElement.style.top = '50%';
-            labelElement.style.left = '50%';
-            labelElement.style.transform = 'translate(-20%, -20%)';
-            labelElement.style.color = labelColor ? labelColor : "#FFF";
+            for (let key in labelElementStyleObj) {
+                labelElement.style[key] = labelElementStyleObj[key];
+            }
             labelElement.innerText = label;
-            labelElement.style.fontSize = fontController(labelFontSize);
-            labelElement.style.opacity = '0.8';
             markerContainer.appendChild(labelElement);
         }
         markerContainer.appendChild(marker);
@@ -134,10 +146,10 @@ class EnemyElement {
 }
 
 class WaypointElement {
-    getElement(id, label, labelColor, labelFontSize) {
+    getElement(id, label, labelColor, labelFontSize, labelStyle) {
         return new MarkerElement("10%",
             "10%",
-            "./visual_assets/waypointMarker.svg", id).getElement('auto', id, label, labelColor, labelFontSize)
+            "./visual_assets/waypointMarker.svg", id).getElement('auto', id, label, labelColor, labelFontSize, labelStyle)
     }
 }
 

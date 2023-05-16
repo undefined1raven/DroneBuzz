@@ -7,6 +7,7 @@
     import { distance } from "@turf/turf";
     import addWaypoint from "../../fn/addWaypoint";
     import { fade } from "svelte/transition";
+    import { drawLine, removeLine } from "../../fn/drawLine";
     const dispatch = createEventDispatcher();
     let show = false;
     let map;
@@ -15,6 +16,15 @@
     let currentLng = 0;
     let currentLat = 0;
     let waypointMarkers = {};
+
+    $: onWaypointsChange(waypoints);
+    function onWaypointsChange() {
+        let lineCoords = waypoints.map((waypoint) => [
+            waypoint.coords.lng,
+            waypoint.coords.lat,
+        ]);
+        drawLine(map, 5, lineCoords, "Wayguide", "#2400FF");
+    }
 
     const addWaypointFromEditor = (coords) => {
         if (waypointMarkers[`WMO.${coords.lat}-${coords.lng}`] == undefined) {
@@ -62,7 +72,7 @@
         }
         selectedWaypointIndex = e.detail.index;
         const selectedWaypoint = waypoints[selectedWaypointIndex];
-        map.panTo([selectedWaypoint.coords.lng, selectedWaypoint.coords.lat], {
+        map.flyTo([selectedWaypoint.coords.lng, selectedWaypoint.coords.lat], {
             duration: 100,
         });
         waypoints[selectedWaypointIndex].selected = true;

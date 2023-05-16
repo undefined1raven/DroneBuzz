@@ -1,13 +1,34 @@
-import {
-    WaypointAreaElement,
-    WaypointElement
-} from "../components/enitities/Markers.js";
 
-import maplibre from "maplibre-gl";
-function addWaypoint(map, width, coords, id) {
-    let markerActual = new maplibre.Marker(new WaypointElement().getElement(`WM-${id}`)).setLngLat([coords.lat, coords.lng]).addTo(map);
-    let markerArea = new maplibre.Marker(new WaypointAreaElement().getElement(radius, `WMA-${id}`)).setLngLat([coords.lat, coords.lng]).addTo(map);
-    return { marker: markerActual, markerArea: markerArea };
+function drawLine(map, width, coords, id, color) {
+    if (coords.length > 0) {
+        removeLine(map, id);
+        map.addLayer({
+            "id": id,
+            "type": "line",
+            "source": {
+                "type": "geojson",
+                "data": {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": coords
+                    }
+                }
+            },
+            "paint": {
+                "line-color": color ? color : "#FFF",
+                "line-width": width,
+            }
+        });
+    }
 }
 
-export default addWaypoint;
+
+function removeLine(map, id) {
+    if (map && map?.getLayer(id)) {
+        map.removeLayer(id);
+    }
+}
+
+export { drawLine, removeLine };
