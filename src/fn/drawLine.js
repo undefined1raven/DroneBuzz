@@ -1,6 +1,6 @@
 
 function drawLine(map, width, coords, id, color) {
-    if (coords.length > 0) {
+    if (coords.length > 0 && map) {
         removeLine(map, id);
         map.addLayer({
             "id": id,

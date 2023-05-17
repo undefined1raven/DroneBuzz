@@ -48,6 +48,7 @@
 	import counterUAVConfig from "./config/scorestreaks/counterUAV";
 	import WaypointIndi from "./components/deco/WaypointIndi.svelte";
 	import WaypointEditorOverlay from "./components/GameOverlay/WaypointEditorOverlay.svelte";
+    import { removeLine } from "./fn/drawLine";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -1309,6 +1310,7 @@
 			waypoints: e.detail.waypoints,
 			waypointMarkers: e.detail.waypointMarkers,
 		};
+		removeLine(map, 'Wayguide');
 	}
 </script>
 
