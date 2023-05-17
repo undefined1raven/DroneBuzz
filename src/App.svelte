@@ -1152,6 +1152,13 @@
 					);
 
 					if (distance < 0.0009) {
+						const ix = objective.currentWaypoint;
+						const markersObj =
+							objective.waypointMarkers[
+								`WMO.${objective.waypoints[ix].coords.lat}-${objective.waypoints[ix].coords.lng}`
+							];
+						markersObj.marker.remove();
+						markersObj.markerArea.remove();
 						objective.currentWaypoint++;
 					}
 
@@ -1299,9 +1306,9 @@
 	function onWaypoints(e) {
 		objective = {
 			type: "waypoints",
-			waypoints: e.detail,
+			waypoints: e.detail.waypoints,
+			waypointMarkers: e.detail.waypointMarkers,
 		};
-		console.log(objective);
 	}
 </script>
 

@@ -305,7 +305,13 @@
             </div>
         {/if}
         <Button
-            onClick={() => {dispatch("setWaypointEditor", false); dispatch("onWaypoints", waypoints)}}
+            onClick={() => {
+                dispatch("setWaypointEditor", false);
+                dispatch("onWaypoints", {
+                    waypoints: waypoints,
+                    waypointMarkers: waypointMarkers,
+                });
+            }}
             label="Done"
             horizontalFont="10px"
             left="0.625%"
