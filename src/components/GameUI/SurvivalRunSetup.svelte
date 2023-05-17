@@ -234,7 +234,7 @@
         <Button
             className="fromAboveAni"
             onClick={(e) => {
-                runConfig.objective = { type: "none" };
+                runConfig.objective = { ...runConfig.objective, type: "none" };
             }}
             label="None"
             color={buttonColorsHash[runConfig.objective.type === "none"].color}

@@ -28,6 +28,7 @@
 	} from "@turf/turf";
 	import cartesianDistance from "./fn/cartesianDistance";
 	import killsObjective from "./config/objectives/Kills";
+	import WaypointsObjective from "./config/objectives/Waypoints";
 	import durationObjective from "./config/objectives/Duration";
 	import energyWeaponConfigFunc from "./config/scorestreaks/energyWeapon";
 	import LaserCannonConfigFunc from "./config/weapons/LaserCannon";
@@ -80,11 +81,12 @@
 	let rawOffensiveRadius = 0.00336666667;
 	let enemyWaveIntermission = 30000;
 	let enemyWaveCount = 12;
-	let objective = { type: "none" };
+	let objective = { type: "none", lives: 1 };
 	let survivalRunConfig = { offensiveWeapon: "smartMissile" };
 	let objectiveCompletionFunctionHash = {
 		kills: killsObjective,
 		duration: durationObjective,
+		waypoints: WaypointsObjective,
 	};
 	let objectiveCompletionFunction = { fn: null, args: null };
 	function getBasicEnemyConfig(coords, id) {
@@ -212,48 +214,6 @@
 			localStorage.setItem("best", deadTime - startTime);
 		}
 	}
-
-	setInterval(() => {
-		let enemy = getNearestEnemy(enemies);
-
-		let targetLng = lng; //25.57277113378028
-		let targetLat = lat; //45.64908858132366
-		let targetLng1 = 26.07306688827199; //25.57277113378028
-		let targetLat1 = 44.44779305032908; //45.64908858132366
-
-		// let p1 = point([targetLng, targetLat]);
-		// let p2 = point([targetLng1, targetLat1]);
-		// let bear = bearing(p1, p2, { final: true });
-		// console.log(`${bear} | ${lat} | ${lng}`);
-		// waypointHeading = bear;
-
-		let B = targetLng - targetLng1;
-
-		let distance = cartesianDistance(
-			{
-				lng: targetLng,
-				lat: targetLat,
-			},
-			{ lng: targetLng1, lat: targetLat1 }
-		);
-
-		if (targetLat >= targetLat1) {
-			waypointHeading =
-				(Math.acos((B / distance).toFixed(15)) * 57.29578 - 90) * -1 -
-				180;
-		} else {
-			let actualBearing = RangeScaler(
-				Math.abs(
-					Math.acos((B / distance).toFixed(15)) * 57.29578 + 180
-				),
-				180,
-				360,
-				360,
-				180
-			);
-			waypointHeading = (actualBearing - 90) * -1 - 180;
-		}
-	}, 50);
 
 	function updateEnemyHeadings(enemy, targetLng, targetLat) {
 		let B = targetLng - enemy.coords.lng;
@@ -1147,7 +1107,17 @@
 	function startSurvivalRun(args) {
 		const runConfig = args.detail?.runConfig;
 		survivalRunConfig = runConfig;
-		objective = args.detail.runConfig.objective;
+		if (objective.type == "waypoints") {
+			objective = {
+				lives: runConfig.objective.lives
+					? runConfig.objective.lives
+					: 5, //matches def in ui if a custom one is not provided
+				...objective,
+				currentWaypoint: 0,
+			};
+		} else {
+			objective = args.detail.runConfig.objective;
+		}
 
 		let objectiveCompletionFunctionArgs = [];
 
@@ -1157,6 +1127,56 @@
 		startTime = Date.now();
 		if (objective.type == "duration") {
 			objectiveCompletionFunctionArgs = [startTime, objective.config];
+		}
+		if (objective.type == "waypoints") {
+			objectiveCompletionFunctionArgs = [0, objective.waypoints.length];
+			setInterval(() => {
+				if (!objective.completed) {
+					let targetLng = lng; //25.57277113378028
+					let targetLat = lat; //45.64908858132366
+					let targetLng1 =
+						objective.waypoints[objective.currentWaypoint].coords
+							.lng; //25.57277113378028
+					let targetLat1 =
+						objective.waypoints[objective.currentWaypoint].coords
+							.lat; //45.64908858132366
+
+					let B = targetLng - targetLng1;
+
+					let distance = cartesianDistance(
+						{
+							lng: targetLng,
+							lat: targetLat,
+						},
+						{ lng: targetLng1, lat: targetLat1 }
+					);
+
+					if (distance < 0.0009) {
+						objective.currentWaypoint++;
+					}
+
+					if (targetLat >= targetLat1) {
+						waypointHeading =
+							(Math.acos((B / distance).toFixed(15)) * 57.29578 -
+								90) *
+								-1 -
+							180;
+					} else {
+						let actualBearing = RangeScaler(
+							Math.abs(
+								Math.acos((B / distance).toFixed(15)) *
+									57.29578 +
+									180
+							),
+							180,
+							360,
+							360,
+							180
+						);
+						waypointHeading = (actualBearing - 90) * -1 - 180;
+					}
+				}
+			}, 50);
 		}
 
 		if (objective.type != "none") {
@@ -1274,6 +1294,14 @@
 			locationPreviewOverride = true;
 			map.setMinZoom(14);
 		}
+	}
+
+	function onWaypoints(e) {
+		objective = {
+			type: "waypoints",
+			waypoints: e.detail,
+		};
+		console.log(objective);
 	}
 </script>
 
@@ -1495,7 +1523,7 @@
 		backdropFilter="blur(3px)"
 		style="z-index: 1000000;"
 	/>{/if}
-{#if started}
+{#if started && objective.type == "waypoints" && !objective.completed}
 	<WaypointIndi
 		color="#6C54FF"
 		width="10vh"
@@ -1506,6 +1534,7 @@
 {/if}
 <WaypointEditorOverlay
 	{map}
+	on:onWaypoints={onWaypoints}
 	currentLat={displayNlatFromPicker}
 	currentLng={displayNlngFromPicker}
 	on:addWaypointCall={() =>
