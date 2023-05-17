@@ -18,6 +18,7 @@
     let screenWidth = root.clientWidth;
     let screenHeight = root.clientHeight;
     let isFullscreen;
+    let menuOpacityOverride = 1;
 
     //Menu State
     let activeWindowID = "menu"; //menu | survivalRunSetup | ....
@@ -39,12 +40,12 @@
         dispatch("stateChange", { WID: WID });
     }
 
-    export { show, started, isFullscreen };
+    export { show, started, isFullscreen, menuOpacityOverride };
 </script>
 
 <svelte:window on:resize={onWindowResize} />
 {#if show && screenHeight < screenWidth}
-    <div class="mainMenuContainer">
+    <div class="mainMenuContainer" style="opacity: {menuOpacityOverride};">
         <div class="topGradientBkg" />
         <div class="bottomGradientBkg" />
         <Button

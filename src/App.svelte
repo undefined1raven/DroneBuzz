@@ -1,5 +1,5 @@
 <script>
-	import { onMount, setContext } from "svelte";
+	import { getContext, onMount, setContext } from "svelte";
 	import { Map } from "@onsvisual/svelte-maps";
 	import maplibre from "maplibre-gl";
 	import Button from "./components/common/Button.svelte";
@@ -48,7 +48,7 @@
 	import counterUAVConfig from "./config/scorestreaks/counterUAV";
 	import WaypointIndi from "./components/deco/WaypointIndi.svelte";
 	import WaypointEditorOverlay from "./components/GameOverlay/WaypointEditorOverlay.svelte";
-    import { removeLine } from "./fn/drawLine";
+	import { removeLine } from "./fn/drawLine";
 
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
@@ -151,6 +151,7 @@
 	let verticalScreenDistance = 0;
 	let horizontalScreenDistance = 0;
 	let showMenu = true;
+	let menuOpacityOverride = 1;
 	let isPaused = false;
 	let addWaypointFromEditor;
 
@@ -1108,18 +1109,12 @@
 	function startSurvivalRun(args) {
 		const runConfig = args.detail?.runConfig;
 		survivalRunConfig = runConfig;
-		if (objective.type == "waypoints") {
-			objective = {
-				lives: runConfig.objective.lives
-					? runConfig.objective.lives
-					: 5, //matches def in ui if a custom one is not provided
-				...objective,
-				currentWaypoint: 0,
-			};
-		} else {
-			objective = args.detail.runConfig.objective;
-		}
-
+		objective = {
+			...args.detail.runConfig.objective,
+			waypoints: objective.waypoints,
+			waypointMarkers: objective.waypointMarkers,
+			currentWaypoint: 0,
+		};
 		let objectiveCompletionFunctionArgs = [];
 
 		if (objective.type == "kills") {
@@ -1161,6 +1156,10 @@
 						markersObj.marker.remove();
 						markersObj.markerArea.remove();
 						objective.currentWaypoint++;
+						objectiveCompletionFunction.args = [
+							objective.currentWaypoint,
+							objective.waypoints.length,
+						];
 					}
 
 					if (targetLat >= targetLat1) {
@@ -1292,14 +1291,14 @@
 
 	function setWaypointEditor(e) {
 		if (e.detail) {
-			showMenu = false;
+			menuOpacityOverride = 0;
 			locationPreviewOverride = false;
 			isEditingWaypoints = true;
 			map.setMinZoom(0);
 		} else {
 			isEditingWaypoints = false;
-			showMenu = true;
-			locationPreviewOverride = true;
+			menuOpacityOverride = 1;
+			locationPreviewOverride = false;
 			map.setMinZoom(14);
 		}
 	}
@@ -1310,7 +1309,7 @@
 			waypoints: e.detail.waypoints,
 			waypointMarkers: e.detail.waypointMarkers,
 		};
-		removeLine(map, 'Wayguide');
+		removeLine(map, "Wayguide");
 	}
 </script>
 
@@ -1442,6 +1441,7 @@
 <MainMenu
 	{started}
 	{isFullscreen}
+	{menuOpacityOverride}
 	on:setWaypointEditor={(e) => {
 		setWaypointEditor(e);
 	}}
@@ -1453,7 +1453,7 @@
 	}}
 	on:onLocationPick={() => {
 		map.setMinZoom(1);
-		showMenu = false;
+		menuOpacityOverride = 0;
 		isPickingLocation = true;
 	}}
 	on:onStartCalibration={() => (showCalibration = true)}
@@ -1467,10 +1467,10 @@
 		className="fromAboveAni"
 		text=""
 		onTouchStart={() => {
-			showMenu = false;
+			menuOpacityOverride = 0;
 		}}
 		onTouchEnd={() => {
-			showMenu = true;
+			menuOpacityOverride = 1;
 		}}
 		color="#6D55FF"
 		horizontalFont="13px"
@@ -1511,11 +1511,11 @@
 			lat = displayNlatFromPicker;
 			lng = displayNlngFromPicker;
 			isPickingLocation = false;
-			showMenu = true;
+			menuOpacityOverride = 1;
 		}}
 		on:hidePicker={() => {
 			isPickingLocation = false;
-			showMenu = true;
+			menuOpacityOverride = 1;
 		}}
 		text={`Lat: ${displayNlatFromPicker.toFixed(
 			5

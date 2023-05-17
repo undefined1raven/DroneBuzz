@@ -5,7 +5,7 @@
         getLeftCurvedBorder,
         getRightCurvedBorder,
     } from "../../fn/dynamicBorders.js";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onMount, setContext } from "svelte";
     import { fade } from "svelte/transition";
     import NumberPicker from "../common/NumberPicker.svelte";
     const dispatch = createEventDispatcher();
@@ -27,12 +27,12 @@
             borderColor: "#2400FF",
         },
     };
-    $: onShowChange(show);
-    function onShowChange(show) {
-        if (show) {
-            dispatch("onObjective", { objective: objective });
-        }
-    }
+    // $: onShowChange(show);
+    // function onShowChange(show) {
+    //     if (show && objective.type != "waypoints") {
+    //         dispatch("onObjective", { objective: objective });
+    //     }
+    // }
 
     const configLabelHash = {
         duration: "Config (mins)",
@@ -76,7 +76,10 @@
     >
         <Button
             className="fromAboveAniSurvivalRunObjectives"
-            onClick={() => dispatch("onBack")}
+            onClick={() => {
+                dispatch("onObjective", { objective: objective });
+                dispatch("onBack");
+            }}
             label="Back"
             top="7.296137339%"
             left="1.167315175%"

@@ -1,6 +1,6 @@
 
 function checkObjectiveCompletion(currentWaypointIndex, waypointsCount) {
-    return { completed: currentWaypointIndex + 1 == waypointsCount, displayLabel: 'Waypoints', displayStatus: `${currentWaypointIndex + 1}/${waypointsCount}` };
+    return { completed: currentWaypointIndex == waypointsCount, displayLabel: 'Waypoints', displayStatus: `${currentWaypointIndex}/${waypointsCount}` };
 }
 
 export default checkObjectiveCompletion;
