@@ -11,11 +11,13 @@
 	import { RangeScaler } from "./fn/RangeScaler.js";
 	import { getRandomCoords } from "./fn/getRandomCoords.js";
 	import { Enemy } from "./components/enitities/Enemy.js";
+	import { writable } from "svelte/store";
 	import { Missle } from "./components/enitities/Missle.js";
 	import MainMenu from "./components/GameUI/MainMenu.svelte";
 	import Minimap from "./components/GameOverlay/Minimap.svelte";
 	import Scorestreaks from "./components/GameOverlay/Scorestreaks.svelte";
 	import LoactionPickerDeco from "./components/deco/LocationPickerDeco.svelte";
+	import { waypointsConfigLabel } from "./stores/stores.js";
 	import { pulsingDot } from "./fn/pulsingDot.js";
 	import addWaypoint from "./fn/addWaypoint.js";
 	import radiusFromPercentage from "./fn/radiusFromPercentage.js";
@@ -1309,6 +1311,17 @@
 			waypoints: e.detail.waypoints,
 			waypointMarkers: e.detail.waypointMarkers,
 		};
+		let totalDistance = 0;
+		const waypointsCount = e.detail.waypoints.length;
+		for (let ix = 0; ix < waypointsCount; ix++) {
+			totalDistance += e.detail.waypoints[ix].distance;
+		}
+		waypointsConfigLabel.update(
+			() =>
+				`${waypointsCount} waypoint${
+					waypointsCount > 1 ? "s" : ""
+				} | ${totalDistance} km total`
+		);
 		removeLine(map, "Wayguide");
 	}
 </script>
@@ -1544,6 +1557,7 @@
 <WaypointEditorOverlay
 	{map}
 	on:onWaypoints={onWaypoints}
+	
 	currentLat={displayNlatFromPicker}
 	currentLng={displayNlngFromPicker}
 	on:addWaypointCall={() =>

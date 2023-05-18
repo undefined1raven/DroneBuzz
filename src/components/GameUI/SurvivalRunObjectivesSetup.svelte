@@ -2,17 +2,28 @@
     import Button from "../common/Button.svelte";
     import Label from "../common/Label.svelte";
     import {
+        getDynamicBorderRadius,
         getLeftCurvedBorder,
         getRightCurvedBorder,
     } from "../../fn/dynamicBorders.js";
-    import { createEventDispatcher, onMount, setContext } from "svelte";
+    import {
+        createEventDispatcher,
+        getContext,
+        onMount,
+        setContext,
+    } from "svelte";
     import { fade } from "svelte/transition";
     import NumberPicker from "../common/NumberPicker.svelte";
     const dispatch = createEventDispatcher();
     let show;
     let objective = { type: "duration", lives: 5, config: 5 };
     let objectiveType = "duration"; //for configNumberPickerController reactivity
+    import { waypointsConfigLabel } from "../../stores/stores";
 
+    let waypointsConfigLabelActual = "";
+    waypointsConfigLabel.subscribe((val) => {
+        waypointsConfigLabelActual = val;
+    });
     let showConfigNumberPicker = true;
 
     let buttonColorsHash = {
@@ -245,6 +256,21 @@
                 defaultValue={configSettingsHash[objective.type].defaultValue}
                 max={configSettingsHash[objective.type].max}
                 min={configSettingsHash[objective.type].min}
+                horizontalFont="13px"
+            />
+        {/if}
+        {#if objective.type == "waypoints"}
+            <Label
+                className="fromBelowAniSurvivalRunObjectives"
+                text={waypointsConfigLabelActual}
+                top="70.815450644%"
+                left="19.260700389%"
+                borderColor="#2400FF00"
+                width="50.369649805%"
+                height="14.163090129%"
+                style="justify-content: start;"
+                backgroundColor="#2400FF00"
+                color="#6D55FF"
                 horizontalFont="13px"
             />
         {/if}
