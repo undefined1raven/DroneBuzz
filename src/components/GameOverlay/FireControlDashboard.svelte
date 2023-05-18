@@ -218,6 +218,26 @@
                 /></Label
             >
         </div>
+        <div class="additionalObjectiveInfo">
+            <Label
+                show={objective.distanceToNextWaypoint && !objective.completed}
+                id="distanceLeftToNextWaypoint"
+                top="50.333333333%"
+                left="1.71875%"
+                color="#5C41FF"
+                borderColor="#2400FF00"
+                text="{objective.distanceToNextWaypoint
+                    ? objective.distanceToNextWaypoint
+                    : 'Unknown'} km"
+                width="9.53125%"
+                height="6.111111111%"
+                horizontalFont="7px"
+                VerticalFont="8px"
+                backdropFilter="blur(5px)"
+                style="{getRightCurvedBorder()} border-left: solid 1px #2400FF;"
+                backgroundColor="#2400FF20"
+            />
+        </div>
         <div class="bestSurvivalRunTime">
             <Label
                 id="bestRunTimer"

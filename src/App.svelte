@@ -25,8 +25,7 @@
 		booleanPointInPolygon,
 		point,
 		polygon,
-		bearing,
-		bearingToAngle,
+		distance as getDistance,
 	} from "@turf/turf";
 	import cartesianDistance from "./fn/cartesianDistance";
 	import killsObjective from "./config/objectives/Kills";
@@ -1141,7 +1140,7 @@
 
 					let B = targetLng - targetLng1;
 
-					let distance = cartesianDistance(
+					let ldistance = cartesianDistance(
 						{
 							lng: targetLng,
 							lat: targetLat,
@@ -1149,8 +1148,19 @@
 						{ lng: targetLng1, lat: targetLat1 }
 					);
 
-					if (distance < 0.0009) {
-						const ix = objective.currentWaypoint;
+					const ix = objective.currentWaypoint;
+					const currentWaypoint =
+						objective.waypoints[objective.currentWaypoint];
+					objective.distanceToNextWaypoint = getDistance(
+						[lng, lat],
+						[
+							currentWaypoint.coords.lng,
+							currentWaypoint.coords.lat,
+						],
+						{ units: "kilometers" }
+					).toFixed(2);
+
+					if (ldistance < 0.0009) {
 						const markersObj =
 							objective.waypointMarkers[
 								`WMO.${objective.waypoints[ix].coords.lat}-${objective.waypoints[ix].coords.lng}`
@@ -1166,14 +1176,14 @@
 
 					if (targetLat >= targetLat1) {
 						waypointHeading =
-							(Math.acos((B / distance).toFixed(15)) * 57.29578 -
+							(Math.acos((B / ldistance).toFixed(15)) * 57.29578 -
 								90) *
 								-1 -
 							180;
 					} else {
 						let actualBearing = RangeScaler(
 							Math.abs(
-								Math.acos((B / distance).toFixed(15)) *
+								Math.acos((B / ldistance).toFixed(15)) *
 									57.29578 +
 									180
 							),
