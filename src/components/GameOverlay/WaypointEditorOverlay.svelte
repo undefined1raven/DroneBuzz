@@ -1,6 +1,7 @@
 <script>
     import { getDynamicBorderRadius } from "../../fn/dynamicBorders";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { waypointsConfigObj } from "../../stores/stores";
     import Label from "../common/Label.svelte";
     import Button from "../common/Button.svelte";
     import WaypointCard from "../GameUI/WaypointCard.svelte";
@@ -17,6 +18,13 @@
     let currentLat = 0;
     let waypointMarkers = {};
 
+    onMount(() => {
+        waypointsConfigObj.subscribe((nval) => {
+            waypointMarkers = nval.waypointMarkers;
+            waypoints = nval.waypoints;
+        });
+    });
+
     function updateLine() {
         let lineCoords = waypoints.map((waypoint) => [
             waypoint.coords.lng,
@@ -26,25 +34,27 @@
     }
 
     function redrawMarkers() {
-        for (let key in waypointMarkers) {
-            waypointMarkers[key].marker.remove();
-            waypointMarkers[key].markerArea.remove();
-        }
-        waypointMarkers = {};
-        for (let ix = 0; ix < waypoints.length; ix++) {
-            const currentWaypointCoords = waypoints[ix].coords;
-            waypointMarkers[
-                `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
-            ] = addWaypoint(
-                map,
-                "10vh",
-                {
-                    lng: currentWaypointCoords.lat,
-                    lat: currentWaypointCoords.lng,
-                },
-                `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
-                ix + 1
-            );
+        if (waypoints.length > 0) {
+            for (let key in waypointMarkers) {
+                waypointMarkers[key].marker.remove();
+                waypointMarkers[key].markerArea.remove();
+            }
+            waypointMarkers = {};
+            for (let ix = 0; ix < waypoints.length; ix++) {
+                const currentWaypointCoords = waypoints[ix].coords;
+                waypointMarkers[
+                    `WMO.${currentWaypointCoords.lat}-${currentWaypointCoords.lng}`
+                ] = addWaypoint(
+                    map,
+                    "10vh",
+                    {
+                        lng: currentWaypointCoords.lat,
+                        lat: currentWaypointCoords.lng,
+                    },
+                    `${currentWaypointCoords.lat}|${currentWaypointCoords.lng}`,
+                    ix + 1
+                );
+            }
         }
     }
 
@@ -86,6 +96,10 @@
             document.getElementById("waypointList").scrollTop =
                 document.getElementById("waypointList").scrollHeight;
             updateLine();
+            waypointsConfigObj.set({
+                waypoints: waypoints,
+                waypointMarkers: waypointMarkers,
+            });
         }
     };
 
@@ -103,47 +117,61 @@
 
     function removeWaypoint() {
         let newArr = [];
-        for (let ix = 0; ix < waypoints.length; ix++) {
-            if (ix != selectedWaypointIndex) {
-                if (ix != selectedWaypointIndex + 1) {
-                    newArr.push(waypoints[ix]);
-                }
-            } else {
-                const waypointMarkerID = `WMO.${waypoints[ix].coords.lat}-${waypoints[ix].coords.lng}`;
-                if (waypointMarkers[waypointMarkerID]) {
-                    waypointMarkers[waypointMarkerID].marker.remove();
-                    waypointMarkers[waypointMarkerID].markerArea.remove();
-                    delete waypointMarkers[waypointMarkerID];
-                }
-                if (selectedWaypointIndex == 0) {
-                    newArr.push({
-                        ...waypoints[ix + 1],
-                        distance: 0,
-                    });
+        if (waypoints.length > 1) {
+            for (let ix = 0; ix < waypoints.length; ix++) {
+                if (ix != selectedWaypointIndex) {
+                    if (ix != selectedWaypointIndex + 1) {
+                        newArr.push(waypoints[ix]);
+                    }
                 } else {
-                    if (ix != waypoints.length - 1) {
-                        const updatedDistance = distance(
-                            [
-                                waypoints[ix - 1].coords.lng,
-                                waypoints[ix - 1].coords.lat,
-                            ],
-                            [
-                                waypoints[ix + 1].coords.lng,
-                                waypoints[ix + 1].coords.lat,
-                            ],
-                            { units: "kilometers" }
-                        );
+                    const waypointMarkerID = `WMO.${waypoints[ix].coords.lat}-${waypoints[ix].coords.lng}`;
+                    if (waypointMarkers[waypointMarkerID]) {
+                        waypointMarkers[waypointMarkerID].marker.remove();
+                        waypointMarkers[waypointMarkerID].markerArea.remove();
+                        delete waypointMarkers[waypointMarkerID];
+                    }
+                    if (selectedWaypointIndex == 0) {
                         newArr.push({
                             ...waypoints[ix + 1],
-                            distance: updatedDistance.toFixed(2),
+                            distance: 0,
                         });
+                    } else {
+                        if (ix != waypoints.length - 1) {
+                            const updatedDistance = distance(
+                                [
+                                    waypoints[ix - 1].coords.lng,
+                                    waypoints[ix - 1].coords.lat,
+                                ],
+                                [
+                                    waypoints[ix + 1].coords.lng,
+                                    waypoints[ix + 1].coords.lat,
+                                ],
+                                { units: "kilometers" }
+                            );
+                            newArr.push({
+                                ...waypoints[ix + 1],
+                                distance: updatedDistance.toFixed(2),
+                            });
+                        }
                     }
                 }
             }
+            waypoints = newArr;
+            redrawMarkers();
+            updateLine();
+        } else {
+            waypoints = [];
+            for (let key in waypointMarkers) {
+                waypointMarkers[key].marker.remove();
+                waypointMarkers[key].markerArea.remove();
+            }
+            waypointMarkers = {};
+            removeLine(map, "Wayguide");
         }
-        waypoints = newArr;
-        redrawMarkers();
-        updateLine();
+        waypointsConfigObj.set({
+            waypoints: waypoints,
+            waypointMarkers: waypointMarkers,
+        });
     }
 
     function updateWaypoint() {
@@ -203,6 +231,10 @@
         waypoints = newArr;
         redrawMarkers();
         updateLine();
+        waypointsConfigObj.set({
+            waypoints: waypoints,
+            waypointMarkers: waypointMarkers,
+        });
     }
 
     export { show, addWaypointFromEditor, currentLng, currentLat, map };

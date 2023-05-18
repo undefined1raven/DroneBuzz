@@ -1314,13 +1314,13 @@
 		let totalDistance = 0;
 		const waypointsCount = e.detail.waypoints.length;
 		for (let ix = 0; ix < waypointsCount; ix++) {
-			totalDistance += e.detail.waypoints[ix].distance;
+			totalDistance += parseFloat(e.detail.waypoints[ix].distance);
 		}
 		waypointsConfigLabel.update(
 			() =>
 				`${waypointsCount} waypoint${
 					waypointsCount > 1 ? "s" : ""
-				} | ${totalDistance} km total`
+				} | ${totalDistance.toFixed(2)} km total`
 		);
 		removeLine(map, "Wayguide");
 	}
@@ -1557,7 +1557,6 @@
 <WaypointEditorOverlay
 	{map}
 	on:onWaypoints={onWaypoints}
-	
 	currentLat={displayNlatFromPicker}
 	currentLng={displayNlngFromPicker}
 	on:addWaypointCall={() =>
