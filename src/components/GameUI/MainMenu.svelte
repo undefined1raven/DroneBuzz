@@ -45,7 +45,13 @@
 
 <svelte:window on:resize={onWindowResize} />
 {#if show && screenHeight < screenWidth}
-    <div class="mainMenuContainer" style="opacity: {menuOpacityOverride};">
+    <div
+        class="mainMenuContainer"
+        style="opacity: {menuOpacityOverride}; z-index: {menuOpacityOverride ==
+        1
+            ? 'auto'
+            : '-50'};"
+    >
         <div class="topGradientBkg" />
         <div class="bottomGradientBkg" />
         <Button
