@@ -65,7 +65,14 @@ class MarkerElement {
             markerContainer.appendChild(labelElement);
         }
         markerContainer.appendChild(marker);
-        return markerContainer;
+
+        if (label) {// labels mess with the entity markers so if no labels are provided, don't use the container
+            return markerContainer;
+        } else {
+            marker.style.width = this.width;
+            marker.style.height = this.height;
+            return marker;
+        }
     }
 }
 
